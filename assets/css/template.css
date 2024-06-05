@@ -1,0 +1,148 @@
+nav .container {
+    position: fixed;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.nav-list-items {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-xl);
+}
+
+.nav-list-items a {
+    text-decoration: none;
+    color: var(--color-black);
+}
+
+.dark-theme {
+    background-color: var(--color-black);
+    color: var(--color-white);
+}
+
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 232px 0;
+}
+
+header h1 {
+    text-align: center;
+    max-width: 750px;
+}
+
+header img {
+    z-index: -1;
+    transform: translateY(-40px);
+    width: 700px;
+    height: 820px;
+    border-top-left-radius: 2000px;
+    border-top-right-radius: 2000px;
+}
+
+
+
+
+
+
+
+
+#products .container {
+    display: flex;
+    flex-direction: column;
+    gap: 72px;
+    padding: 232px 0;
+}
+
+#products h2 {
+    font-size: 40px;
+    text-indent: 160px;
+}
+
+.product-list-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 40px;
+}
+
+.product-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.product-item img {
+    width: 100%;
+}
+
+.product-item h3 {
+    font-size: 24px;
+}
+
+.product-item p {
+    font-size: 18px;
+}
+
+
+
+
+
+
+
+
+
+#author {
+    display: flex;
+    flex-direction: column;
+    gap: 232px;
+    padding: 232px 0;
+}
+
+#author h2 {
+    font-size: 350px;
+    font-weight: 500;
+    line-height: normal;
+}
+
+#author h2 span {
+    display: block;
+}
+
+#author article {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+}
+
+#author article img {
+    width: 100%;
+}
+
+#contact {
+    display: flex;
+    flex-direction: column;
+    gap: 232px;
+    padding: 232px 0;
+}
+
+footer {
+    text-align: center;
+}
+
+
+
+
+
+.animation-container {
+    overflow: hidden;
+    height: 112px;
+}
+
+.title-line {
+    margin: 0;
+    opacity: 0;
+    transform: translateY(100%);
+}

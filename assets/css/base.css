@@ -1,0 +1,73 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Urbanist", Arial, sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+:root {
+    --spacing-xxs: 2px;
+    --spacing-xs: 4px;
+    --spacing-md: 8px;
+    --spacing-lg: 12px;
+    --spacing-xl: 16px;
+    --spacing-xxl: 24px;
+
+    --font-size-title-1: 96px;
+    --line-height-title-1: 112px;
+    --font-size-title-2: 48px;
+    --line-height-title-2: 56px;
+    --font-size-text: 22px;
+    --line-height-text: 32px;
+
+    --container-width: 1280px;
+
+    --color-black: #1A1B1C;
+    --color-white: #F5F5F5;
+}
+
+body {
+    background-color: var(--color-white);
+}
+
+h1 {
+    font-size: var(--font-size-title-1);
+    line-height: var(--line-height-title-1);
+}
+
+h2 {
+    font-size: var(--font-size-title-2);
+    line-height: var(--line-height-title-2);
+}
+
+p {
+    font-size: var(--font-size-text);
+    line-height: var(--line-height-text);
+}
+
+nav,
+header,
+section,
+footer {
+    padding: var(--spacing-xxl) 0;
+    width: 100%;
+}
+
+
+
+.container {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: auto;
+}
+
+article {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--spacing-xl);
+}
