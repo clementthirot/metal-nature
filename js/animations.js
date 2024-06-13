@@ -1,33 +1,22 @@
 window.onload = function() {
     gsap.registerPlugin(ScrollTrigger);
 
-    gsap.fromTo(".part-1",
-        { x: -100, opacity: 0 },
-        {
-            x: 0,
-            opacity: 1,
-            scrollTrigger: {
-                trigger: ".scroll-title",
-                start: "top 80%", // Début de l'animation quand le titre est visible
-                end: "top 50%", // Fin de l'animation
-                scrub: true, // Animation liée au défilement
-            }
-        }
-    );
+        const part1 = document.querySelector('.part-1');
+        const part2 = document.querySelector('.part-2');
 
-    gsap.fromTo(".part-2",
-        { x: 100, opacity: 0 },
-        {
-            x: 0,
-            opacity: 1,
+        gsap.set(part1, { x: '-30%' });
+        gsap.set(part2, { x: '30%' });
+
+        gsap.timeline({
             scrollTrigger: {
-                trigger: ".scroll-title",
-                start: "top 80%",
-                end: "top 50%",
+                trigger: '.scroll-title',
+                start: 'top 100%',
                 scrub: true,
             }
-        }
-    );
+        })
+            .to(part1, { x: '50%', ease: 'none' })
+            .to(part2, { x: '-50%', ease: 'none' }, '<');
+
 
     gsap.timeline()
         .to(".title-line", {
@@ -45,39 +34,53 @@ window.onload = function() {
 
 
 
-const carousel = document.querySelector('.carousel');
-const images = document.querySelectorAll('.carousel img');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const totalImages = images.length / 2; // Réel nombre d'images (avant duplication)
-let currentIndex = 0;
+document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.querySelector('.carousel');
+    const items = document.querySelectorAll('.carousel-item');
+    const prevBtn = document.getElementById('carouselPrevious');
+    const nextBtn = document.getElementById('carouselNext');
+    const totalItems = items.length;
+    const itemsToShow = 4; // Number of items to show at once
+    const gap = 32; // Gap between items in pixels
+    const padding = 32; // Padding of the carousel in pixels
+    let currentIndex = 0;
 
-function updateCarousel(index) {
-    const offset = -index * 25; // Déplace de 25% par image
-    gsap.to(carousel, { xPercent: offset, duration: 0.5, ease: 'power2.out' });
-}
+    function updateButtons() {
+        if (currentIndex === 0) {
+            prevBtn.classList.add('disabled');
+        } else {
+            prevBtn.classList.remove('disabled');
+        }
+        if (currentIndex >= totalItems - itemsToShow) {
+            nextBtn.classList.add('disabled');
+        } else {
+            nextBtn.classList.remove('disabled');
+        }
+    }
 
-prevBtn.addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + totalImages) % totalImages;
-    if (currentIndex < 0) {
-        currentIndex = totalImages - 1;
+    function updateCarousel() {
+        const itemWidth = items[0].offsetWidth;
+        const offset = -currentIndex * (itemWidth + gap);
+        gsap.to(carousel, { x: offset + padding, duration: 0.5, ease: 'power2.out' });
+        updateButtons();
     }
-    updateCarousel(currentIndex);
-    if (currentIndex === totalImages - 1) {
-        setTimeout(() => {
-            gsap.set(carousel, { xPercent: -(totalImages - 1) * 25 });
-            currentIndex = 0;
-        }, 500);
-    }
+
+    prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateCarousel();
+        }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentIndex < totalItems - itemsToShow) {
+            currentIndex++;
+            updateCarousel();
+        }
+    });
+
+    // Initialize carousel and buttons state
+    updateButtons();
 });
 
-nextBtn.addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % totalImages;
-    updateCarousel(currentIndex);
-    if (currentIndex === 0) {
-        setTimeout(() => {
-            gsap.set(carousel, { xPercent: 0 });
-            currentIndex = totalImages - 1;
-        }, 500);
-    }
-});
+

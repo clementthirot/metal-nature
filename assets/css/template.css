@@ -53,43 +53,80 @@ header img {
 
 
 
-
-
-#products .container {
+#products {
     display: flex;
     flex-direction: column;
-    gap: 72px;
+    gap: 80px;
     padding: 232px 0;
 }
 
 #products h2 {
-    font-size: 40px;
-    text-indent: 160px;
+    font-size: 64px;
+    line-height: 80px;
+    text-indent: 300px;
 }
 
-.product-list-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 40px;
-}
-
-.product-item {
+.carousel-container {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-xl);
+    overflow: hidden;
 }
 
-.product-item img {
+.carousel {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
     width: 100%;
+    padding: 0 32px;
 }
 
-.product-item h3 {
-    font-size: 24px;
+.carousel-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    flex: 0 0 calc(25% - 32px);
 }
 
-.product-item p {
-    font-size: 18px;
+.carousel-item-caption {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
+
+.carousel-item p {
+    font-size: 28px;
+}
+
+.carousel-item p:last-child {
+    font-size: 20px;
+    opacity: .5;
+}
+
+.carousel-item img {
+    width: 100%;
+    min-height: 480px;
+    border-radius: var(--spacing-md);
+}
+
+.carousel-action-group {
+    padding: 0 32px;
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.carousel-action {
+    padding: var(--spacing-md);
+    background-color: var(--color-white);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 40px;
+}
+
 
 
 
@@ -104,10 +141,11 @@ header img {
     flex-direction: column;
     gap: 232px;
     padding: 232px 0;
+    overflow: hidden;
 }
 
 #author h2 {
-    font-size: 350px;
+    font-size: 30vw;
     font-weight: 500;
     line-height: normal;
 }
@@ -124,6 +162,10 @@ header img {
 
 #author article img {
     width: 100%;
+    border-radius: var(--spacing-md);
+}
+h3 {
+    font-size: 32px;
 }
 
 #contact {
@@ -135,6 +177,11 @@ header img {
 
 footer {
     text-align: center;
+}
+
+.disabled {
+    cursor: default;
+    opacity: .3;
 }
 
 
@@ -168,28 +215,3 @@ footer {
 
 
 
-
-.carousel-container {
-    width: 80%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-}
-
-.carousel {
-    display: flex;
-    width: 100%;
-}
-
-.carousel img {
-    width: 25%; /* Chaque image prend 25% de la largeur du conteneur */
-    flex: 0 0 25%; /* Chaque image prend 25% de la largeur du conteneur */
-    transition: transform 0.5s ease;
-}
-
-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
