@@ -27,26 +27,70 @@ nav .container {
 }
 
 
+
+
+
+
+
+
 header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 232px 0;
+    padding: 128px 0;
 }
 
 header h1 {
     text-align: center;
-    max-width: 750px;
+    max-width: 1200px;
 }
 
-header img {
+.header-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-xl);
+    width: 100%;
+}
+
+.header-content p {
+    text-transform: uppercase;
+    line-height: 18px;
+    width: 200px;
+}
+
+.header-content p:last-child {
+    text-align: right;
+}
+
+.header-content img {
     z-index: -1;
-    transform: translateY(-40px);
+    transform: translateY(-80px);
     width: 700px;
     height: 820px;
     border-top-left-radius: 2000px;
     border-top-right-radius: 2000px;
 }
+
+#about h2 {
+    text-indent: 300px;
+    border-bottom: 1px solid var(--color-black);
+    padding-bottom: 80px;
+    margin-bottom: 300px;
+}
+
+#about {
+    min-height: 4000px;
+}
+
+
+.totototo {
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
 
 
 
@@ -175,6 +219,16 @@ h3 {
     padding: 232px 0;
 }
 
+#contact * {
+    text-align: center;
+}
+
+#contact .container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
 footer {
     text-align: center;
 }
@@ -184,7 +238,44 @@ footer {
     opacity: .3;
 }
 
+#test {
+    background-image: url(../images/test.jpeg);
+    background-size: cover;
+}
 
+#test .container {
+    background-color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 80px;
+    border-radius: 16px;
+    transform: translateY(20%);
+}
+
+
+
+.list-items-container {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-xxl);
+}
+
+.list-items {
+    width: 100%;
+    padding: 0;
+}
+
+.list-item {
+    font-size: 28px;
+    list-style-type: none;
+    padding: var(--spacing-lg) 0;
+    border-bottom: 1px solid darkgrey;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
 
 
 
@@ -200,9 +291,16 @@ footer {
 }
 
 
-
-
-
+.button {
+    text-decoration: none;
+    display: inline;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--color-white);
+    color: var(--color-black);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
 
 
 

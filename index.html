@@ -30,7 +30,6 @@
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/template.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.5.0/build/spline-viewer.js"></script>
 </head>
 
 <body>
@@ -45,21 +44,31 @@
     </div>
 </nav>
 
-<header class="container">
-        <div class="animation-container">
-            <h1 class="title-line">La touche unique</h1>
-        </div>
-        <div class="animation-container">
-            <h1 class="title-line">à votre intérieur</h1>
-        </div>
-    <img src="assets/images/header.png" alt="">
+
+
+<header id="home" class="container">
+    <div class="animation-container">
+        <h1 class="title-line">La touche authentique</h1>
+    </div>
+    <div class="animation-container">
+        <h1 class="title-line">à votre intérieur</h1>
+    </div>
+    <div class="header-content">
+        <p>Faites <br></br>défiler</p>
+        <img src="assets/images/header.png" alt="">
+        <p>Basé à <br></br>Vauréal, France</p>
+    </div>
 </header>
 
-<section class="container">
-    <h2>
-        Metal Nature ce sont des créations artisanales uniques conçu avec soin et des matériaux nobles.
-    </h2>
-    <spline-viewer hint loading-anim-type="spinner-small-light" url="https://prod.spline.design/idrErWFAM5jNCV1n/scene.splinecode"></spline-viewer>
+<section id="about">
+    <div class="container">
+        <h2>
+            Metal Nature ce sont des créations artisanales uniques conçu avec soin et des matériaux nobles. De la table basse au bureau fonctionnel, en passant par le dressing et la bibliothèque, chaque création est pensée pour embellir vos espaces. Nous fabriquons des variés et notre plus grande fierté est de le voir matérialisé chez vous.
+        </h2>
+    </div>
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.6.8/build/spline-viewer.js"></script>
+    <spline-viewer class="totototo" url="https://prod.spline.design/idrErWFAM5jNCV1n/scene.splinecode"></spline-viewer>
 </section>
 
 <section id="products" class="dark-theme">
@@ -156,9 +165,43 @@
     </article>
 </section>
 
+<section id="test">
+    <div class="container">
+        <h2>
+            De la table basse au bureau fonctionnel, en passant par le dressing et la bibliothèque, chaque création est
+            pensée pour embellir vos espaces. Nous fabriquons des variés et notre plus grande fierté est de le voir matérialisé chez vous.
+        </h2>
+        <div class="list-items-container">
+            <ul class="list-items">
+                <li class="list-item">Dressings</li>
+                <li class="list-item">Placards</li>
+                <li class="list-item">Rangements sous escalier</li>
+                <li class="list-item">Rangements sous combles</li>
+                <li class="list-item">Vestiaires ou rangements d’entrée</li>
+                <li class="list-item">Étagères murales</li>
+                <li class="list-item">Bibliothèques</li>
+            </ul>
+            <ul class="list-items">
+                <li class="list-item">Lit</li>
+                <li class="list-item">Bureaux</li>
+                <li class="list-item">Tables</li>
+                <li class="list-item">Tables basses</li>
+                <li class="list-item">Caissons de bureau</li>
+                <li class="list-item">Buffets</li>
+                <li class="list-item">Bancs</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
 <div id="contact" class="dark-theme">
     <div class="container">
         <h2>Entrons en contact</h2>
+        <p>
+            Vous pensez que nous pourrions être une bonne solution pour votre prochain projet ? Contactez-nous - Nous
+            serions ravis de discuter des détails et de réaliser gratuitement un devis avec vous.
+        </p>
+        <a href="" class="button">Envoyez-nous un mail</a>
     </div>
 </div>
 <footer class="dark-theme">
