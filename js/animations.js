@@ -31,3 +31,34 @@ window.onload = function() {
         });
 };
 
+gsap.registerPlugin(ScrollTrigger);
+
+let tl1 = gsap.timeline({
+    scrollTrigger: {
+        trigger: "#about-caption-1",
+        start: "top center",
+        end: "top+=450 center",
+        scrub: true,
+        // markers: true
+    }
+});
+
+let tl2 = gsap.timeline({
+    scrollTrigger: {
+        trigger: "#about-caption-2",
+        start: "top+=700 center",
+        end: "top+=1300 center",
+        scrub: true,
+        // markers: true
+    }
+});
+
+// Timeline pour about-caption-1
+tl1.fromTo("#about-caption-1", { opacity: 0, letterSpacing: 'normal' }, { opacity: 1, letterSpacing: '5px', duration: 0.5 })
+    .to("#about-caption-1", { opacity: 0, duration: 0.5 });
+
+// Timeline pour about-caption-2 pour apparaître
+tl2.fromTo("#about-caption-2", { opacity: 0, scale: 1 }, { opacity: 1, scale: 1, duration: 0.5 })
+    .to("#about-caption-2", { opacity: 1, scale: 1 })  // Maintient l'état pendant le scroll
+    // Animation pour faire disparaître en s'éloignant
+    .fromTo("#about-caption-2", { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.5, duration: 0.5 });

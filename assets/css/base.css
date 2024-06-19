@@ -52,7 +52,7 @@ h2, .title-2 {
 }
 
 p, a, .text {
-    font-size: clamp(1rem, var(--font-size-text), 2rem);
+    font-size: clamp(1.2rem, var(--font-size-text), 2rem);
     line-height:  clamp(2.2rem, var(--line-height-text), 2.5rem);
 }
 
@@ -73,7 +73,7 @@ section {
 .container {
     width: 100%;
     max-width: var(--container-width);
-    margin: auto;
+    margin: 0 auto;
     padding-left: var(--spacing-xxl);
     padding-right: var(--spacing-xxl);
 }
@@ -87,4 +87,9 @@ article {
 
 .text-indent {
     text-indent: clamp(3rem, 8vw, 8rem);
+}
+
+.text-justify {
+    text-align: justify;
+    hyphens: auto;
 }

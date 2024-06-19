@@ -25,6 +25,14 @@
         --spacing-large: 128px;
     }
 
+    nav .container {
+        justify-content: start;
+    }
+
+    .nav-list-items {
+        display: none;
+    }
+
     .header-content {
         flex-direction: column;
         gap: 16px;
@@ -58,27 +66,22 @@
         gap: var(--spacing-xl);
     }
 
+    #proposal .container {
+        padding: 32px;
+    }
+
 }
 
 @media screen and (max-width: 480px) {
 
-    .header-content {
-        flex-direction: column;
-        gap: 16px;
+    nav img {
+        height: var(--spacing-md);
     }
 
-    .header-content img {
-        width: 100%;
+    header {
+        padding: 200px 0;
     }
 
-    .container {
-        padding: 16px;
-        max-width: 100%;
-    }
-
-    .img {
-        max-width: 100%;
-    }
 
     :root {
         --container-width: 100%;
@@ -89,5 +92,7 @@
         --line-height-title-2: 32px;
         --font-size-text: 16px;
         --line-height-text: 24px;
+
+        --spacing-large: 32px;
     }
 }
