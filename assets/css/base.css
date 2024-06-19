@@ -10,12 +10,16 @@
 }
 
 :root {
-    --spacing-xxs: 2px;
-    --spacing-xs: 4px;
-    --spacing-md: 8px;
-    --spacing-lg: 12px;
-    --spacing-xl: 16px;
-    --spacing-xxl: 24px;
+    --spacing-xxs: 4px;
+    --spacing-xs: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+    --spacing-xxl: 32px;
+
+    --spacing-large: 128px;
+
+    --container-padding-xl: 80px;
 
     --font-size-title-1: 96px;
     --line-height-title-1: 112px;
@@ -34,19 +38,19 @@ body {
     background-color: var(--color-white);
 }
 
-h1 {
-    font-size: var(--font-size-title-1);
-    line-height: var(--line-height-title-1);
+h1, .title-1 {
+    font-size: clamp(5vw, var(--font-size-title-1), 8vw);
+    line-height: clamp(5vw, var(--line-height-title-1), 8vw);
 }
 
-h2 {
-    font-size: var(--font-size-title-2);
-    line-height: var(--line-height-title-2);
+h2, .title-2 {
+    font-size: clamp(1.5rem, 2.5vw, 3rem);
+    line-height: clamp(2rem, 3.5vw, 4rem);
 }
 
-p {
-    font-size: var(--font-size-text);
-    line-height: var(--line-height-text);
+p, a, .text {
+    font-size: clamp(1.5rem, var(--font-size-text), 2rem);
+    line-height:  clamp(2rem, var(--line-height-text), 2.5rem);
 }
 
 nav,
@@ -57,12 +61,18 @@ footer {
     width: 100%;
 }
 
+section {
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+}
 
 
 .container {
     width: 100%;
     max-width: var(--container-width);
     margin: auto;
+    padding-left: var(--spacing-xxl);
+    padding-right: var(--spacing-xxl);
 }
 
 article {
