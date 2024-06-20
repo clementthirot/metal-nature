@@ -1,29 +1,33 @@
 @media screen and (max-width: 1280px) {
-    :root {
-        --spacing-large: 128px;
-    }
+
 }
 
 @media screen and (max-width: 1024px) {
     :root {
-        --spacing-large: 128px;
+        --custom-spacing-lg: 80px;
+        --custom-spacing-xl: 128px;
+    }
+
+    header {
+        padding: var(--custom-spacing-xl) 0;
+    }
+
+    .header-content img {
+        flex: 10;
     }
 
     .carousel {
-        gap: var(--spacing-xl);
-        padding: 0 var(--spacing-xl);
+        gap: var(--spacing-sm);
+        padding: 0 var(--spacing-md);
     }
 
     .carousel-item {
         gap: var(--spacing-xs);
-        flex: 0 0 210px;
+        flex: 0 0 300px;
     }
 }
 
 @media screen and (max-width: 768px) {
-    :root {
-        --spacing-large: 128px;
-    }
 
     nav .container {
         justify-content: start;
@@ -34,17 +38,16 @@
     }
 
     .header-content {
-        flex-direction: column;
-        gap: 16px;
+        gap: var(--spacing-xs);
     }
 
     .header-content img {
-        width: 100%;
-        flex: 1;
+        flex: 10;
     }
 
     .header-content p {
-        display: none;
+        font-size: clamp(0.75rem, var(--font-size-text), 1rem);
+        line-height: 0.75rem;
     }
 
     #author article {
@@ -75,24 +78,30 @@
 @media screen and (max-width: 480px) {
 
     nav img {
-        height: var(--spacing-md);
+        height: var(--spacing-xs);
     }
 
     header {
         padding: 200px 0;
     }
 
+    h2, .title-2 {
+        font-size: clamp(1.2rem, var(--font-size-text), 2rem);
+        line-height:  clamp(2.2rem, var(--line-height-text), 2.5rem);
+    }
 
-    :root {
-        --container-width: 100%;
+    section, .container {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
+    }
 
-        --font-size-title-1: 48px;
-        --line-height-title-1: 56px;
-        --font-size-title-2: 22px;
-        --line-height-title-2: 32px;
-        --font-size-text: 16px;
-        --line-height-text: 24px;
+    .list-item {
+        list-style-type: none;
+        padding: var(--spacing-xs) 0;
+        border-bottom: var(--border-secondary);
+    }
 
-        --spacing-large: 32px;
+    #proposal .container {
+        transform: translateY(var(--custom-spacing-lg));
     }
 }

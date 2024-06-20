@@ -10,16 +10,18 @@
 }
 
 :root {
-    --spacing-xxs: 4px;
-    --spacing-xs: 8px;
-    --spacing-md: 12px;
-    --spacing-lg: 16px;
-    --spacing-xl: 24px;
-    --spacing-xxl: 32px;
+    --spacing-xxs: 8px;
+    --spacing-xs: 16px;
+    --spacing-sm: 24px;
+    --spacing-md: 32px;
+    --spacing-lg: 40px;
+    --spacing-xl: 48px;
+    --spacing-xxl: 56px;
 
-    --spacing-large: 128px;
+    --container-width: 1280px;
+    --custom-spacing-lg: 128px;
+    --custom-spacing-xl: 256px;
 
-    --container-padding-xl: 80px;
 
     --font-size-title-1: 96px;
     --line-height-title-1: 112px;
@@ -27,8 +29,6 @@
     --line-height-title-2: 56px;
     --font-size-text: 22px;
     --line-height-text: 32px;
-
-    --container-width: 1280px;
 
     --border-primary: 2px solid var(--color-black);
     --border-secondary: 1px solid darkgrey;
@@ -60,22 +60,13 @@ nav,
 header,
 section,
 footer {
-    padding: var(--spacing-xxl) 0;
+    padding: var(--spacing-md) 0;
     width: 100%;
 }
 
-section {
+section, .container {
     padding-left: var(--spacing-xl);
     padding-right: var(--spacing-xl);
-}
-
-
-.container {
-    width: 100%;
-    max-width: var(--container-width);
-    margin: 0 auto;
-    padding-left: var(--spacing-xxl);
-    padding-right: var(--spacing-xxl);
 }
 
 article {
@@ -85,6 +76,13 @@ article {
     gap: var(--spacing-xl);
 }
 
+
+.container {
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+}
+
 .text-indent {
     text-indent: clamp(3rem, 8vw, 8rem);
 }
@@ -92,4 +90,41 @@ article {
 .text-justify {
     text-align: justify;
     hyphens: auto;
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+html {
+    scrollbar-width: thin; /* Pour Firefox */
+    scrollbar-color: var(--color-black) transparent; /* Pour Firefox */
+}
+
+/* WebKit-based browsers */
+::-webkit-scrollbar {
+    width: 4px; /* Largeur de la scrollbar verticale */
+    height: 4px; /* Hauteur de la scrollbar horizontale */
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--color-black); /* Couleur de la barre */
+    border-radius: 10px; /* Coins arrondis pour la barre */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* Pas de background pour le track */
+}
+
+::-webkit-scrollbar-button {
+    display: none; /* Masquer les flèches de défilement */
 }
