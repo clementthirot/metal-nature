@@ -37,6 +37,16 @@
     --color-white: #F5F5F5;
 }
 
+::selection {
+    background-color: var(--color-black);
+    color: var(--color-white);
+}
+
+.dark-theme *::selection {
+    background-color: var(--color-white);
+    color: var(--color-black);
+}
+
 body {
     background-color: var(--color-white);
 }

@@ -1,5 +1,6 @@
 nav {
     z-index: 1;
+    mix-blend-mode: difference;
     position: fixed;
 }
 
@@ -9,11 +10,9 @@ nav .container {
     justify-content: space-between;
     align-items: center;
     margin: auto;
+    background: transparent;
 }
 
-nav img {
-    height: var(--spacing-xs);
-}
 
 .nav-list-items {
     display: flex;
@@ -23,7 +22,8 @@ nav img {
 
 .nav-list-items a {
     text-decoration: none;
-    color: var(--color-black);
+    color: var(--color-white);
+    font-weight: 300;
 }
 
 .dark-theme {
