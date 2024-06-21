@@ -74,7 +74,7 @@
 
 
 
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.6.8/build/spline-viewer.js"></script>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.7.4/build/spline-viewer.js"></script>
     <spline-viewer class="about-render" url="https://prod.spline.design/idrErWFAM5jNCV1n/scene.splinecode"></spline-viewer>
 </section>
 
@@ -204,34 +204,146 @@
         renderProducts();
     });
 
-    function renderProducts() {
-        const carousel = document.querySelector('.carousel');
-        const productDetailsContainers = {};
-        const productsData = [
-            { id: 1, name: 'Bibliothèque Pont', date: '2023', caption: 'Description du produit 2', image: 'meuble-metal-bois-bibliotheque.png', token: 'idrErWFAM5jNCV1n' },
-            { id: 2, name: 'Etagère Pont', date: '2023', caption: 'Description du produit 2', image: 'meuble-metal-bois-etagere.png', token: 'idrErWFAM5jNCV1n' },
-            { id: 3, name: 'Commode Arquée', date: '2023', caption: 'Description du produit 2', image: 'meuble-metal-commode-arquee.png', token: 'idrErWFAM5jNCV1n' },
-            { id: 4, name: 'Etagère vide poche', date: '2023', caption: 'Description du produit 2', image: 'meuble-metal-etagere-entree.png', token: 'idrErWFAM5jNCV1n' },
-            { id: 5, name: 'Tables basses emboitées', date: '2023', caption: 'Description du produit 2', image: 'meuble-metal-table-basse-imbriquee.png', token: 'idrErWFAM5jNCV1n' },
-            { id: 6, name: 'Table murale', date: '2023', caption: 'Description du produit 2', image: 'meuble-metal-table-murale.png', token: 'idrErWFAM5jNCV1n' },
-            { id: 7, name: 'Table de nuit arquée', date: '2023', caption: 'Description du produit 2', image: 'meuble-metal-tiroir-cascade.png', token: 'idrErWFAM5jNCV1n' }
+function renderProducts() {
+const carousel = document.querySelector('.carousel');
+const productsData = [
+            {
+                id: 0,
+                name: 'Bibliothèque Pont',
+                date: '2023',
+                caption: 'Alliage de bois et de métal pour un design épuré et moderne, cette bibliothèque sur mesure s\inspire du Golden Gate Bridge.',
+                image: 'meuble-metal-bois-bibliotheque.png',
+                token: '4177cj8T59jYKDBT'
+            },
+            {
+                id: 1,
+                name: 'Etagère Pont',
+                date: '2023',
+                caption: 'Description du produit 2',
+                image: 'meuble-metal-bois-etagere.png',
+                token: '8Vi6vtCZH80QcxcH'
+            },
+            {
+                id: 2,
+                name: 'Commode Arquée',
+                date: '2023',
+                caption: 'Description du produit 2',
+                image: 'meuble-metal-commode-arquee.png',
+                token: '61Hadt6isCer-sRs'
+            },
+            // {
+            //     id: 4,
+            //     name: 'Etagère vide poche',
+            //     date: '2023',
+            //     caption: 'Description du produit 2',
+            //     image: 'meuble-metal-etagere-entree.png',
+            //     token: '61Hadt6isCer-sRs'
+            // },
+            // {
+            //     id: 5,
+            //     name: 'Tables basses emboitées',
+            //     date: '2023',
+            //     caption: 'Description du produit 2',
+            //     image: 'meuble-metal-table-basse-imbriquee.png',
+            //     token: '61Hadt6isCer-sRs'
+            // },
+            // {
+            //     id: 6,
+            //     name: 'Table murale',
+            //     date: '2023',
+            //     caption: 'Description du produit 2',
+            //     image: 'meuble-metal-table-murale.png',
+            //     token: '61Hadt6isCer-sRs'
+            // },
+            // {
+            //     id: 7,
+            //     name: 'Table de nuit arquée',
+            //     date: '2023',
+            //     caption: 'Description du produit 2',
+            //     image: 'meuble-metal-tiroir-cascade.png',
+            //     token: '61Hadt6isCer-sRs'
+            // }
         ];
 
         function initProductList() {
+            const productDetailsContainer = document.createElement('div');
+            productDetailsContainer.classList.add('product-details-container');
+            productDetailsContainer.style.height = '0';
+            let closeButton = document.createElement('button');
+            closeButton.classList.add('product-details-close-button');
+            closeButton.innerText = 'Fermer';
+            closeButton.addEventListener('click', () => {
+                gsap.to(productDetailsContainer, {
+                    height: 0,
+                    duration: 1.5,
+                    ease: 'expo.inOut',
+                    onComplete: () => productDetailsContainer.style.display = 'none'
+                });
+            });
+
+            productDetailsContainer.appendChild(closeButton);
+            document.body.appendChild(productDetailsContainer);
+
             productsData.forEach(product => {
                 const carouselItem = document.createElement('div');
                 carouselItem.classList.add('carousel-item');
                 carouselItem.innerHTML = `
-                    <img src="assets/images/${product.image}" alt="${product.name}">
-                    <div class="carousel-item-caption">
-                        <p>${product.name}</p>
-                        <p>${product.date}</p>
-                    </div>
-                `;
-                carouselItem.addEventListener('click', () => showProductDetails(product));
+                <img src="assets/images/${product.image}" alt="${product.name}">
+                <div class="carousel-item-caption">
+                    <p>${product.name}</p>
+                    <p>${product.date}</p>
+                </div>
+            `;
+                carouselItem.addEventListener('click', () => {
+                    productDetailsContainer.style.display = 'flex';
+                    productDetailsContainer.style.transform = `translateX(-${product.id * 100}vw)`;
+                    gsap.to(productDetailsContainer, {
+                        height: '100vh',
+                        duration: 1.5,
+                        ease: 'expo.inOut'
+                    });
+                });
                 carousel.appendChild(carouselItem);
+
+                const carouselItemDetails = document.createElement('div');
+                carouselItemDetails.classList.add('product-details');
+                carouselItemDetails.id = `product-details-${product.id}`;
+                carouselItemDetails.innerHTML = `
+                <spline-viewer class="product-render" url="https://prod.spline.design/${product.token}/scene.splinecode"></spline-viewer>
+                <div class="product-caption">
+                    <h2>${product.name}</h2>
+                    <p>${product.caption}</p>
+                    <div class="carousel-action-group">
+                        <div data-product-target="${product.id--}" class="carousel-action details-previous">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="black" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                            </svg>
+                        </div>
+                        <div data-product-target="${product.id++}" class="carousel-action details-next">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="black" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                            </svg>
+                        </div>
+                     </div>
+                </div>
+            `;
+                productDetailsContainer.appendChild(carouselItemDetails);
+                productDetailsContainer.querySelectorAll('.details-previous').forEach(btn => {
+                    let target = btn.getAttribute('data-product-target');
+                    btn.addEventListener('click', () => {
+                        gsap.to(productDetailsContainer, {x: `-${target * 100}vw`, duration: 1.5, ease: 'power2.inOut'});
+                    });
+                });
+
+                productDetailsContainer.querySelectorAll('.details-next').forEach(btn => {
+                    let target = btn.getAttribute('data-product-target');
+                    btn.addEventListener('click', () => {
+                        gsap.to(productDetailsContainer, {x: `${target * 100}vw`, duration: 1.5, ease: 'power2.inOut'});
+                    });
+                });
             });
         }
+
         function initProductListButtons() {
             const items = document.querySelectorAll('.carousel-item');
             const prevBtn = document.getElementById('carouselPrevious');
@@ -258,7 +370,7 @@
             function updateCarousel() {
                 const itemWidth = items[0].offsetWidth;
                 const offset = -currentIndex * (itemWidth + gap);
-                gsap.to(carousel, { x: offset + padding, duration: 0.5, ease: 'power2.out' });
+                gsap.to(carousel, {x: offset + padding, duration: 0.5, ease: 'power2.out'});
                 updateButtons();
             }
 
@@ -276,54 +388,6 @@
                 }
             });
             updateButtons();
-        }
-
-        function createProductDetails(product) {
-            let productDetailsContainer = document.querySelector('.product-details-container');
-
-            if (!productDetailsContainer) {
-                const productDetails = document.createElement('div');
-                productDetails.classList.add('product-details-container');
-                let closeButton = document.createElement('button');
-                closeButton.classList.add('product-details-close-button');
-                closeButton.innerText = 'Fermer';
-                closeButton.addEventListener('click', () => {
-                    gsap.to(productDetails,
-                        { height: 0, duration: 1, ease: 'power2.inOut', onComplete: () => productDetails.style.display = 'none' }
-                    );
-                });
-
-                productDetails.appendChild(closeButton);
-
-                productDetailsContainer = productDetails;
-                document.body.appendChild(productDetailsContainer);
-            }
-
-
-            const productDetails = document.createElement('div');
-            productDetails.classList.add('product-details');
-            productDetails.id = `product-details-${product.id}`;
-            productDetails.innerHTML = `
-                <spline-viewer url="https://prod.spline.design/${product.token}/scene.splinecode"></spline-viewer>
-                <div class="product-caption">
-                    <h2>${product.name}</h2>
-                    <p>${product.caption}</p>
-                </div>
-            `;
-            productDetailsContainer.appendChild(productDetails);
-            return productDetails;
-        }
-        function showProductDetails(product) {
-            let productDetails = productDetailsContainers[product.id];
-            if (!productDetails) {
-                productDetails = createProductDetails(product);
-                productDetailsContainers[product.id] = productDetails;
-            }
-
-            gsap.fromTo(productDetails,
-                { height: 0 },
-                { height: '100%', duration: 1, ease: 'power2.inOut', onStart: () => productDetails.style.display = 'flex' }
-            );
         }
 
         initProductList();

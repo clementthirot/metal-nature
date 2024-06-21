@@ -185,34 +185,76 @@ header h1 {
 }
 
 
+
+
 .product-details-container {
+    z-index: 1000;
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    height: 0;
     display: flex;
     flex-direction: row;
-    overflow: hidden;
+    gap: 0;
+    overflow-y: hidden;
     background-color: var(--color-white);
 }
 
-.product-details {
-    flex-direction: row;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-}
-
 .product-details-close-button {
+    z-index: 100;
     position: absolute;
-    top: var(--spacing-lg);
-    right: var(--spacing-lg);
+    top: 0;
+    right: 0;
     padding: var(--spacing-md);
     border: none;
     cursor: pointer;
     font-size: 24px;
     background-color: transparent;
+}
+
+.product-render {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.product-details {
+    z-index: 1;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+    width: 100vw;
+    min-width: 100vw;
+    min-height: 100vh;
+    height: 100vh;
+}
+
+.product-caption {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-width: 500px;
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg);
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    border-radius: var(--spacing-xxs);
+}
+
+.product-caption .carousel-action-group {
+    padding: 0;
+}
+
+.product-caption .carousel-action {
+    background-color: var(--color-black);
+}
+
+.product-caption .carousel-action svg {
+    stroke: var(--color-white);
 }
 
 
