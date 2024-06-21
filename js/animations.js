@@ -5,21 +5,21 @@ window.onbeforeunload = function () {
 window.onload = function() {
     gsap.registerPlugin(ScrollTrigger);
 
-        const part1 = document.querySelector('.part-1');
-        const part2 = document.querySelector('.part-2');
+    const part1 = document.querySelector('.part-1');
+    const part2 = document.querySelector('.part-2');
 
-        gsap.set(part1, { x: '-30%' });
-        gsap.set(part2, { x: '30%' });
+    gsap.set(part1, { x: '-30%' });
+    gsap.set(part2, { x: '30%' });
 
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: '.scroll-title',
-                start: 'top 100%',
-                scrub: true,
-            }
-        })
-            .to(part1, { x: '50%', ease: 'none' })
-            .to(part2, { x: '-50%', ease: 'none' }, '<');
+    gsap.timeline({
+        scrollTrigger: {
+            trigger: '.scroll-title',
+            start: 'top 100%',
+            scrub: true,
+        }
+    })
+        .to(part1, { x: '50%', ease: 'none' })
+        .to(part2, { x: '-50%', ease: 'none' }, '<');
 
 
     gsap.timeline()
@@ -52,14 +52,71 @@ window.onload = function() {
         }
     });
 
+    let tl3 = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#about-caption-3",
+            start: "top+=1800 center",
+            end: "top+=2800 center",
+            scrub: true,
+        }
+    });
+
+    let tl4 = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#about-caption-3",
+            start: "top+=2100 center",
+            end: "top+=2800 center",
+            scrub: true,
+        }
+    });
+
+    let tl5 = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#about-caption-3",
+            start: "top+=2400 center",
+            end: "top+=2800 center",
+            scrub: true,
+        }
+    });
+
+    let tl6 = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#about-caption-3",
+            start: "top+=3000 center",
+            end: "top+=3400 center",
+            scrub: true,
+        }
+    });
+
+    let tl7 = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#about-caption-3",
+            start: "top+=3800 center",
+            end: "top+=4200 center",
+            scrub: true,
+        }
+    });
+
     tl1.fromTo("#about-caption-1", { opacity: 0, letterSpacing: 'normal' }, { opacity: 1, letterSpacing: '5px', duration: 0.5 })
         .to("#about-caption-1", { opacity: 0, duration: 0.5 });
 
     tl2.fromTo("#about-caption-2", { opacity: 0, scale: 1 }, { opacity: 1, scale: 1, duration: 0.5 })
-        .to("#about-caption-2", { opacity: 1, scale: 1 })  // Maintient l'état pendant le scroll
-        // Animation pour faire disparaître en s'éloignant
-        .fromTo("#about-caption-2", { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.5, duration: 0.5 });
+        .to("#about-caption-2", { opacity: 0, scale: 0, duration: 0.5 });
 
+    tl3.fromTo("#about-caption-3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        .to("#about-caption-3", { opacity: 0, y: -20, duration: 0.5 });
+
+    tl4.fromTo("#about-caption-4", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        .to("#about-caption-4", { opacity: 0, y: -20, duration: 0.5 });
+
+    tl5.fromTo("#about-caption-5", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        .to("#about-caption-5", { opacity: 0, y: -20, duration: 0.5 });
+
+    tl6.fromTo("#about-caption-6", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        .to("#about-caption-6", { opacity: 0, y: -20, duration: 0.5 });
+
+    tl7.fromTo("#about-caption-7", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
+        .to("#about-caption-7", { opacity: 0, y: -20, duration: 0.5 });
 };
 
 document.addEventListener('DOMContentLoaded', () => {

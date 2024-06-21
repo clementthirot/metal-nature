@@ -82,7 +82,7 @@ header h1 {
 
 
 #about {
-    min-height: 4000px;
+    min-height: 6000px;
     padding: 0;
 }
 
@@ -109,9 +109,41 @@ header h1 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scaleZ(1);
-    opacity: 0;
     transform-origin: center center;
 }
+
+#about-caption-3 {
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    transform: translate(-20%, -50%) scaleZ(1);
+    transform-origin: center center;
+}
+
+#about-caption-4 {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -30%) scaleZ(1);
+    transform-origin: center center;
+}
+
+#about-caption-5 {
+    position: absolute;
+    top: 50%;
+    right: 20%;
+    transform: translate(-20%, -50%) scaleZ(1);
+    transform-origin: center center;
+}
+
+#about-caption-6 {
+    position: absolute;
+    top: 50%;
+    right: 20%;
+    transform: translate(-20%, -50%) scaleZ(1);
+    transform-origin: center center;
+}
+
 
 
 
