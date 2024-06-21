@@ -73,6 +73,15 @@
         padding: 32px;
     }
 
+    .product-caption {
+        gap: var(--spacing-md);
+        min-width: 100%;
+        width: 100%;
+        min-height: 20vh;
+        padding: var(--spacing-md);
+        margin: 0;
+    }
+
 }
 
 @media screen and (max-width: 480px) {
@@ -90,6 +99,13 @@
         line-height:  clamp(2.2rem, var(--line-height-text), 2.5rem);
     }
 
+    #author .title-2,
+    #contact .title-2,
+    .product-caption h2 {
+        font-size: clamp(2rem, 2vw, 3rem);
+        line-height: clamp(3rem, 3vw, 4rem);
+    }
+
     section, .container {
         padding-left: var(--spacing-sm);
         padding-right: var(--spacing-sm);
@@ -104,4 +120,6 @@
     #proposal .container {
         transform: translateY(var(--custom-spacing-lg));
     }
+
+
 }

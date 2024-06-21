@@ -51,6 +51,11 @@ body {
     background-color: var(--color-white);
 }
 
+body.desktop-theme,
+body.desktop-theme * {
+    cursor: none;
+}
+
 h1, .title-1 {
     font-size: clamp(5vw, var(--font-size-title-1), 8vw);
     line-height: clamp(5vw, var(--line-height-title-1), 8vw);
