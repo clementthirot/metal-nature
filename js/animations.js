@@ -6,8 +6,8 @@ function animationAuthor() {
     const part1 = document.querySelector('.part-1');
     const part2 = document.querySelector('.part-2');
 
-    gsap.set(part1, { x: '-30%' });
-    gsap.set(part2, { x: '30%' });
+    gsap.set(part1, {x: '-30%'});
+    gsap.set(part2, {x: '30%'});
 
     gsap.timeline({
         scrollTrigger: {
@@ -17,8 +17,8 @@ function animationAuthor() {
             delay: 3
         }
     })
-        .to(part1, { x: '50%', ease: 'none' })
-        .to(part2, { x: '-50%', ease: 'none' }, '<');
+        .to(part1, {x: '50%', ease: 'none'})
+        .to(part2, {x: '-50%', ease: 'none'}, '<');
 
 }
 
@@ -86,7 +86,7 @@ function animationAbout() {
         scrollTrigger: {
             trigger: "#about-caption-1",
             start: "top center",
-            end: "top+=450 center",
+            end: "top+=800 center",
             scrub: true,
         }
     });
@@ -94,8 +94,8 @@ function animationAbout() {
     let tl2 = gsap.timeline({
         scrollTrigger: {
             trigger: "#about-caption-2",
-            start: "top+=700 center",
-            end: "top+=1300 center",
+            start: "top+=800 center",
+            end: "top+=1600 center",
             scrub: true,
         }
     });
@@ -104,7 +104,7 @@ function animationAbout() {
         scrollTrigger: {
             trigger: "#about-caption-3",
             start: "top+=1800 center",
-            end: "top+=4000 center",
+            end: "top+=5000 center",
             scrub: true,
         }
     });
@@ -113,7 +113,7 @@ function animationAbout() {
         scrollTrigger: {
             trigger: "#about-caption-3",
             start: "top+=2100 center",
-            end: "top+=4000 center",
+            end: "top+=5000 center",
             scrub: true,
         }
     });
@@ -122,7 +122,7 @@ function animationAbout() {
         scrollTrigger: {
             trigger: "#about-caption-3",
             start: "top+=2400 center",
-            end: "top+=4000 center",
+            end: "top+=5000 center",
             scrub: true,
         }
     });
@@ -130,8 +130,8 @@ function animationAbout() {
     let tl6 = gsap.timeline({
         scrollTrigger: {
             trigger: "#about-caption-3",
-            start: "top+=3000 center",
-            end: "top+=3400 center",
+            start: "top+=5000 center",
+            end: "top+=6300 center",
             scrub: true,
         }
     });
@@ -139,32 +139,47 @@ function animationAbout() {
     let tl7 = gsap.timeline({
         scrollTrigger: {
             trigger: "#about-caption-3",
-            start: "top+=4300 center",
-            end: "top+=5500 center",
+            start: "top+=6500 center",
+            end: "top+=9000 center",
             scrub: true,
         }
     });
 
-    tl1.fromTo("#about-caption-1", { opacity: 0, letterSpacing: 'normal' }, { opacity: 1, letterSpacing: '5px', duration: 0.5 })
-        .to("#about-caption-1", { opacity: 0, duration: 0.5 });
+    let tl8 = gsap.timeline({
+        scrollTrigger: {
+            trigger: "#about-caption-3",
+            start: "top+=9000 center",
+            end: "top+=11000 center",
+            scrub: true,
+        }
+    });
 
-    tl2.fromTo("#about-caption-2", { opacity: 0, scale: 1 }, { opacity: 1, scale: 1, duration: 0.5 })
-        .to("#about-caption-2", { opacity: 0, scale: 0, duration: 0.5 });
+    tl1.fromTo("#about-caption-1", {opacity: 0, letterSpacing: 'normal'}, {
+        opacity: 1,
+        letterSpacing: '5px',
+    })
+        .to("#about-caption-1", {opacity: 0});
 
-    tl3.fromTo("#about-caption-3", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-        .to("#about-caption-3", { opacity: 0, y: -20, duration: 0.5 });
+    tl2.fromTo("#about-caption-2", {opacity: 0, scale: 1}, {opacity: 1, scale: 1})
+        .to("#about-caption-2", {opacity: 0, scale: 0});
 
-    tl4.fromTo("#about-caption-4", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-        .to("#about-caption-4", { opacity: 0, y: -20, duration: 0.5 });
+    tl3.fromTo("#about-caption-3", {opacity: 0, y: 20}, {opacity: 1, y: 0})
+        .to("#about-caption-3", {opacity: 0, y: -20});
 
-    tl5.fromTo("#about-caption-5", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-        .to("#about-caption-5", { opacity: 0, y: -20, duration: 0.5 });
+    tl4.fromTo("#about-caption-4", {opacity: 0, y: 20}, {opacity: 1, y: 0})
+        .to("#about-caption-4", {opacity: 0, y: -20});
 
-    tl6.fromTo("#about-caption-6", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-        .to("#about-caption-6", { opacity: 0, y: -20, duration: 0.5 });
+    tl5.fromTo("#about-caption-5", {opacity: 0, y: 20}, {opacity: 1, y: 0})
+        .to("#about-caption-5", {opacity: 0, y: -20});
 
-    tl7.fromTo("#about-caption-7", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
-        .to("#about-caption-7", { opacity: 0, y: -20, duration: 0.5 });
+    tl6.fromTo("#about-caption-6", {opacity: 0, y: 20}, {opacity: 1, y: 0})
+        .to("#about-caption-6", {opacity: 0, y: -20});
+
+    tl7.fromTo("#about-caption-7", {opacity: 0, y: 20}, {opacity: 1, y: 0})
+        .to("#about-caption-7", {opacity: 0, y: -20});
+
+    tl8.fromTo("#about-caption-8", {opacity: 0, y: 20}, {opacity: 1, y: 0})
+        .to("#about-caption-8", {opacity: 0, y: -20});
 }
 
 function animationProduct() {
@@ -224,7 +239,7 @@ function animationProposal() {
     });
 }
 
-window.onload = function() {
+window.onload = function () {
     gsap.registerPlugin(ScrollTrigger);
     animationAuthor();
     animationHeader();
@@ -287,7 +302,7 @@ function renderProducts() {
         {
             id: 0,
             name: 'Bibliothèque Pont',
-            date: '2023',
+            date: '2024',
             caption: 'Alliage de bois et de métal pour un design épuré et moderne, cette bibliothèque sur mesure s\inspire du Golden Gate Bridge.',
             image: 'meuble-metal-bois-bibliotheque.png',
             token: '4177cj8T59jYKDBT'
@@ -295,8 +310,8 @@ function renderProducts() {
         {
             id: 1,
             name: 'Etagère Pont',
-            date: '2023',
-            caption: 'Description du produit 2',
+            date: '2024',
+            caption: 'Dans la continuité de la bibliothèque Pont, cette étagère murale s\'inspire de la structure de célèbres ponts.',
             image: 'meuble-metal-bois-etagere.png',
             token: '8Vi6vtCZH80QcxcH'
         },
@@ -304,41 +319,33 @@ function renderProducts() {
             id: 2,
             name: 'Commode Arquée',
             date: '2023',
-            caption: 'Description du produit 2',
+            caption: 'Composée exclusivement de métal, cette commode arquée est un meuble de rangement organique encré dans un design moderne et minimaliste.',
             image: 'meuble-metal-commode-arquee.png',
             token: '61Hadt6isCer-sRs'
         },
         {
             id: 3,
-            name: 'Etagère vide poche',
+            name: 'Tables basses emboitées',
             date: '2023',
-            caption: 'Description du produit 2',
-            image: 'meuble-metal-etagere-entree.png',
-            token: '61Hadt6isCer-sRs'
+            caption: 'Composées d\'acier inoxydable, ces tables sont un ensemble de meubles modulables et minimaliste.',
+            image: 'meuble-metal-table-basse-imbriquee.png',
+            token: 'Rg1uyPemzrX7AiSz'
         },
         {
             id: 4,
-            name: 'Tables basses emboitées',
-            date: '2023',
-            caption: 'Description du produit 2',
-            image: 'meuble-metal-table-basse-imbriquee.png',
-            token: '61Hadt6isCer-sRs'
+            name: 'Enfilade bois et métal noir',
+            date: '2022',
+            caption: 'Cette enfilade est un meuble de rangement en bois et métal noir, inspiré des meubles naturels modernes',
+            image: 'meuble-commode-presentation.png',
+            token: 'CgeuD4sMzZhLtJ-U'
         },
         {
             id: 5,
-            name: 'Table murale',
-            date: '2023',
-            caption: 'Description du produit 2',
-            image: 'meuble-metal-table-murale.png',
-            token: '61Hadt6isCer-sRs'
-        },
-        {
-            id: 6,
-            name: 'Table de nuit arquée',
-            date: '2023',
-            caption: 'Description du produit 2',
-            image: 'meuble-metal-tiroir-cascade.png',
-            token: '61Hadt6isCer-sRs'
+            name: 'Table basse bois miroir',
+            date: '2022',
+            caption: 'Cette table basse en bois et acier inoxydable permet le rangement de vos objets tout en reflétant la lumière.',
+            image: 'meuble-metal-table-basse-miroir.png',
+            token: 'HdaynTQOUNRZZSJT'
         }
     ];
 
@@ -397,7 +404,7 @@ function renderProducts() {
             // Création des éléments du carrousel
             const carouselItem = document.createElement('div');
             carouselItem.classList.add('carousel-item');
-            carouselItem.innerHTML = `
+            carouselItem.innerHTML = `;
                 <img src="assets/images/${product.image}" alt="${product.name}">
                 <div class="carousel-item-caption">
                     <p>${product.name}</p>
@@ -408,6 +415,7 @@ function renderProducts() {
             carouselItem.addEventListener('click', () => {
                 document.body.style.overflow = 'hidden';
                 productDetailsContainer.style.display = 'flex';
+                renderContainer.style.transform = `translateX(-${product.id * 100}vw)`;
                 updateProductDetails(product);
                 gsap.to(productDetailsContainer, {
                     height: '100vh',
