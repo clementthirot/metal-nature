@@ -2,9 +2,7 @@ window.onbeforeunload = function () {
     window.scrollTo(0, 0);
 }
 
-window.onload = function() {
-    gsap.registerPlugin(ScrollTrigger);
-
+function animationAuthor() {
     const part1 = document.querySelector('.part-1');
     const part2 = document.querySelector('.part-2');
 
@@ -16,23 +14,73 @@ window.onload = function() {
             trigger: '.scroll-title',
             start: 'top 100%',
             scrub: true,
+            delay: 3
         }
     })
         .to(part1, { x: '50%', ease: 'none' })
         .to(part2, { x: '-50%', ease: 'none' }, '<');
 
+}
+
+function animationHeader() {
+    gsap.timeline().to("#headerImage", {
+        duration: 1.5,
+        y: -80,
+        opacity: 0.8,
+        ease: "expo.inOut"
+    })
+        .to("#headerImage", {
+            duration: 1,
+            opacity: 1,
+            scale: 1,
+            ease: "expo.inOut"
+        });
 
     gsap.timeline()
         .to(".title-line", {
             y: 0,
             opacity: 1,
-            duration: 1,
+            duration: 1.5,
+            delay: 0.8,
             stagger: {
-                amount: 0.1,
+                amount: 0.2,
                 from: "start",
             },
             ease: "power4.out"
         });
+
+    gsap.timeline().to("nav", {
+        duration: 1.5,
+        y: 0,
+        delay: 1.3,
+        ease: "expo.inOut"
+    });
+
+    gsap.timeline().to(".header-caption", {
+        duration: 1.5,
+        y: 0,
+        opacity: 1,
+        delay: 1.3,
+        ease: "expo.inOut"
+    });
+}
+
+function animationAbout() {
+
+
+    gsap.to(".about-text", {
+        scrollTrigger: {
+            trigger: ".about-text",
+            start: "top 60%",  // Commence l'animation lorsque le texte est à 80% de la hauteur de la fenêtre
+            end: "top 20%",    // Termine l'animation lorsque le texte est à 20% de la hauteur de la fenêtre
+            scrub: true        // Synchronise l'animation avec le défilement
+        },
+        opacity: 1,
+        duration: 1
+    });
+
+
+
 
     let tl1 = gsap.timeline({
         scrollTrigger: {
@@ -56,7 +104,7 @@ window.onload = function() {
         scrollTrigger: {
             trigger: "#about-caption-3",
             start: "top+=1800 center",
-            end: "top+=2800 center",
+            end: "top+=4000 center",
             scrub: true,
         }
     });
@@ -65,7 +113,7 @@ window.onload = function() {
         scrollTrigger: {
             trigger: "#about-caption-3",
             start: "top+=2100 center",
-            end: "top+=2800 center",
+            end: "top+=4000 center",
             scrub: true,
         }
     });
@@ -74,7 +122,7 @@ window.onload = function() {
         scrollTrigger: {
             trigger: "#about-caption-3",
             start: "top+=2400 center",
-            end: "top+=2800 center",
+            end: "top+=4000 center",
             scrub: true,
         }
     });
@@ -91,8 +139,8 @@ window.onload = function() {
     let tl7 = gsap.timeline({
         scrollTrigger: {
             trigger: "#about-caption-3",
-            start: "top+=3800 center",
-            end: "top+=4200 center",
+            start: "top+=4300 center",
+            end: "top+=5500 center",
             scrub: true,
         }
     });
@@ -117,6 +165,72 @@ window.onload = function() {
 
     tl7.fromTo("#about-caption-7", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 })
         .to("#about-caption-7", { opacity: 0, y: -20, duration: 0.5 });
+}
+
+function animationProduct() {
+    const items = gsap.utils.toArray(".carousel-item");
+
+    // Créer une timeline
+    const tl = gsap.timeline({
+        scrollTrigger: {
+            trigger: ".carousel",
+            start: "top 60%",  // Commence l'animation lorsque le conteneur est à 80% de la hauteur de la fenêtre
+            end: "top 20%",    // Termine l'animation lorsque le conteneur est à 20% de la hauteur de la fenêtre
+            scrub: true        // Synchronise l'animation avec le défilement
+        }
+    });
+
+    // Ajouter des animations à la timeline
+    items.forEach((item, index) => {
+        tl.fromTo(item,
+            {
+                y: index % 2 === 0 ? -50 : 50, // Un item sur deux arrive par le haut ou par le bas
+                opacity: 0
+            },
+            {
+                y: 0,
+                opacity: 1,
+                duration: 0.5,
+                ease: "power2.out"
+            }, index * 0.2 // Délai entre chaque apparition
+        );
+    });
+}
+
+function animationProposal() {
+    gsap.to("#proposal .container", {
+        scrollTrigger: {
+            trigger: "#proposal .container",
+            start: "top 80%",  // Commence l'animation lorsque le texte est à 80% de la hauteur de la fenêtre
+            end: "top 60%",    // Termine l'animation lorsque le texte est à 20% de la hauteur de la fenêtre
+            scrub: true        // Synchronise l'animation avec le défilement
+        },
+        opacity: 1,
+        duration: 1
+    });
+
+    gsap.utils.toArray(".list-item").forEach(item => {
+        gsap.to(item, {
+            scrollTrigger: {
+                trigger: item,
+                start: "top 80%",  // Commence l'animation lorsque l'élément est à 80% de la hauteur de la fenêtre
+                end: "top 20%",    // Termine l'animation lorsque l'élément est à 20% de la hauteur de la fenêtre
+                scrub: true        // Synchronise l'animation avec le défilement
+            },
+            opacity: 1,
+            y: 0,
+            duration: 1
+        });
+    });
+}
+
+window.onload = function() {
+    gsap.registerPlugin(ScrollTrigger);
+    animationAuthor();
+    animationHeader();
+    animationAbout();
+    animationProduct();
+    animationProposal();
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -143,11 +257,11 @@ function customCursor() {
         });
 
         // Ajoute des effets de survol pour les liens
-        document.querySelectorAll('a, button, .carousel-item, .carousel-action:not(.disabled), .product-details-close-button').forEach((element) => {
+        document.querySelectorAll('a, button, .carousel-item img, .carousel-action:not(.disabled), .product-details-close-button').forEach((element) => {
             element.addEventListener('mouseenter', () => {
                 gsap.to(customCursor, {
-                    width: '40px',
-                    height: '40px',
+                    width: '48px',
+                    height: '48px',
                     duration: 0.2,
                     ease: 'power2.out'
                 });
@@ -155,8 +269,8 @@ function customCursor() {
 
             element.addEventListener('mouseleave', () => {
                 gsap.to(customCursor, {
-                    width: '20px',
-                    height: '20px',
+                    width: '24px',
+                    height: '24px',
                     duration: 0.2,
                     ease: 'power2.out'
                 });

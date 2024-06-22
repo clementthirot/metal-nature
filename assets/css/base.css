@@ -121,7 +121,7 @@ article {
 
 html {
     scrollbar-width: thin; /* Pour Firefox */
-    scrollbar-color: var(--color-black) transparent; /* Pour Firefox */
+    scrollbar-color: var(--color-white) transparent; /* Pour Firefox */
 }
 
 /* WebKit-based browsers */
@@ -132,8 +132,9 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--color-black); /* Couleur de la barre */
+    background-color: var(--color-white); /* Couleur de la barre */
     border-radius: 10px; /* Coins arrondis pour la barre */
+    mix-blend-mode: difference;
 }
 
 ::-webkit-scrollbar-track {
