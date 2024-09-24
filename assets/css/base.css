@@ -51,12 +51,12 @@ body {
     background-color: var(--color-white);
 }
 
-body.desktop-theme,
-body.desktop-theme * {
-    cursor: none;
-}
+/* body.desktop-theme, */
+/* body.desktop-theme * { */
+/*    cursor: none;*/
+/* } */
 
-h1, .title-1 {
+.title-1 {
     font-size: clamp(5vw, var(--font-size-title-1), 8vw);
     line-height: clamp(5vw, var(--line-height-title-1), 8vw);
 }
@@ -67,8 +67,8 @@ h2, .title-2 {
 }
 
 p, a, .text {
-    font-size: clamp(1.2rem, var(--font-size-text), 2rem);
-    line-height:  clamp(2.2rem, var(--line-height-text), 2.5rem);
+    font-size: 1rem;
+    line-height:  1.5rem;
 }
 
 nav,
@@ -117,30 +117,8 @@ article {
     flex-direction: column;
 }
 
-
-
-html {
-    scrollbar-width: thin; /* Pour Firefox */
-    scrollbar-color: var(--color-white) transparent; /* Pour Firefox */
-}
-
-/* WebKit-based browsers */
-::-webkit-scrollbar {
-    width: 4px; /* Largeur de la scrollbar verticale */
-    height: 4px; /* Hauteur de la scrollbar horizontale */
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: var(--color-white); /* Couleur de la barre */
-    border-radius: 10px; /* Coins arrondis pour la barre */
-    mix-blend-mode: difference;
-}
-
-::-webkit-scrollbar-track {
-    background: transparent; /* Pas de background pour le track */
-}
-
-::-webkit-scrollbar-button {
-    display: none; /* Masquer les flèches de défilement */
+.strong {
+    font-family: "Arapey", serif;
+    font-weight: 400;
+    font-style: italic;
 }

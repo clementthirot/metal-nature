@@ -1,42 +1,33 @@
-window.onbeforeunload = function () {
+window.addEventListener('beforeunload', function () {
     window.scrollTo(0, 0);
-}
+});
 
-function animationAuthor() {
-    const part1 = document.querySelector('.part-1');
-    const part2 = document.querySelector('.part-2');
-
-    gsap.set(part1, {x: '-30%'});
-    gsap.set(part2, {x: '30%'});
-
-    gsap.timeline({
-        scrollTrigger: {
-            trigger: '.scroll-title',
-            start: 'top 100%',
-            scrub: true,
-            delay: 3
-        }
-    })
-        .to(part1, {x: '50%', ease: 'none'})
-        .to(part2, {x: '-50%', ease: 'none'}, '<');
-
-}
+document.addEventListener('DOMContentLoaded', () => {
+    gsap.registerPlugin(ScrollTrigger);
+    customCursor();
+    renderProducts();
+    animationAuthor();
+    animationHeader();
+    animationAbout();
+    animationProduct();
+    animationProposal();
+});
 
 function animationHeader() {
-    gsap.timeline().to("#headerImage", {
-        duration: 1.5,
-        y: -80,
-        opacity: 0.8,
-        ease: "expo.inOut"
-    })
+    const headerTimeline = gsap.timeline();
+    headerTimeline
+        .to("#headerImage", {
+            duration: 1.5,
+            y: -80,
+            opacity: 0.8,
+            ease: "expo.inOut"
+        })
         .to("#headerImage", {
             duration: 1,
             opacity: 1,
             scale: 1,
             ease: "expo.inOut"
-        });
-
-    gsap.timeline()
+        })
         .to(".title-line", {
             y: 0,
             opacity: 1,
@@ -47,37 +38,43 @@ function animationHeader() {
                 from: "start",
             },
             ease: "power4.out"
-        });
-
-    gsap.timeline().to("nav", {
-        duration: 1.5,
-        y: 0,
-        delay: 1.3,
-        ease: "expo.inOut"
-    });
-
-    gsap.timeline().to(".header-caption", {
-        duration: 1.5,
-        y: 0,
-        opacity: 1,
-        delay: 1.3,
-        ease: "expo.inOut"
-    });
+        }, 0)
+        .to("nav", {
+            duration: 1.5,
+            y: 0,
+            delay: 1.3,
+            ease: "expo.inOut"
+        }, 0)
+        .to(".header-caption", {
+            duration: 1.5,
+            y: 0,
+            opacity: 1,
+            ease: "expo.inOut"
+        }, 0);
 }
 
 function animationAbout() {
+    const aboutText = document.getElementById("about-text");
+    const aboutWords = splitParagraphToWords(aboutText);
+    const separator = document.querySelector("#about .separator");
 
+    const aboutTimeline = buildScrollTimeline(aboutText);
+    gsap.set(aboutWords, {y: 40, opacity: 1});
+    gsap.set(separator, {width: 0, opacity: 1});
 
-    gsap.to(".about-text", {
-        scrollTrigger: {
-            trigger: ".about-text",
-            start: "top 60%",  // Commence l'animation lorsque le texte est à 80% de la hauteur de la fenêtre
-            end: "top 20%",    // Termine l'animation lorsque le texte est à 20% de la hauteur de la fenêtre
-            scrub: true        // Synchronise l'animation avec le défilement
-        },
-        opacity: 1,
-        duration: 1
-    });
+    aboutTimeline
+        .to(aboutWords, {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            stagger: 0.015,
+            ease: "power4.out"
+        })
+        .to(separator, {
+            width: '100%',
+            duration: 1,
+            ease: "power4.out"
+        });
 
 
 
@@ -183,75 +180,91 @@ function animationAbout() {
 }
 
 function animationProduct() {
-    const items = gsap.utils.toArray(".carousel-item");
+    const productText = document.getElementById("product-caption");
+    const productWords = splitParagraphToWords(productText);
+    const productList = document.querySelectorAll('.carousel-item');
+    const carousel = document.querySelector('.carousel');
 
-    // Créer une timeline
-    const tl = gsap.timeline({
-        scrollTrigger: {
-            trigger: ".carousel",
-            start: "top 60%",  // Commence l'animation lorsque le conteneur est à 80% de la hauteur de la fenêtre
-            end: "top 20%",    // Termine l'animation lorsque le conteneur est à 20% de la hauteur de la fenêtre
-            scrub: true        // Synchronise l'animation avec le défilement
-        }
-    });
+    const productTimeline = buildScrollTimeline(carousel);
+    gsap.set(productWords, {y: 40, opacity: 1});
+    gsap.set(productList, {y: 50, opacity: 0});
 
-    // Ajouter des animations à la timeline
-    items.forEach((item, index) => {
-        tl.fromTo(item,
-            {
-                y: index % 2 === 0 ? -50 : 50, // Un item sur deux arrive par le haut ou par le bas
-                opacity: 0
-            },
-            {
-                y: 0,
-                opacity: 1,
-                duration: 0.5,
-                ease: "power2.out"
-            }, index * 0.2 // Délai entre chaque apparition
-        );
-    });
+    productTimeline
+        .to(productWords, {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            stagger: 0.015,
+            ease: "power4.out"
+        })
+        .to(productList, {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            stagger: 0.15,
+            delay: 0.5,
+            ease: "power4.out"
+        }, "<");
+}
+
+function animationAuthor() {
+    const title = document.querySelector(".scroll-title");
+    const firstTitle = document.querySelector('.part-1');
+    const lastTitle = document.querySelector('.part-2');
+
+    const authorTimeline = buildScrollTimeline(title, true);
+    gsap.set(firstTitle, {x: '-30%'});
+    gsap.set(lastTitle, {x: '30%'});
+
+    authorTimeline
+        .to(firstTitle, {
+            x: '50%',
+            ease: 'none'
+        })
+        .to(lastTitle, {
+            x: '-50%',
+            ease: 'none'
+        }, '<');
 }
 
 function animationProposal() {
-    gsap.to("#proposal .container", {
-        scrollTrigger: {
-            trigger: "#proposal .container",
-            start: "top 80%",  // Commence l'animation lorsque le texte est à 80% de la hauteur de la fenêtre
-            end: "top 60%",    // Termine l'animation lorsque le texte est à 20% de la hauteur de la fenêtre
-            scrub: true        // Synchronise l'animation avec le défilement
-        },
-        opacity: 1,
-        duration: 1
-    });
+    const proposalContainer = document.querySelector("#proposal .container");
+    const proposalText = document.getElementById("proposal-caption");
+    const proposalWords = splitParagraphToWords(proposalText);
+    const proposalList = document.querySelectorAll('.list-group-item');
 
-    gsap.utils.toArray(".list-item").forEach(item => {
-        gsap.to(item, {
-            scrollTrigger: {
-                trigger: item,
-                start: "top 80%",  // Commence l'animation lorsque l'élément est à 80% de la hauteur de la fenêtre
-                end: "top 20%",    // Termine l'animation lorsque l'élément est à 20% de la hauteur de la fenêtre
-                scrub: true        // Synchronise l'animation avec le défilement
-            },
-            opacity: 1,
+    const proposalTimeline = buildScrollTimeline(proposalContainer);
+    gsap.set(proposalWords, {y: 40, opacity: 1});
+    gsap.set(proposalList, {width: 0});
+
+    proposalTimeline
+        .to(proposalWords, {
             y: 0,
-            duration: 1
+            opacity: 1,
+            duration: 1,
+            stagger: 0.015,
+            ease: "power4.out"
         });
+
+    proposalList.forEach(item => {
+        const tl = buildScrollTimeline(item);
+        const words = splitParagraphToWords(item);
+        gsap.set(words, {y: 40, opacity: 1});
+        tl
+            .to(words, {
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                stagger: 0.015,
+                ease: "expo.inOut",
+            })
+            .to(item, {
+                width: '100%',
+                duration: 1,
+                ease: "expo.inOut",
+            });
     });
 }
-
-window.onload = function () {
-    gsap.registerPlugin(ScrollTrigger);
-    animationAuthor();
-    animationHeader();
-    animationAbout();
-    animationProduct();
-    animationProposal();
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    customCursor();
-    renderProducts();
-});
 
 function customCursor() {
     if (window.innerWidth > 1024) {
@@ -298,56 +311,6 @@ function customCursor() {
 
 function renderProducts() {
     const carousel = document.querySelector('.carousel');
-    const productsData = [
-        {
-            id: 0,
-            name: 'Bibliothèque Pont',
-            date: '2024',
-            caption: 'Alliage de bois et de métal pour un design épuré et moderne, cette bibliothèque sur mesure s\inspire du Golden Gate Bridge.',
-            image: 'meuble-metal-bois-bibliotheque.png',
-            token: '4177cj8T59jYKDBT'
-        },
-        {
-            id: 1,
-            name: 'Etagère Pont',
-            date: '2024',
-            caption: 'Dans la continuité de la bibliothèque Pont, cette étagère murale s\'inspire de la structure de célèbres ponts.',
-            image: 'meuble-metal-bois-etagere.png',
-            token: '8Vi6vtCZH80QcxcH'
-        },
-        {
-            id: 2,
-            name: 'Commode Arquée',
-            date: '2023',
-            caption: 'Composée exclusivement de métal, cette commode arquée est un meuble de rangement organique encré dans un design moderne et minimaliste.',
-            image: 'meuble-metal-commode-arquee.png',
-            token: '61Hadt6isCer-sRs'
-        },
-        {
-            id: 3,
-            name: 'Tables basses emboitées',
-            date: '2023',
-            caption: 'Composées d\'acier inoxydable, ces tables sont un ensemble de meubles modulables et minimaliste.',
-            image: 'meuble-metal-table-basse-imbriquee.png',
-            token: 'Rg1uyPemzrX7AiSz'
-        },
-        {
-            id: 4,
-            name: 'Enfilade bois et métal noir',
-            date: '2022',
-            caption: 'Cette enfilade est un meuble de rangement en bois et métal noir, inspiré des meubles naturels modernes',
-            image: 'meuble-commode-presentation.png',
-            token: 'CgeuD4sMzZhLtJ-U'
-        },
-        {
-            id: 5,
-            name: 'Table basse bois miroir',
-            date: '2022',
-            caption: 'Cette table basse en bois et acier inoxydable permet le rangement de vos objets tout en reflétant la lumière.',
-            image: 'meuble-metal-table-basse-miroir.png',
-            token: 'HdaynTQOUNRZZSJT'
-        }
-    ];
 
     function initProductList() {
         // Création du conteneur pour les détails du produit
@@ -400,11 +363,11 @@ function renderProducts() {
 
         document.body.appendChild(productDetailsContainer);
 
-        productsData.forEach(product => {
+        productListJSON.forEach(product => {
             // Création des éléments du carrousel
             const carouselItem = document.createElement('div');
             carouselItem.classList.add('carousel-item');
-            carouselItem.innerHTML = `;
+            carouselItem.innerHTML = `
                 <img src="assets/images/${product.image}" alt="${product.name}">
                 <div class="carousel-item-caption">
                     <p>${product.name}</p>
@@ -459,7 +422,7 @@ function renderProducts() {
         // Fonction de navigation entre les produits
         function navigateProduct(event) {
             const targetId = event.currentTarget.dataset.productTarget;
-            const targetProduct = productsData.find(p => p.id == targetId);
+            const targetProduct = productListJSON.find(p => p.id == targetId);
 
             if (targetProduct) {
                 updateProductDetails(targetProduct);
