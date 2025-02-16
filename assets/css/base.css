@@ -51,17 +51,17 @@ body {
     background-color: var(--color-white);
 }
 
-/* body.desktop-theme, */
-/* body.desktop-theme * { */
-/*    cursor: none;*/
-/* } */
+.dark-theme {
+    background-color: var(--color-black);
+    color: var(--color-white);
+}
 
 .title-1 {
     font-size: clamp(5vw, var(--font-size-title-1), 8vw);
     line-height: clamp(5vw, var(--line-height-title-1), 8vw);
 }
 
-h2, .title-2 {
+h2, .title-2, #proposal, .proposal-caption {
     font-size: clamp(2rem, 2vw, 3rem);
     line-height: clamp(3rem, 3vw, 4rem);
 }
