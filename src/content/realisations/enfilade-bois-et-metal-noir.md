@@ -4,7 +4,7 @@ year: 2022
 order: 5
 image: ../../assets/realisations/meuble-commode-presentation.png
 imageAlt: "Enfilade en bois et métal noir"
-splineToken: "CgeuD4sMzZhLtJ-U"
+model: "meuble-de-rangement"
 materials: "Bois et métal noir"
 # Champs facultatifs, affichés dans la fiche technique quand ils sont remplis :
 # dimensions: "300 × 210 × 40 cm"

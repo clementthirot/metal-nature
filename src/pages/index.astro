@@ -124,9 +124,9 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
             </ol>
             <div class="about-progress" aria-hidden="true"><span class="about-progress-bar"></span></div>
             <div class="about-visual">
-                <Picture class="spline-poster" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="360px"
+                <Picture class="model-poster" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="360px"
                          loading="lazy" alt="Bibliothèque en bois et métal réalisée par Metal Nature" />
-                <button type="button" class="button button-ghost spline-trigger" hidden>Voir en 3D</button>
+                <button type="button" class="button button-ghost model-trigger" hidden>Voir en 3D</button>
             </div>
         </div>
     </div>
@@ -149,7 +149,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                     <a class="carousel-item-button" href={`/realisations/${item.id}/`}
                        data-title={item.data.title}
                        data-caption={item.body?.trim()}
-                       data-spline={item.data.splineToken}
+                       data-model={item.data.model}
                        data-poster={posters[index].src}
                        data-poster-alt={item.data.imageAlt}>
                         {/* alt vide volontaire : le nom de la réalisation est déjà le texte du lien */}
@@ -272,7 +272,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
         <div class="product-stage" aria-hidden="true">
             <img class="product-poster" alt="" />
             <div class="product-skeleton"><span>Chargement de la vue 3D…</span></div>
-            <button type="button" class="button button-ghost spline-trigger" hidden>Voir en 3D</button>
+            <button type="button" class="button button-ghost model-trigger" hidden>Voir en 3D</button>
         </div>
         <div class="product-caption">
             <div class="product-content" aria-live="polite">

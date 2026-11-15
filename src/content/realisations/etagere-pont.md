@@ -4,11 +4,10 @@ year: 2024
 order: 2
 image: ../../assets/realisations/meuble-metal-bois-etagere.png
 imageAlt: "Étagère murale en bois et métal à structure de pont"
-splineToken: "8Vi6vtCZH80QcxcH"
+model: "etagere"
 materials: "Bois et métal"
 # Champs facultatifs, affichés dans la fiche technique quand ils sont remplis :
 dimensions: "220 × 90 × 50 cm (L × H × P)"
-viewZoom: 1.1
 # finish: "Huile naturelle, acier verni mat"
 # duration: "3 semaines"
 # gallery:

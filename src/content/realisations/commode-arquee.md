@@ -4,7 +4,7 @@ year: 2023
 order: 3
 image: ../../assets/realisations/meuble-metal-commode-arquee.png
 imageAlt: "Commode arquée entièrement en métal"
-splineToken: "61Hadt6isCer-sRs"
+model: "commode-arquee"
 materials: "Métal"
 # Champs facultatifs, affichés dans la fiche technique quand ils sont remplis :
 # dimensions: "300 × 210 × 40 cm"

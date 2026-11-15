@@ -4,7 +4,7 @@ year: 2021
 order: 7
 image: ../../assets/realisations/meuble-metal-vasque-reflet.png
 imageAlt: "Meuble vasque en métal aux surfaces réfléchissantes"
-splineToken: "CHFIQdIjgROHs-hu"
+model: "vasque"
 materials: "Métal"
 # Champs facultatifs, affichés dans la fiche technique quand ils sont remplis :
 # dimensions: "300 × 210 × 40 cm"

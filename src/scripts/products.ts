@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { motionDuration, prefersReducedMotion } from './motion';
-import { SplineStage, isLightDevice, splineSceneUrl, whenIdle } from './spline';
+import { ModelStage, isLightDevice, whenIdle } from './model-stage';
 
 /* ------------------------------------------------------------------ */
 /* Fenêtre de détail d'une réalisation (lot 2.2)                        */
@@ -16,7 +16,7 @@ export function initProductDetails(): void {
     const closeButton = dialog.querySelector<HTMLButtonElement>('.product-details-close-button')!;
     const stageEl = dialog.querySelector<HTMLElement>('.product-stage')!;
     const poster = dialog.querySelector<HTMLImageElement>('.product-poster')!;
-    const trigger = dialog.querySelector<HTMLButtonElement>('.spline-trigger')!;
+    const trigger = dialog.querySelector<HTMLButtonElement>('.model-trigger')!;
     const detailsName = dialog.querySelector<HTMLElement>('#details-name')!;
     const detailsCaption = dialog.querySelector<HTMLElement>('#details-caption')!;
     const detailsLink = dialog.querySelector<HTMLAnchorElement>('#details-link')!;
@@ -25,28 +25,25 @@ export function initProductDetails(): void {
     const pageRegions = () => document.querySelectorAll<HTMLElement>('.site-nav, main, footer, .skip-link');
     const lastIndex = cards.length - 1;
 
-    // Un seul canvas Spline pour toutes les réalisations (lot 5.2.4).
-    const stage = new SplineStage(stageEl);
+    // Un seul canvas 3D pour toutes les réalisations (lot 5.2.4).
+    const stage = new ModelStage(stageEl);
     const lightDevice = isLightDevice();
     let currentIndex = 0;
     let lastFocused: HTMLElement | null = null;
     let open = false;
 
-    const sceneUrl = (index: number) => {
-        const token = cards[index]?.dataset.spline;
-        return token ? splineSceneUrl(token) : null;
-    };
+    const modelOf = (index: number) => cards[index]?.dataset.model || null;
 
     function loadScene(index: number): void {
-        const url = sceneUrl(index);
-        stageEl.classList.toggle('has-scene', Boolean(url));
-        if (!url) return;
+        const model = modelOf(index);
+        stageEl.classList.toggle('has-scene', Boolean(model));
+        if (!model) return;
         if (lightDevice && !stageEl.dataset.userWants3d) {
             trigger.hidden = false;
             return;
         }
         trigger.hidden = true;
-        stage.load(url);
+        stage.load(model);
     }
 
     trigger.addEventListener('click', () => {
@@ -98,10 +95,10 @@ export function initProductDetails(): void {
             ease: 'power3.out',
         });
         closeButton.focus();
-        // Précharge la scène suivante quand le navigateur est inactif.
+        // Précharge le meuble suivant quand le navigateur est inactif.
         whenIdle(() => {
-            const nextUrl = sceneUrl(index + 1);
-            if (nextUrl && !lightDevice) fetch(nextUrl, { mode: 'cors', priority: 'low' } as RequestInit).catch(() => {});
+            const next = modelOf(index + 1);
+            if (next) stage.preload(next);
         });
     }
 

@@ -4,7 +4,7 @@ year: 2020
 order: 8
 image: ../../assets/realisations/meuble-metal-table-basse-miroir.png
 imageAlt: "Table basse en bois et acier inoxydable effet miroir"
-splineToken: "Bo3QXdtmRzDplJDc"
+model: "table-basse"
 materials: "Bois et acier inoxydable"
 # Champs facultatifs, affichés dans la fiche technique quand ils sont remplis :
 # dimensions: "300 × 210 × 40 cm"

@@ -40,7 +40,7 @@ export function setupAboutStage(container: HTMLElement): AboutStage {
     };
 
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
-    const trigger = container.querySelector<HTMLButtonElement>('.spline-trigger');
+    const trigger = container.querySelector<HTMLButtonElement>('.model-trigger');
     if (saveData && trigger) {
         trigger.hidden = false;
         trigger.addEventListener('click', () => { trigger.hidden = true; start(); }, { once: true });

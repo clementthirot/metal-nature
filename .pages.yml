@@ -37,9 +37,11 @@ content:
         label: Description de la photo (pour les malvoyants et Google)
         type: string
         required: true
-      - name: splineToken
-        label: Identifiant de la scène 3D Spline (facultatif)
-        type: string
+      - name: model
+        label: Modèle 3D (fichier public/3d/models/<nom>.glb, facultatif)
+        type: select
+        options:
+          values: ['armoire', 'bibliotheque', 'commode-arquee', 'etagere', 'meuble-de-rangement', 'table-basse', 'tables-basses-imbriquees', 'vasque']
       - name: draft
         label: Brouillon (non publié)
         type: boolean

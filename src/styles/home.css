@@ -203,7 +203,7 @@
     transition: opacity .6s;
 }
 
-img.spline-poster,
+img.model-poster,
 .product-poster {
     max-height: 100%;
     width: auto;
@@ -211,7 +211,7 @@ img.spline-poster,
     border-radius: var(--radius);
 }
 
-.spline-canvas {
+.model-canvas {
     position: absolute;
     inset: 0;
     width: 100% !important;
@@ -220,7 +220,7 @@ img.spline-poster,
     transition: opacity .6s;
 }
 
-[data-spline-state="ready"] > .spline-canvas { opacity: 1; }
+[data-model-state="ready"] > .model-canvas { opacity: 1; }
 
 /* Scène Three.js de « Notre démarche » (lot G) : plein cadre, image affichée jusqu'au chargement. */
 .about-canvas {
@@ -250,10 +250,10 @@ html:not(.motion) .about-step-still img {
 html:not(.motion) .about-visual {
     display: none;
 }
-[data-spline-state="ready"] > picture,
-[data-spline-state="ready"] > .product-poster { opacity: 0; }
+[data-model-state="ready"] > picture,
+[data-model-state="ready"] > .product-poster { opacity: 0; }
 
-.spline-trigger {
+.model-trigger {
     position: absolute;
     bottom: var(--spacing-sm);
     left: 50%;
@@ -263,7 +263,7 @@ html:not(.motion) .about-visual {
     backdrop-filter: blur(8px);
 }
 
-.spline-trigger[hidden] { display: none; }
+.model-trigger[hidden] { display: none; }
 
 /* Version statique (pas d'animation) : messages empilés dans la carte, pas d'épinglage. */
 html:not(.motion) .about-steps {
@@ -500,7 +500,7 @@ html:not(.motion) .about-progress {
     animation: pulse 1.4s ease-in-out infinite;
 }
 
-.product-stage[data-spline-state="loading"] .product-skeleton {
+.product-stage[data-model-state="loading"] .product-skeleton {
     display: flex;
 }
 

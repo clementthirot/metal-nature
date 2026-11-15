@@ -10,8 +10,6 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Scènes 3D et décodeur Draco hébergés sur le site (lot E.1)
-/spline/*
+# Modèles et textures 3D hébergés sur le site (noms sans hash : cache d'une semaine)
+/3d/*
   Cache-Control: public, max-age=604800
-/draco/*
-  Cache-Control: public, max-age=31536000

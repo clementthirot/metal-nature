@@ -23,7 +23,7 @@ npm run preview   # sert dist/ en local pour vérifier le build
 | `src/assets/` | Images sources, optimisées automatiquement au build (WebP, tailles multiples) |
 | `src/pages/` | Pages : accueil, `/realisations/<slug>/`, mentions légales, 404 |
 | `src/components/`, `src/layouts/` | Navigation, pied de page, gabarit commun (SEO, Open Graph) |
-| `src/scripts/` | Animations GSAP, carrousel, fenêtre de détail, chargement des scènes Spline |
+| `src/scripts/` | Animations GSAP, carrousel, fenêtre de détail, visionneuse et scènes 3D (Three.js) |
 | `src/styles/` | CSS globaux |
 | `src/site.ts` | Coordonnées, créneaux d'appel, zone d'intervention, types de meubles |
 | `public/` | Fichiers copiés tels quels : favicons, `robots.txt`, `_headers` Cloudflare, image de partage |
@@ -40,7 +40,7 @@ year: 2026
 order: 1
 image: ../../assets/realisations/mon-meuble.jpg
 imageAlt: "Description précise de la photo"
-splineToken: "XXXXXXXX"   # facultatif : identifiant de la scène Spline
+model: "armoire"   # facultatif : modèle 3D public/3d/models/armoire.glb
 ---
 
 Description du meuble.
@@ -71,23 +71,27 @@ avec les créneaux `callHours` de `src/site.ts`. L'e-mail reste en solution seco
 « Écrire un e-mail » ouvre la messagerie du visiteur avec un message prérempli. Il n'y a pas de
 formulaire ni de service tiers.
 
-## Scènes 3D (Spline)
+## Scènes 3D (Three.js)
 
-Les vues 3D des réalisations (fenêtre de détail et fiches) restent en Spline. Elles sont chargées avec `@splinetool/runtime` (npm), un seul canvas par emplacement,
-résolution plafonnée et rendu stoppé hors écran. Sur mobile, appareil modeste, économie de données
-ou « réduire les animations », une image s'affiche avec un bouton « Voir en 3D ».
+Tout le site est en Three.js natif (plus de Spline). Modèles, textures et code sont servis par le site, sans appel tiers.
 
-Tout est servi par le site, sans appel tiers :
-- scènes exportées dans `public/spline/<token>.splinecode` (à recopier si une scène est modifiée dans Spline :
-  `https://prod.spline.design/<token>/scene.splinecode`) ;
-- décodeur Draco dans `public/draco/` (l'URL gstatic du runtime est réécrite par un plugin Vite, `astro.config.mjs`) ;
-- police des cotes dans `public/spline/fonts/` (requête redirigée dans `src/scripts/spline.ts`).
+### Vues 3D des réalisations
 
-Sur la fiche d'une réalisation, `viewZoom` (Markdown) règle le cadrage de la vue 3D (défaut 1.6).
+Fenêtre de détail de l'accueil et fiches `/realisations/<slug>/` : visionneuse `src/scripts/model-viewer.ts`,
+chargée à la demande par `src/scripts/model-stage.ts` (un seul canvas par emplacement).
+- Le champ `model` du Markdown désigne le fichier `public/3d/models/<model>.glb` (export GLB de Spline).
+- Les GLB n'ont pas de matériaux : les finitions (chrome, métal foncé ou noir, bois clair ou foncé, laque
+  blanche) sont attribuées par modèle dans `MODELS` (`model-viewer.ts`), d'après l'index des maillages.
+  Un nouveau modèle doit y être ajouté (sinon il s'affiche entièrement en chrome).
+- Angle de vue : celui de la caméra exportée dans le GLB ; distance calculée pour que le meuble tienne dans le cadre.
+- Rotation à la souris ou au doigt, sans zoom (le défilement de la page reste libre) ; rendu à la demande,
+  pixel ratio plafonné à 1,5.
+- Sur mobile, appareil modeste, économie de données ou « réduire les animations », une image s'affiche
+  avec un bouton « Voir en 3D ».
 
-### « Notre démarche » : scène Three.js native
+### « Notre démarche »
 
-La section `#about` n'utilise plus Spline. La scène est en Three.js (`src/scripts/about-scene.ts`), chargée à
+La scène est en Three.js (`src/scripts/about-scene.ts`), chargée à
 l'approche de la section (`src/scripts/about-stage.ts`) :
 - modèles GLB dans `public/3d/models/` (étagère, tables emboîtées, commode), normalisés au chargement ;
 - textures extraites de l'ancienne scène Spline dans `public/3d/textures/` : le métal est un matcap

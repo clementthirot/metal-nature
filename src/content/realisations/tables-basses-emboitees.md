@@ -4,8 +4,7 @@ year: 2023
 order: 4
 image: ../../assets/realisations/meuble-metal-table-basse-imbriquee.png
 imageAlt: "Ensemble de tables basses gigognes en acier inoxydable"
-splineToken: "Rg1uyPemzrX7AiSz"
-viewZoom: 1.4
+model: "tables-basses-imbriquees"
 materials: "Acier inoxydable"
 # Champs facultatifs, affichés dans la fiche technique quand ils sont remplis :
 # dimensions: "300 × 210 × 40 cm"
