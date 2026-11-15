@@ -73,7 +73,7 @@ formulaire ni de service tiers.
 
 ## Scènes 3D (Spline)
 
-Les scènes sont chargées avec `@splinetool/runtime` (npm), un seul canvas par emplacement,
+Les vues 3D des réalisations (fenêtre de détail et fiches) restent en Spline. Elles sont chargées avec `@splinetool/runtime` (npm), un seul canvas par emplacement,
 résolution plafonnée et rendu stoppé hors écran. Sur mobile, appareil modeste, économie de données
 ou « réduire les animations », une image s'affiche avec un bouton « Voir en 3D ».
 
@@ -85,10 +85,21 @@ Tout est servi par le site, sans appel tiers :
 
 Sur la fiche d'une réalisation, `viewZoom` (Markdown) règle le cadrage de la vue 3D (défaut 1.6).
 
-La scène de « Notre démarche » a été animée dans Spline pour une section de 12 000 px. Sur desktop, la section
-épinglée dure `ABOUT_SCENE_SCROLL_LENGTH` = 11 000 px (`src/scripts/home.ts`) et chaque message s'affiche sur
-la plage indiquée par `data-scene-start` / `data-scene-end` (`src/pages/index.astro`). Sur mobile, la scène
-n'est pas chargée d'office et la section reste courte.
+### « Notre démarche » : scène Three.js native
+
+La section `#about` n'utilise plus Spline. La scène est en Three.js (`src/scripts/about-scene.ts`), chargée à
+l'approche de la section (`src/scripts/about-stage.ts`) :
+- modèles GLB dans `public/3d/models/` (étagère, tables emboîtées, commode), normalisés au chargement ;
+- textures extraites de l'ancienne scène Spline dans `public/3d/textures/` : le métal est un matcap
+  (`MeshMatcapMaterial`, aucun éclairage), le bois un `MeshStandardMaterial` éclairé ;
+- cadrage automatique (boîte englobante, marge de 15 %, zone à droite de la carte de texte sur desktop) ;
+- rendu à la demande uniquement, pixel ratio plafonné à 1,5.
+
+La séquence (tunnel, étagère de trois quarts, tables qui se déboîtent, commode qui tourne) est réglée dans
+`PHASES` (`about-scene.ts`). Les messages utilisent les mêmes plages via `data-progress-start` /
+`data-progress-end` (`src/pages/index.astro`) ; une seule timeline GSAP épinglée pilote les deux
+(`src/scripts/home.ts`, piste de `ABOUT_TRACK_SCREENS` hauteurs d'écran). Avec « réduire les animations »,
+chaque étape affiche une photo fixe du meuble.
 
 ## À compléter
 

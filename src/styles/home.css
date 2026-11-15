@@ -221,6 +221,35 @@ img.spline-poster,
 }
 
 [data-spline-state="ready"] > .spline-canvas { opacity: 1; }
+
+/* Scène Three.js de « Notre démarche » (lot G) : plein cadre, image affichée jusqu'au chargement. */
+.about-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity .6s;
+}
+
+.about-visual[data-scene-state="ready"] > .about-canvas { opacity: 1; }
+.about-visual[data-scene-state="ready"] > picture { opacity: 0; }
+
+/* Image fixe de chaque meuble : seulement sans animation (la scène 3D n'est pas chargée). */
+.about-step-still { display: none; }
+
+html:not(.motion) .about-step-still {
+    display: block;
+    max-width: 240px;
+}
+
+html:not(.motion) .about-step-still img {
+    border-radius: var(--radius);
+}
+
+html:not(.motion) .about-visual {
+    display: none;
+}
 [data-spline-state="ready"] > picture,
 [data-spline-state="ready"] > .product-poster { opacity: 0; }
 

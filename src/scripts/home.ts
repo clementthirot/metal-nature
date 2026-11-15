@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from './motion';
-import { isLightDevice, setupLazyStage, type SplineStage } from './spline';
+import { setupAboutStage, type AboutStage } from './about-stage';
 import { splitIntoLines } from './split-words';
 import { initCarousel, initProductDetails } from './products';
 
@@ -9,14 +9,15 @@ export function initHomePage(): void {
     initProductDetails();
     initCarousel();
 
-    // Scène 3D de « Notre démarche » : chargée à l'approche, ou à la demande sur appareil léger.
-    const aboutVisual = document.querySelector<HTMLElement>('.about-visual');
-    const aboutStage = aboutVisual?.dataset.splineUrl ? setupLazyStage(aboutVisual, aboutVisual.dataset.splineUrl) : null;
-
     if (prefersReducedMotion()) {
+        // Pas de scène 3D : chaque étape affiche une image fixe du meuble à côté de son texte.
         document.documentElement.classList.replace('motion', 'no-motion');
         return;
     }
+
+    // Scène 3D de « Notre démarche » (Three.js) : chargée à l'approche de la section.
+    const aboutVisual = document.querySelector<HTMLElement>('.about-visual');
+    const aboutStage = aboutVisual ? setupAboutStage(aboutVisual) : null;
 
     gsap.registerPlugin(ScrollTrigger);
     customCursor();
@@ -65,90 +66,44 @@ function animateTextReveals(): void {
     });
 }
 
-/* ---------- Notre démarche : section épinglée, messages synchronisés avec la scène 3D ---------- */
-/**
- * Longueur de défilement (px) pour laquelle la scène Spline de cette section a été animée
- * (ancienne section de 12 000 px : 11 000 px épinglés + l'intro). Valeur fixe tant que la scène
- * vient de Spline : ses caméras sont liées à des positions de défilement absolues.
- */
-const ABOUT_SCENE_SCROLL_LENGTH = 11000;
-const FADE = 300; // px de fondu à l'entrée et à la sortie de chaque message (piste longue)
+/* ---------- Notre démarche : une seule timeline épinglée pour la 3D et les messages (lot G) ---------- */
+/** Longueur de la piste, en hauteurs d'écran. */
+const ABOUT_TRACK_SCREENS = 6;
 
-function animateAbout(stage: SplineStage | null): void {
+function animateAbout(stage: AboutStage | null): void {
     const pin = document.querySelector<HTMLElement>('.about-pin');
     const steps = gsap.utils.toArray<HTMLElement>('.about-step');
     const bar = document.querySelector<HTMLElement>('.about-progress-bar');
     if (!pin || !steps.length) return;
 
-    const mm = gsap.matchMedia();
-
-    // Desktop avec scène chargée : piste longue, chaque message suit sa plage de la scène.
-    mm.add('(min-width: 769px)', () => {
-        if (!stage || isLightDevice()) return shortTrack(pin, steps, bar);
-
-        gsap.set(steps, { autoAlpha: 0, y: 24 });
-        const timeline = gsap.timeline({
-            defaults: { ease: 'none' },
-            scrollTrigger: {
-                trigger: pin,
-                start: 'top top',
-                end: `+=${ABOUT_SCENE_SCROLL_LENGTH}`,
-                pin: true,
-                scrub: 0.3,
-                onToggle: willChange(steps),
-            },
-        });
-        // 1 unité de timeline = 1 px de défilement.
-        timeline.set({}, {}, ABOUT_SCENE_SCROLL_LENGTH);
-        if (bar) timeline.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: ABOUT_SCENE_SCROLL_LENGTH }, 0);
-
-        steps.forEach((step, index) => {
-            const start = Number(step.dataset.sceneStart ?? 0);
-            const end = Number(step.dataset.sceneEnd ?? ABOUT_SCENE_SCROLL_LENGTH);
-            if (index === 0 && start === 0) gsap.set(step, { autoAlpha: 1, y: 0 });
-            else timeline.to(step, { autoAlpha: 1, y: 0, duration: FADE }, start);
-            if (end < ABOUT_SCENE_SCROLL_LENGTH) {
-                timeline.to(step, { autoAlpha: 0, y: -24, duration: FADE }, end - FADE);
-            }
-        });
-        // La piste fait la longueur attendue par la scène : pas de remappage du défilement.
-        // Si la scène finit de charger en cours de section, on la cale tout de suite sur la position.
-        stage.ready.then(() => window.dispatchEvent(new Event('scroll')));
-    });
-
-    // Mobile : la scène n'est pas chargée d'office, piste courte (un écran par message).
-    mm.add('(max-width: 768px)', () => shortTrack(pin, steps, bar));
-}
-
-function shortTrack(pin: HTMLElement, steps: HTMLElement[], bar: HTMLElement | null): void {
     gsap.set(steps, { autoAlpha: 0, y: 24 });
-    gsap.set(steps[0], { autoAlpha: 1, y: 0 });
-
     const timeline = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
             trigger: pin,
             start: 'top top',
-            end: () => `+=${window.innerHeight * steps.length * 0.8}`,
+            end: () => `+=${window.innerHeight * ABOUT_TRACK_SCREENS}`,
             pin: true,
-            scrub: 0.5,
+            scrub: 0.6,
             invalidateOnRefresh: true,
             onToggle: willChange(steps),
         },
     });
 
-    if (bar) timeline.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: steps.length }, 0);
+    // Timeline de durée 1 : les plages des messages sont en progression (0 → 1), comme celles de la scène.
+    timeline.set({}, {}, 1);
+    const driver = { progress: 0 };
+    timeline.to(driver, { progress: 1, duration: 1, onUpdate: () => stage?.setProgress(driver.progress) }, 0);
+    if (bar) timeline.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: 1 }, 0);
 
+    const fade = 0.025;
     steps.forEach((step, index) => {
-        if (index === 0) return;
-        // Fondu séquentiel : le message précédent disparaît avant que le suivant n'apparaisse.
-        const at = index - 0.3;
-        timeline
-            .to(steps[index - 1], { autoAlpha: 0, y: -24, duration: 0.25 }, at)
-            .to(step, { autoAlpha: 1, y: 0, duration: 0.3 }, at + 0.3);
+        const start = Number(step.dataset.progressStart ?? 0);
+        const end = Number(step.dataset.progressEnd ?? 1);
+        if (index === 0 && start === 0) gsap.set(step, { autoAlpha: 1, y: 0 });
+        else timeline.to(step, { autoAlpha: 1, y: 0, duration: fade }, start);
+        if (end < 1) timeline.to(step, { autoAlpha: 0, y: -24, duration: fade }, end - fade);
     });
-    // Courte pause sur le dernier message avant de libérer la section.
-    timeline.to({}, { duration: 0.4 });
 }
 
 /* ---------- Réalisations ---------- */

@@ -14,6 +14,8 @@ import contactImage from '../assets/images/contact.png';
 import portrait from '../assets/images/portrait-michel-valade-artisan-metal-bois.webp';
 import proposalBackground from '../assets/images/atelier-fond.jpg';
 import aboutPoster from '../assets/realisations/meuble-metal-bois-bibliotheque.png';
+import stillTables from '../assets/realisations/meuble-metal-table-basse-imbriquee.png';
+import stillCommode from '../assets/realisations/meuble-metal-commode-arquee.png';
 
 const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
     .sort((a, b) => a.data.order - b.data.order);
@@ -90,31 +92,38 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 
     <div class="about-pin">
         <div class="container about-stage">
-            <!-- data-scene-start / data-scene-end : plage de défilement (px) où le message est affiché,
-                 calée sur les plans de caméra de la scène Spline (ancienne section de 12 000 px). -->
+            <!-- data-progress-start / data-progress-end : plage (0 → 1) de la section où le message est affiché,
+                 alignée sur les phases de la scène 3D (scripts/about-scene.ts, PHASES).
+                 Les images .about-step-still ne s'affichent qu'avec « réduire les animations ». -->
             <ol class="about-steps">
-                <li class="about-step about-step-intro" data-scene-start="0" data-scene-end="1600">
+                <li class="about-step about-step-intro" data-progress-start="0" data-progress-end="0.12">
                     <span class="title-2">Respirez, <span class="strong">vous êtes bien accompagné.</span></span>
                 </li>
-                <li class="about-step" data-scene-start="1800" data-scene-end="5000">
+                <li class="about-step" data-progress-start="0.12" data-progress-end="0.3">
                     <span class="about-step-number" aria-hidden="true">01</span>
                     <span class="title-2">De votre idée à son installation, <span class="strong">nous vous accompagnons.</span></span>
                 </li>
-                <li class="about-step" data-scene-start="5000" data-scene-end="6300">
+                <li class="about-step" data-progress-start="0.3" data-progress-end="0.45">
                     <span class="about-step-number" aria-hidden="true">02</span>
                     <span class="title-2">Des matériaux robustes, <span class="strong">un savoir-faire artisanal.</span></span>
+                    <Picture class="about-step-still" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="240px"
+                             loading="lazy" alt="Bibliothèque en bois et métal réalisée par Metal Nature" />
                 </li>
-                <li class="about-step" data-scene-start="6500" data-scene-end="9000">
+                <li class="about-step" data-progress-start="0.45" data-progress-end="0.72">
                     <span class="about-step-number" aria-hidden="true">03</span>
                     <span class="title-2">Un mobilier fonctionnel, <span class="strong">qui vous ressemble.</span></span>
+                    <Picture class="about-step-still" src={stillTables} formats={['avif', 'webp']} widths={[360]} sizes="240px"
+                             loading="lazy" alt="Tables basses emboîtées en métal réalisées par Metal Nature" />
                 </li>
-                <li class="about-step" data-scene-start="9000" data-scene-end="11000">
+                <li class="about-step" data-progress-start="0.72" data-progress-end="1">
                     <span class="about-step-number" aria-hidden="true">04</span>
                     <span class="title-2">Un design à la fois <span class="strong">organique et brut.</span></span>
+                    <Picture class="about-step-still" src={stillCommode} formats={['avif', 'webp']} widths={[360]} sizes="240px"
+                             loading="lazy" alt="Commode arquée en métal chromé réalisée par Metal Nature" />
                 </li>
             </ol>
             <div class="about-progress" aria-hidden="true"><span class="about-progress-bar"></span></div>
-            <div class="about-visual" data-spline-url="/spline/idrErWFAM5jNCV1n.splinecode">
+            <div class="about-visual">
                 <Picture class="spline-poster" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="360px"
                          loading="lazy" alt="Bibliothèque en bois et métal réalisée par Metal Nature" />
                 <button type="button" class="button button-ghost spline-trigger" hidden>Voir en 3D</button>
