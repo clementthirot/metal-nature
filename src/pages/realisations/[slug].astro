@@ -1,0 +1,196 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../../components/SiteNav.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { SITE } from '../../site';
+import '../../styles/template.css';
+import '../../styles/responsive.css';
+
+export async function getStaticPaths() {
+    const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
+        .sort((a, b) => a.data.order - b.data.order);
+    return realisations.map((entry, index) => ({
+        params: { slug: entry.id },
+        props: {
+            entry,
+            previous: realisations[index - 1],
+            next: realisations[index + 1],
+        },
+    }));
+}
+
+interface Props {
+    entry: CollectionEntry<'realisations'>;
+    previous?: CollectionEntry<'realisations'>;
+    next?: CollectionEntry<'realisations'>;
+}
+
+const { entry, previous, next } = Astro.props;
+const { Content } = await render(entry);
+const { title, year, image, imageAlt, splineToken } = entry.data;
+const description = (entry.body ?? '').trim().replace(/\s+/g, ' ');
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = await getImage({ src: image, format: 'jpeg', width: 1200 });
+
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'CreativeWork',
+        name: title,
+        description,
+        dateCreated: String(year),
+        image: new URL(ogImage.src, Astro.site).href,
+        url: pageUrl,
+        creator: { '@type': 'Person', name: SITE.owner },
+        publisher: { '@type': 'Organization', name: SITE.name, url: `${SITE.url}/` },
+        material: ['Bois', 'Métal'],
+    },
+    {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${SITE.url}/` },
+            { '@type': 'ListItem', position: 2, name: 'Réalisations', item: `${SITE.url}/#products` },
+            { '@type': 'ListItem', position: 3, name: title, item: pageUrl },
+        ],
+    },
+];
+---
+<BaseLayout
+    title={`${title} • Meuble sur mesure en bois et métal | Metal Nature`}
+    description={description.length > 155 ? `${description.slice(0, 152)}…` : description}
+    ogImage={ogImage.src}
+    ogImageAlt={imageAlt}
+    ogType="article"
+    jsonLd={jsonLd}
+    bodyClass="page-realisation"
+>
+<SiteNav />
+
+<main id="main" class="realisation container">
+    <nav class="breadcrumb" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a href="/">Accueil</a></li>
+            <li><a href="/#products">Réalisations</a></li>
+            <li aria-current="page">{title}</li>
+        </ol>
+    </nav>
+
+    <article class="realisation-layout">
+        <Image class="realisation-image" src={image} widths={[360]} sizes="360px"
+               alt={imageAlt} loading="eager" fetchpriority="high" />
+        <div class="realisation-content">
+            <p class="realisation-year">Réalisé en {year}</p>
+            <h1 class="title-2">{title}</h1>
+            <div class="realisation-text"><Content /></div>
+            <a class="realisation-cta" href="/#contact">Un projet similaire ? Demandez un devis gratuit</a>
+        </div>
+    </article>
+
+    {splineToken && (
+        <div class="realisation-3d" role="group" aria-label={`Vue 3D : ${title}`}>
+            <div class="realisation-3d-render" data-spline-token={splineToken}></div>
+            <p class="secondary">Faites pivoter le modèle 3D avec la souris ou le doigt.</p>
+        </div>
+    )}
+
+    <nav class="realisation-pager" aria-label="Autres réalisations">
+        {previous ? <a href={`/realisations/${previous.id}/`} rel="prev">← {previous.data.title}</a> : <span></span>}
+        {next ? <a href={`/realisations/${next.id}/`} rel="next">{next.data.title} →</a> : <span></span>}
+    </nav>
+</main>
+
+<SiteFooter />
+
+<style>
+    .realisation {
+        padding-top: calc(var(--custom-spacing-lg) + var(--spacing-xl));
+        padding-bottom: var(--custom-spacing-lg);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xl);
+    }
+    .breadcrumb ol {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xxs);
+        padding: 0;
+        list-style: none;
+        font-size: 0.875rem;
+    }
+    .breadcrumb li + li::before {
+        content: '/';
+        margin-right: var(--spacing-xxs);
+        opacity: .5;
+    }
+    .breadcrumb a, .realisation-pager a {
+        color: inherit;
+        text-underline-offset: 4px;
+    }
+    .realisation-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        gap: var(--spacing-xl);
+        align-items: start;
+    }
+    .realisation-image {
+        width: 100%;
+        max-width: 420px; /* photos sources en 360 × 480 : on évite de trop les agrandir */
+        height: auto;
+        border-radius: var(--spacing-xs);
+    }
+    .realisation-content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    .realisation-year, .secondary {
+        opacity: .7;
+    }
+    .realisation-cta {
+        align-self: flex-start;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--spacing-xxs);
+        background: var(--color-black);
+        color: var(--color-white);
+        text-decoration: none;
+    }
+    .realisation-cta:hover {
+        opacity: .85;
+    }
+    .realisation-3d-render {
+        height: 70vh;
+        border-radius: var(--spacing-xs);
+        overflow: hidden;
+        background: #e9e9e9;
+    }
+    .realisation-3d .secondary {
+        margin-top: var(--spacing-xxs);
+        font-size: 0.875rem;
+    }
+    .realisation-pager {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--spacing-md);
+        padding-top: var(--spacing-md);
+        border-top: var(--border-secondary);
+    }
+    @media (max-width: 768px) {
+        .realisation-layout {
+            grid-template-columns: 1fr;
+        }
+        .realisation-3d-render {
+            height: 50vh;
+        }
+    }
+</style>
+
+<script>
+    import { mountSplineWhenVisible, splineSceneUrl } from '../../scripts/spline';
+    const render = document.querySelector<HTMLElement>('.realisation-3d-render');
+    const token = render?.dataset.splineToken;
+    if (render && token) mountSplineWhenVisible(render, splineSceneUrl(token));
+</script>
+</BaseLayout>

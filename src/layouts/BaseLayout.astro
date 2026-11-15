@@ -1,0 +1,71 @@
+---
+import '@fontsource-variable/urbanist';
+import '@fontsource/arapey/400-italic.css';
+import '../styles/base.css';
+import { SITE } from '../site';
+
+interface Props {
+    title: string;
+    description: string;
+    /** Image de partage (URL absolue ou chemin depuis la racine). */
+    ogImage?: string;
+    ogImageAlt?: string;
+    ogType?: 'website' | 'article';
+    noindex?: boolean;
+    /** Objet(s) JSON-LD ajoutés dans le <head>. */
+    jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+    bodyClass?: string;
+}
+
+const {
+    title,
+    description,
+    ogImage = '/og-image.jpg',
+    ogImageAlt = 'Console en chêne et acier noir réalisée par Metal Nature',
+    ogType = 'website',
+    noindex = false,
+    jsonLd,
+    bodyClass,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+---
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <meta name="description" content={description}>
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'}>
+    <link rel="canonical" href={canonical}>
+    <meta name="theme-color" content="#F5F5F5">
+
+    <meta property="og:type" content={ogType}>
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:site_name" content={SITE.name}>
+    <meta property="og:title" content={title}>
+    <meta property="og:description" content={description}>
+    <meta property="og:image" content={ogImageUrl}>
+    <meta property="og:image:alt" content={ogImageAlt}>
+    <meta property="og:url" content={canonical}>
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/x-icon" sizes="32x32" href="/favicon-metal-nature-32x32.ico">
+    <link rel="icon" type="image/x-icon" sizes="16x16" href="/favicon-metal-nature-16x16.ico">
+    <link rel="sitemap" href="/sitemap-index.xml">
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+    <!-- Les états initiaux masqués des animations ne s'appliquent que sous .motion :
+         sans JS ou avec « réduire les animations », tout reste visible. -->
+    <script is:inline>document.documentElement.classList.add(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'no-motion' : 'motion');</script>
+    <slot name="head" />
+</head>
+<body class={bodyClass}>
+<a class="skip-link" href="#main">Aller au contenu</a>
+<slot />
+</body>
+</html>

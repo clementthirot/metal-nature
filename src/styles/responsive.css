@@ -1,0 +1,144 @@
+@media screen and (max-width: 1280px) {
+
+}
+
+@media screen and (max-width: 1024px) {
+    :root {
+        --custom-spacing-lg: 80px;
+        --custom-spacing-xl: 128px;
+    }
+
+    header {
+        padding: var(--custom-spacing-xl) 0;
+    }
+
+    .header-content img {
+        flex: 10;
+    }
+
+    .carousel {
+        gap: var(--spacing-sm);
+        padding: 0 var(--spacing-md);
+    }
+
+    .carousel-item {
+        gap: var(--spacing-xs);
+        flex: 0 0 300px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+
+    /* Le bouton de contact reste visible sur mobile, en version compacte. */
+    .site-nav .contact-button {
+        padding: var(--spacing-xxs) var(--spacing-xs);
+        font-size: 0.875rem;
+    }
+
+    .header-content {
+        gap: var(--spacing-xs);
+    }
+
+    .header-content img {
+        flex: 10;
+    }
+
+    .header-content p {
+        font-size: clamp(0.75rem, var(--font-size-text), 1rem);
+        line-height: 0.75rem;
+    }
+
+    #author article {
+        flex-direction: column;
+        gap: var(--spacing-xl);
+    }
+
+    .list-group-container {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .list-group:first-of-type .list-group-item:last-child {
+        border-bottom: 1px solid darkgrey;
+    }
+
+    #contact .container {
+        flex-direction: column;
+        gap: var(--spacing-xl);
+    }
+
+    .product-caption {
+        gap: var(--spacing-md);
+        min-width: 100%;
+        width: 100%;
+        min-height: 20vh;
+        padding: var(--spacing-md);
+        margin: 0;
+    }
+
+}
+
+@media screen and (max-width: 480px) {
+
+    :root {
+        --spacing-xxs: 4px;
+        --spacing-xs: 8px;
+        --spacing-sm: 16px;
+        --spacing-md: 16px;
+        --spacing-lg: 24px;
+        --spacing-xl: 32px;
+        --spacing-xxl: 40px;
+    }
+
+    .site-nav img {
+        height: var(--spacing-md);
+    }
+
+    header {
+        padding: 200px 0;
+    }
+
+    .header-caption {
+        display : none;
+    }
+
+    #headerImage {
+        width: 150%;
+        max-width: 150%;
+    }
+
+    #proposal, .proposal-caption {
+        font-size: 1rem;
+        line-height: 1rem;
+        height: 16px;
+        transform: translateY(16px);
+    }
+
+    h2, .title-2 {
+        font-size: clamp(1.2rem, var(--font-size-text), 2rem);
+        line-height:  clamp(2.2rem, var(--line-height-text), 2.5rem);
+    }
+
+    #author .title-2,
+    #contact .title-2,
+    .product-caption h2 {
+        font-size: clamp(2rem, 2vw, 3rem);
+        line-height: clamp(3rem, 3vw, 4rem);
+    }
+
+    section, .container {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
+    }
+
+    .animate-word-container .animate-word {
+        display: inline-block;
+        transform: translateY(16px);
+        width: auto;
+        height: 16px;
+    }
+
+    #proposal .container {
+        transform: translateY(var(--custom-spacing-lg));
+    }
+}

@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import MailLink from '../components/MailLink.astro';
+import { SITE } from '../site';
+import '../styles/template.css';
+import '../styles/responsive.css';
+---
+<BaseLayout
+    title="Mentions légales • Metal Nature"
+    description="Mentions légales et politique de confidentialité du site Metal Nature."
+    noindex
+>
+<SiteNav />
+
+<main id="main" class="legal container">
+    <h1>Mentions <span class="strong">légales</span></h1>
+
+    <h2>Éditeur du site</h2>
+    <p>
+        {SITE.name} — {SITE.owner}<br>
+        Statut juridique : <span class="todo">[À COMPLÉTER : micro-entreprise, EI, SARL…]</span><br>
+        SIRET : <span class="todo">[À COMPLÉTER]</span><br>
+        Adresse : <span class="todo">[À COMPLÉTER : adresse complète]</span>, {SITE.postalCode} {SITE.city}, France<br>
+        Téléphone : <a href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a><br>
+        Courriel : <MailLink /><br>
+        Directeur de la publication : {SITE.owner}
+    </p>
+
+    <h2>Hébergement</h2>
+    <p>
+        Cloudflare, Inc. — 101 Townsend St, San Francisco, CA 94107, États-Unis — <a href="https://www.cloudflare.com">cloudflare.com</a>
+    </p>
+
+    <h2>Propriété intellectuelle</h2>
+    <p>
+        L'ensemble des contenus de ce site (textes, photographies, modèles 3D, logo) est la propriété de {SITE.name},
+        sauf mention contraire. Toute reproduction sans autorisation préalable est interdite.
+    </p>
+
+    <h2>Données personnelles</h2>
+    <p>
+        Ce site ne comporte ni formulaire, ni outil de mesure d'audience, ni cookie déposé par {SITE.name}.
+        Les informations que vous nous transmettez par courriel ou par téléphone sont utilisées uniquement pour
+        répondre à votre demande de devis et ne sont jamais cédées à des tiers.
+    </p>
+    <p>
+        Les polices et les scripts du site sont hébergés avec le site. Seuls les modèles 3D font appel à des services
+        tiers (unpkg et Spline), susceptibles de recevoir votre adresse IP lorsqu'une vue 3D s'affiche.
+    </p>
+    <p>
+        Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression de vos données.
+        Pour l'exercer, contactez {SITE.owner} par téléphone ou par courriel. Vous pouvez également adresser une
+        réclamation à la CNIL (<a href="https://www.cnil.fr">cnil.fr</a>).
+    </p>
+</main>
+
+<SiteFooter />
+
+<style>
+    .legal {
+        max-width: 760px;
+        padding-top: calc(var(--custom-spacing-lg) + var(--spacing-xl));
+        padding-bottom: var(--custom-spacing-lg);
+    }
+    h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; margin-bottom: var(--spacing-xl); }
+    h2 { margin: var(--spacing-xl) 0 var(--spacing-xs); }
+    p { margin-bottom: var(--spacing-xxs); }
+    a { color: inherit; text-underline-offset: 4px; }
+    .todo { background: #fff3c4; padding: 0 4px; }
+</style>
+</BaseLayout>

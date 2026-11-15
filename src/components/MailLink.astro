@@ -1,0 +1,14 @@
+---
+import { SITE } from '../site';
+
+interface Props {
+    class?: string;
+    subject?: string;
+    body?: string;
+}
+const { class: className, subject, body } = Astro.props;
+---
+<!-- L'adresse est reconstituée en JS (scripts/mail.ts) pour ne pas être lisible par les robots de spam. -->
+<a class:list={['js-mail', className]} href="/#contact"
+   data-user={SITE.emailUser} data-domain={SITE.emailDomain}
+   data-subject={subject} data-body={body}><slot>{SITE.emailUser} [at] {SITE.emailDomain}</slot></a>

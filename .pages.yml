@@ -1,0 +1,50 @@
+# Configuration de Pages CMS (https://pagescms.org) : interface d'édition en ligne,
+# connectée au dépôt GitHub. Aucune dépendance dans le site : chaque enregistrement
+# crée un commit, puis Cloudflare Pages reconstruit le site automatiquement.
+media:
+  input: src/assets/realisations
+  output: ../../assets/realisations
+  extensions: [jpg, jpeg, png, webp]
+
+content:
+  - name: realisations
+    label: Réalisations
+    type: collection
+    path: src/content/realisations
+    filename: "{primary}.md"
+    view:
+      fields: [title, year, draft]
+      primary: title
+      sort: [order, title]
+    fields:
+      - name: title
+        label: Nom du meuble
+        type: string
+        required: true
+      - name: year
+        label: Année de réalisation
+        type: number
+        required: true
+      - name: order
+        label: Ordre d'affichage (1 = en premier)
+        type: number
+        default: 100
+      - name: image
+        label: Photo (portrait, 360 × 480 px minimum, idéalement 720 × 960)
+        type: image
+        required: true
+      - name: imageAlt
+        label: Description de la photo (pour les malvoyants et Google)
+        type: string
+        required: true
+      - name: splineToken
+        label: Identifiant de la scène 3D Spline (facultatif)
+        type: string
+      - name: draft
+        label: Brouillon (non publié)
+        type: boolean
+        default: false
+      - name: body
+        label: Description
+        type: text
+        required: true

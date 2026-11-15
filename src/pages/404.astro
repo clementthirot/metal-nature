@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import '../styles/template.css';
+import '../styles/responsive.css';
+---
+<BaseLayout title="Page introuvable • Metal Nature" description="Cette page n'existe pas ou a été déplacée." noindex>
+<SiteNav />
+<main id="main" class="not-found container">
+    <h1 class="title-1">Page <span class="strong">introuvable</span></h1>
+    <p>Cette page n'existe pas ou a été déplacée.</p>
+    <a class="back" href="/">Retour à l'accueil</a>
+</main>
+<SiteFooter />
+<style>
+    .not-found {
+        min-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: var(--spacing-md);
+    }
+    .back { align-self: flex-start; color: inherit; text-underline-offset: 4px; }
+</style>
+</BaseLayout>

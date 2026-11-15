@@ -1,0 +1,18 @@
+---
+import logo from '../assets/images/logo-metal-nature.svg';
+const year = new Date().getFullYear();
+---
+<footer class="dark-theme">
+    <div class="container">
+        <img src={logo.src} alt="" width={logo.width} height={logo.height} loading="lazy">
+        <div class="footer-links">
+            <p class="secondary-text">© {year} Metal Nature. Tous droits réservés.</p>
+            <a class="secondary-text" href="/mentions-legales/">Mentions légales</a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    import { initMailLinks } from '../scripts/mail';
+    initMailLinks();
+</script>
