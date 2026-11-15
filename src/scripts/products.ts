@@ -1,9 +1,9 @@
 import { gsap } from 'gsap';
 import { motionDuration, prefersReducedMotion } from './motion';
-import { mountSpline, splineSceneUrl } from './spline';
+import { SplineStage, isLightDevice, splineSceneUrl, whenIdle } from './spline';
 
 /* ------------------------------------------------------------------ */
-/* Fenêtre de détail d'une réalisation (modale)                         */
+/* Fenêtre de détail d'une réalisation (lot 2.2)                        */
 /* Les cartes sont de vrais liens vers /realisations/<slug>/ : sans JS, */
 /* ou avec Ctrl/Cmd+clic, on arrive sur la fiche complète.              */
 /* ------------------------------------------------------------------ */
@@ -14,8 +14,9 @@ export function initProductDetails(): void {
     if (!cards.length || !dialog) return;
 
     const closeButton = dialog.querySelector<HTMLButtonElement>('.product-details-close-button')!;
-    const renderContainer = dialog.querySelector<HTMLElement>('.render-container')!;
-    const renderSlots = Array.from(renderContainer.querySelectorAll<HTMLElement>('.product-render'));
+    const stageEl = dialog.querySelector<HTMLElement>('.product-stage')!;
+    const poster = dialog.querySelector<HTMLImageElement>('.product-poster')!;
+    const trigger = dialog.querySelector<HTMLButtonElement>('.spline-trigger')!;
     const detailsName = dialog.querySelector<HTMLElement>('#details-name')!;
     const detailsCaption = dialog.querySelector<HTMLElement>('#details-caption')!;
     const detailsLink = dialog.querySelector<HTMLAnchorElement>('#details-link')!;
@@ -24,20 +25,43 @@ export function initProductDetails(): void {
     const pageRegions = () => document.querySelectorAll<HTMLElement>('.site-nav, main, footer, .skip-link');
     const lastIndex = cards.length - 1;
 
+    // Un seul canvas Spline pour toutes les réalisations (lot 5.2.4).
+    const stage = new SplineStage(stageEl);
+    const lightDevice = isLightDevice();
     let currentIndex = 0;
     let lastFocused: HTMLElement | null = null;
+    let open = false;
+
+    const sceneUrl = (index: number) => {
+        const token = cards[index]?.dataset.spline;
+        return token ? splineSceneUrl(token) : null;
+    };
+
+    function loadScene(index: number): void {
+        const url = sceneUrl(index);
+        stageEl.classList.toggle('has-scene', Boolean(url));
+        if (!url) return;
+        if (lightDevice && !stageEl.dataset.userWants3d) {
+            trigger.hidden = false;
+            return;
+        }
+        trigger.hidden = true;
+        stage.load(url);
+    }
+
+    trigger.addEventListener('click', () => {
+        stageEl.dataset.userWants3d = 'true';
+        loadScene(currentIndex);
+    });
 
     function showProduct(index: number, animate = true): void {
         currentIndex = index;
         const card = cards[index];
-        const { title = '', caption = '', spline } = card.dataset;
-        if (spline) mountSpline(renderSlots[index], splineSceneUrl(spline));
+        const { title = '', caption = '', poster: posterSrc = '', posterAlt = '' } = card.dataset;
 
-        gsap.to(renderContainer, {
-            x: `-${index * 100}vw`,
-            duration: animate ? motionDuration(1.5) : 0,
-            ease: 'power2.inOut',
-        });
+        poster.src = posterSrc;
+        poster.alt = posterAlt;
+        loadScene(index);
 
         const setText = () => {
             detailsName.textContent = title;
@@ -49,13 +73,10 @@ export function initProductDetails(): void {
         if (!animate || prefersReducedMotion()) {
             setText();
         } else {
-            gsap.to([detailsName, detailsCaption], {
-                opacity: 0, y: 20, duration: 0.5, stagger: 0.1,
-                onComplete: () => {
-                    setText();
-                    gsap.to([detailsName, detailsCaption], { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 });
-                },
-            });
+            gsap.timeline()
+                .to([detailsName, detailsCaption], { opacity: 0, y: 12, duration: 0.2, stagger: 0.05 })
+                .add(setText)
+                .to([detailsName, detailsCaption], { opacity: 1, y: 0, duration: 0.35, stagger: 0.05, ease: 'power3.out' });
         }
 
         detailsPrevious.disabled = index === 0;
@@ -64,21 +85,36 @@ export function initProductDetails(): void {
 
     function openDetails(index: number): void {
         lastFocused = document.activeElement as HTMLElement | null;
+        open = true;
         document.body.style.overflow = 'hidden';
         pageRegions().forEach((el) => { el.inert = true; });
         dialog!.hidden = false;
+        stage.setActive(true);
         showProduct(index, false);
-        gsap.to(dialog, { height: '100vh', duration: motionDuration(1.5), ease: 'expo.inOut' });
+        // Ouverture rapide, uniquement en clip-path (pas de recalcul de mise en page) — lot 2.2 / 5.3
+        gsap.fromTo(dialog, { clipPath: 'inset(100% 0% 0% 0%)' }, {
+            clipPath: 'inset(0% 0% 0% 0%)',
+            duration: motionDuration(0.7),
+            ease: 'power3.out',
+        });
         closeButton.focus();
+        // Précharge la scène suivante quand le navigateur est inactif.
+        whenIdle(() => {
+            const nextUrl = sceneUrl(index + 1);
+            if (nextUrl && !lightDevice) fetch(nextUrl, { mode: 'cors', priority: 'low' } as RequestInit).catch(() => {});
+        });
     }
 
     function closeDetails(): void {
+        if (!open) return;
+        open = false;
         document.body.style.overflow = '';
         pageRegions().forEach((el) => { el.inert = false; });
+        stage.setActive(false);
         gsap.to(dialog, {
-            height: 0,
-            duration: motionDuration(1.5),
-            ease: 'expo.inOut',
+            clipPath: 'inset(100% 0% 0% 0%)',
+            duration: motionDuration(0.5),
+            ease: 'power3.in',
             onComplete: () => { dialog!.hidden = true; },
         });
         lastFocused?.focus();
@@ -139,7 +175,7 @@ export function initCarousel(): void {
         gsap.to(carousel, {
             x: -currentIndex * (itemWidth + gap),
             duration: animate ? motionDuration(0.5) : 0,
-            ease: 'power2.out',
+            ease: 'power3.out',
         });
         prevBtn!.disabled = currentIndex === 0;
         nextBtn!.disabled = currentIndex >= maxIndex;
@@ -172,7 +208,7 @@ export function initCarousel(): void {
         const dx = e.changedTouches[0].clientX - touchStartX;
         if (Math.abs(dx) > 40) go(dx < 0 ? 1 : -1);
         touchStartX = null;
-    });
+    }, { passive: true });
 
     let resizeTimer: number | undefined;
     window.addEventListener('resize', () => {

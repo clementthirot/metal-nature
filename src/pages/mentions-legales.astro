@@ -4,8 +4,6 @@ import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MailLink from '../components/MailLink.astro';
 import { SITE } from '../site';
-import '../styles/template.css';
-import '../styles/responsive.css';
 ---
 <BaseLayout
     title="Mentions légales • Metal Nature"
@@ -41,13 +39,15 @@ import '../styles/responsive.css';
 
     <h2>Données personnelles</h2>
     <p>
-        Ce site ne comporte ni formulaire, ni outil de mesure d'audience, ni cookie déposé par {SITE.name}.
+        Ce site ne comporte ni outil de mesure d'audience, ni cookie déposé par {SITE.name}.
         Les informations que vous nous transmettez par courriel ou par téléphone sont utilisées uniquement pour
         répondre à votre demande de devis et ne sont jamais cédées à des tiers.
     </p>
     <p>
         Les polices et les scripts du site sont hébergés avec le site. Seuls les modèles 3D font appel à des services
-        tiers (unpkg et Spline), susceptibles de recevoir votre adresse IP lorsqu'une vue 3D s'affiche.
+        tiers (Spline pour les scènes, Google pour le décodeur 3D), susceptibles de recevoir votre adresse IP
+        lorsqu'une vue 3D s'affiche. Si vous utilisez le formulaire de devis, il prépare un e-mail dans votre
+        propre messagerie : aucune donnée n'est stockée par le site.
     </p>
     <p>
         Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression de vos données.

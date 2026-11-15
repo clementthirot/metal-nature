@@ -1,12 +1,10 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import { Image, getImage } from 'astro:assets';
+import { Picture, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { SITE } from '../../site';
-import '../../styles/template.css';
-import '../../styles/responsive.css';
 
 export async function getStaticPaths() {
     const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
@@ -29,10 +27,19 @@ interface Props {
 
 const { entry, previous, next } = Astro.props;
 const { Content } = await render(entry);
-const { title, year, image, imageAlt, splineToken } = entry.data;
+const { title, year, image, imageAlt, splineToken, materials, dimensions, finish, duration, gallery } = entry.data;
 const description = (entry.body ?? '').trim().replace(/\s+/g, ' ');
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = await getImage({ src: image, format: 'jpeg', width: 1200 });
+
+// Fiche technique : seules les lignes renseignées sont affichées.
+const specs = [
+    { label: 'Année', value: String(year) },
+    { label: 'Matériaux', value: materials },
+    { label: 'Dimensions', value: dimensions },
+    { label: 'Finition', value: finish },
+    { label: 'Durée de fabrication', value: duration },
+].filter((spec): spec is { label: string; value: string } => Boolean(spec.value));
 
 const jsonLd = [
     {
@@ -45,14 +52,14 @@ const jsonLd = [
         url: pageUrl,
         creator: { '@type': 'Person', name: SITE.owner },
         publisher: { '@type': 'Organization', name: SITE.name, url: `${SITE.url}/` },
-        material: ['Bois', 'Métal'],
+        ...(materials ? { material: materials } : {}),
     },
     {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
             { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${SITE.url}/` },
-            { '@type': 'ListItem', position: 2, name: 'Réalisations', item: `${SITE.url}/#products` },
+            { '@type': 'ListItem', position: 2, name: 'Réalisations', item: `${SITE.url}/realisations/` },
             { '@type': 'ListItem', position: 3, name: title, item: pageUrl },
         ],
     },
@@ -67,38 +74,77 @@ const jsonLd = [
     jsonLd={jsonLd}
     bodyClass="page-realisation"
 >
+{splineToken && <link slot="head" rel="preconnect" href="https://prod.spline.design" crossorigin />}
 <SiteNav />
 
 <main id="main" class="realisation container">
     <nav class="breadcrumb" aria-label="Fil d'Ariane">
         <ol>
-            <li><a href="/">Accueil</a></li>
-            <li><a href="/#products">Réalisations</a></li>
+            <li><a class="tap-link" href="/">Accueil</a></li>
+            <li><a class="tap-link" href="/realisations/">Réalisations</a></li>
             <li aria-current="page">{title}</li>
         </ol>
     </nav>
 
     <article class="realisation-layout">
-        <Image class="realisation-image" src={image} widths={[360]} sizes="360px"
-               alt={imageAlt} loading="eager" fetchpriority="high" />
+        <Picture class="realisation-image" src={image} formats={['avif', 'webp']} widths={[360]} sizes="360px"
+                 alt={imageAlt} loading="eager" fetchpriority="high" />
         <div class="realisation-content">
-            <p class="realisation-year">Réalisé en {year}</p>
             <h1 class="title-2">{title}</h1>
-            <div class="realisation-text"><Content /></div>
-            <a class="realisation-cta" href="/#contact">Un projet similaire ? Demandez un devis gratuit</a>
+            <div class="realisation-text prose"><Content /></div>
+
+            <section class="specs" aria-labelledby="specs-title">
+                <h2 id="specs-title" class="eyebrow">Fiche technique</h2>
+                <dl>
+                    {specs.map((spec) => (
+                        <div class="spec-row">
+                            <dt>{spec.label}</dt>
+                            <dd>{spec.value}</dd>
+                        </div>
+                    ))}
+                    <div class="spec-row">
+                        <dt>Fabrication</dt>
+                        <dd>Sur mesure, dans notre atelier de {SITE.city}</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <a class="button" href="/#contact">Un projet similaire ? Demandez un devis gratuit</a>
         </div>
     </article>
 
+    {gallery.length > 0 && (
+        <section class="gallery" aria-labelledby="gallery-title">
+            <h2 id="gallery-title" class="eyebrow">Galerie</h2>
+            <ul>
+                {gallery.map((photo) => (
+                    <li>
+                        <Picture src={photo.image} formats={['avif', 'webp']} widths={[400, 800]}
+                                 sizes="(max-width: 768px) 100vw, 33vw" alt={photo.alt} loading="lazy" />
+                    </li>
+                ))}
+            </ul>
+        </section>
+    )}
+
     {splineToken && (
-        <div class="realisation-3d" role="group" aria-label={`Vue 3D : ${title}`}>
-            <div class="realisation-3d-render" data-spline-token={splineToken}></div>
-            <p class="secondary">Faites pivoter le modèle 3D avec la souris ou le doigt.</p>
-        </div>
+        <section class="realisation-3d" aria-labelledby="view3d-title">
+            <h2 id="view3d-title" class="eyebrow">Vue 3D</h2>
+            <div class="realisation-3d-render" data-spline-token={splineToken}>
+                <button type="button" class="button button-ghost spline-trigger" hidden>Voir en 3D</button>
+                <p class="realisation-3d-loading">Chargement de la vue 3D…</p>
+            </div>
+            <p class="secondary-text realisation-3d-hint">Faites pivoter le modèle avec la souris ou le doigt.</p>
+        </section>
     )}
 
     <nav class="realisation-pager" aria-label="Autres réalisations">
-        {previous ? <a href={`/realisations/${previous.id}/`} rel="prev">← {previous.data.title}</a> : <span></span>}
-        {next ? <a href={`/realisations/${next.id}/`} rel="next">{next.data.title} →</a> : <span></span>}
+        {previous
+            ? <a class="tap-link" href={`/realisations/${previous.id}/`} rel="prev"><span aria-hidden="true">←</span> Réalisation précédente : {previous.data.title}</a>
+            : <span></span>}
+        {next
+            ? <a class="tap-link" href={`/realisations/${next.id}/`} rel="next">Réalisation suivante : {next.data.title} <span aria-hidden="true">→</span></a>
+            : <span></span>}
     </nav>
 </main>
 
@@ -106,80 +152,127 @@ const jsonLd = [
 
 <style>
     .realisation {
-        padding-top: calc(var(--custom-spacing-lg) + var(--spacing-xl));
-        padding-bottom: var(--custom-spacing-lg);
         display: flex;
         flex-direction: column;
         gap: var(--spacing-xl);
+        padding-top: calc(var(--nav-height) + var(--spacing-md));
+        padding-bottom: var(--section-space);
     }
     .breadcrumb ol {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--spacing-xxs);
+        align-items: center;
+        gap: 0 var(--spacing-xxs);
         padding: 0;
         list-style: none;
-        font-size: 0.875rem;
+        font-size: .9375rem;
     }
     .breadcrumb li + li::before {
         content: '/';
         margin-right: var(--spacing-xxs);
         opacity: .5;
     }
-    .breadcrumb a, .realisation-pager a {
-        color: inherit;
-        text-underline-offset: 4px;
-    }
     .realisation-layout {
         display: grid;
-        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+        grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
         gap: var(--spacing-xl);
         align-items: start;
     }
-    .realisation-image {
+    :global(img.realisation-image) {
         width: 100%;
-        max-width: 420px; /* photos sources en 360 × 480 : on évite de trop les agrandir */
-        height: auto;
-        border-radius: var(--spacing-xs);
+        border-radius: var(--radius);
     }
     .realisation-content {
         display: flex;
         flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: flex-start;
+    }
+    .realisation-text {
+        font-size: 1.125rem;
+    }
+    .specs {
+        width: 100%;
+        max-width: 560px;
+    }
+    .specs dl {
+        margin-top: var(--spacing-xs);
+    }
+    .spec-row {
+        display: grid;
+        grid-template-columns: minmax(140px, 1fr) 2fr;
+        gap: var(--spacing-xs);
+        padding: 12px 0;
+        border-bottom: var(--border-secondary);
+    }
+    .spec-row dt {
+        color: var(--color-muted-dark);
+    }
+    .gallery ul {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: var(--spacing-sm);
+        margin-top: var(--spacing-xs);
+        padding: 0;
+        list-style: none;
     }
-    .realisation-year, .secondary {
-        opacity: .7;
-    }
-    .realisation-cta {
-        align-self: flex-start;
-        padding: var(--spacing-xs) var(--spacing-sm);
-        border-radius: var(--spacing-xxs);
-        background: var(--color-black);
-        color: var(--color-white);
-        text-decoration: none;
-    }
-    .realisation-cta:hover {
-        opacity: .85;
+    .gallery :global(img) {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        border-radius: var(--radius);
     }
     .realisation-3d-render {
+        position: relative;
         height: 70vh;
-        border-radius: var(--spacing-xs);
+        margin-top: var(--spacing-xs);
+        border-radius: var(--radius);
         overflow: hidden;
         background: #e9e9e9;
     }
-    .realisation-3d .secondary {
+    .realisation-3d-render :global(.spline-canvas) {
+        position: absolute;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    .realisation-3d-render .spline-trigger {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .realisation-3d-render .spline-trigger[hidden] {
+        display: none;
+    }
+    .realisation-3d-loading {
+        position: absolute;
+        inset: auto 0 var(--spacing-md);
+        display: none;
+        text-align: center;
+        font-size: .875rem;
+    }
+    .realisation-3d-render[data-spline-state="loading"] .realisation-3d-loading {
+        display: block;
+    }
+    .realisation-3d-hint {
         margin-top: var(--spacing-xxs);
-        font-size: 0.875rem;
+        font-size: .9375rem;
     }
     .realisation-pager {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
-        gap: var(--spacing-md);
+        gap: var(--spacing-xs) var(--spacing-md);
         padding-top: var(--spacing-md);
         border-top: var(--border-secondary);
     }
     @media (max-width: 768px) {
         .realisation-layout {
             grid-template-columns: 1fr;
+        }
+        :global(img.realisation-image) {
+            max-width: 360px;
         }
         .realisation-3d-render {
             height: 50vh;
@@ -188,9 +281,9 @@ const jsonLd = [
 </style>
 
 <script>
-    import { mountSplineWhenVisible, splineSceneUrl } from '../../scripts/spline';
+    import { setupLazyStage, splineSceneUrl } from '../../scripts/spline';
     const render = document.querySelector<HTMLElement>('.realisation-3d-render');
     const token = render?.dataset.splineToken;
-    if (render && token) mountSplineWhenVisible(render, splineSceneUrl(token));
+    if (render && token) setupLazyStage(render, splineSceneUrl(token));
 </script>
 </BaseLayout>

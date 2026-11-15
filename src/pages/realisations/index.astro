@@ -1,0 +1,146 @@
+---
+import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../../components/SiteNav.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import { SITE } from '../../site';
+
+const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
+    .sort((a, b) => a.data.order - b.data.order);
+
+const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Réalisations Metal Nature',
+    url: `${SITE.url}/realisations/`,
+    hasPart: realisations.map((item) => ({
+        '@type': 'CreativeWork',
+        name: item.data.title,
+        url: `${SITE.url}/realisations/${item.id}/`,
+    })),
+};
+---
+<BaseLayout
+    title="Nos réalisations • Meubles sur mesure en bois et métal | Metal Nature"
+    description="Bibliothèques, étagères, commodes, tables basses… Découvrez les meubles sur mesure en bois et métal fabriqués par Metal Nature à Sannois (Val d'Oise)."
+    jsonLd={jsonLd}
+>
+<SiteNav />
+
+<main id="main" class="container realisations-index">
+    <nav class="breadcrumb" aria-label="Fil d'Ariane">
+        <ol>
+            <li><a class="tap-link" href="/">Accueil</a></li>
+            <li aria-current="page">Réalisations</li>
+        </ol>
+    </nav>
+    <header class="index-header">
+        <h1 class="title-1">Nos <span class="strong">réalisations</span></h1>
+        <p class="prose index-intro">
+            Chaque meuble est dessiné et fabriqué sur mesure dans notre atelier de {SITE.city}, en bois et en métal.
+            Voici une sélection de projets réalisés pour nos clients.
+        </p>
+    </header>
+
+    <ul class="index-grid">
+        {realisations.map((item, index) => (
+            <li>
+                <a class="index-card" href={`/realisations/${item.id}/`}>
+                    <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
+                             sizes="(max-width: 480px) 90vw, (max-width: 1024px) 45vw, 300px"
+                             alt="" loading={index < 4 ? 'eager' : 'lazy'} />
+                    <span class="index-card-caption">
+                        <span class="index-card-title">{item.data.title}</span>
+                        <span class="secondary-text">{item.data.year}{item.data.materials && ` · ${item.data.materials}`}</span>
+                    </span>
+                </a>
+            </li>
+        ))}
+    </ul>
+
+    <aside class="index-cta">
+        <p class="title-2">Un projet en tête ?</p>
+        <a class="button" href="/#contact">Demander un devis gratuit</a>
+    </aside>
+</main>
+
+<SiteFooter />
+
+<style>
+    .realisations-index {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xl);
+        padding-top: calc(var(--nav-height) + var(--spacing-md));
+        padding-bottom: var(--section-space);
+    }
+    .breadcrumb ol {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 var(--spacing-xxs);
+        align-items: center;
+        padding: 0;
+        list-style: none;
+        font-size: .9375rem;
+    }
+    .breadcrumb li + li::before {
+        content: '/';
+        margin-right: var(--spacing-xxs);
+        opacity: .5;
+    }
+    .index-header {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    .index-intro {
+        font-size: 1.125rem;
+    }
+    .index-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: var(--spacing-xl) var(--spacing-md);
+        padding: 0;
+        list-style: none;
+    }
+    .index-card {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        color: inherit;
+        text-decoration: none;
+    }
+    .index-card :global(picture) {
+        overflow: hidden;
+        border-radius: var(--radius);
+    }
+    .index-card :global(img) {
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        object-fit: cover;
+        transition: transform .5s var(--ease-out);
+    }
+    .index-card:hover :global(img),
+    .index-card:focus-visible :global(img) {
+        transform: scale(1.03);
+    }
+    .index-card-caption {
+        display: flex;
+        flex-direction: column;
+    }
+    .index-card-title {
+        font-size: 1.25rem;
+    }
+    .index-cta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--spacing-md);
+        padding: var(--spacing-xl);
+        border-radius: var(--radius);
+        background: #e9e9e9;
+    }
+</style>
+</BaseLayout>

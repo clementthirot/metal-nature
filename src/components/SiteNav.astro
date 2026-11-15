@@ -1,5 +1,5 @@
 ---
-import logo from '../assets/images/logo-metal-nature.svg';
+import Logo from './Logo.astro';
 
 interface Props {
     /** Lien du bouton de contact : ancre sur l'accueil, page d'accueil ailleurs. */
@@ -10,10 +10,13 @@ const { contactHref = '/#contact' } = Astro.props;
 <nav class="site-nav" aria-label="Navigation principale">
     <div class="container">
         <a href="/" class="nav-logo">
-            <img src={logo.src} alt="Metal Nature – accueil" width={logo.width} height={logo.height}>
+            <Logo title="Metal Nature – accueil" />
         </a>
-        <div class="nav-list-items">
-            <a class="contact-button" href={contactHref}>Nous contacter</a>
-        </div>
+        <a class="button" href={contactHref}>Nous contacter</a>
     </div>
 </nav>
+
+<script>
+    import { initNavTheme } from '../scripts/nav';
+    initNavTheme();
+</script>

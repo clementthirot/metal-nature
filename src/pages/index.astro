@@ -1,23 +1,25 @@
 ---
 import { getCollection } from 'astro:content';
-import { Image, getImage } from 'astro:assets';
+import { Image, Picture, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MailLink from '../components/MailLink.astro';
-import { SITE } from '../site';
-import '../styles/template.css';
-import '../styles/responsive.css';
+import ContactForm from '../components/ContactForm.astro';
+import ArrowIcon from '../components/ArrowIcon.astro';
+import { SITE, FURNITURE_TYPES } from '../site';
+import '../styles/home.css';
 
 import headerImage from '../assets/images/header.png';
 import contactImage from '../assets/images/contact.png';
 import portrait from '../assets/images/portrait-michel-valade-artisan-metal-bois.webp';
 import proposalBackground from '../assets/images/atelier-fond.jpg';
+import aboutPoster from '../assets/realisations/meuble-metal-bois-bibliotheque.png';
 
 const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
     .sort((a, b) => a.data.order - b.data.order);
-
-const proposalBg = await getImage({ src: proposalBackground, format: 'webp', width: 1600 });
+// Image affichée dans la fenêtre de détail en attendant (ou à la place de) la scène 3D.
+const posters = await Promise.all(realisations.map((item) => getImage({ src: item.data.image, format: 'webp', width: 360 })));
 
 const jsonLd = {
     '@context': 'https://schema.org',
@@ -44,6 +46,7 @@ const jsonLd = {
 };
 
 const mailBody = "Bonjour Michel,\n\nJ'aimerais réaliser un devis avec vous au sujet de [décrivez votre projet].\nPouvez-vous me recontacter ?\n\nCordialement";
+const furnitureBody = (name: string) => `Bonjour Michel,\n\nJe souhaite faire réaliser un(e) ${name} sur mesure.\n\nDimensions approximatives :\nPièce :\nMatériaux souhaités :\n\nCordialement`;
 ---
 <BaseLayout
     title="Metal Nature • Meubles artisanaux sur mesure en bois et métal – Sannois, Val d'Oise"
@@ -51,54 +54,74 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais réaliser un devis avec vous au 
     jsonLd={jsonLd}
     bodyClass="page-home"
 >
+<link slot="head" rel="preconnect" href="https://prod.spline.design" crossorigin />
+
 <SiteNav contactHref="#contact" />
 
 <main id="main">
-<header id="home" class="container">
+<!-- ============================ HERO ============================ -->
+<header id="home" class="hero container">
     <h1 class="sr-only">Metal Nature, meubles artisanaux sur mesure en bois et métal à Sannois (Val d'Oise)</h1>
-    <p class="animation-container" aria-hidden="true">
-        <span class="title-1 title-line">La touche authentique</span>
+    <p class="hero-title" aria-hidden="true">
+        <span class="hero-line"><span class="title-1 title-line">La touche authentique</span></span>
+        <span class="hero-line"><span class="title-1 title-line strong">à votre intérieur</span></span>
     </p>
-    <p class="animation-container" aria-hidden="true">
-        <span class="title-1 title-line strong">à votre intérieur</span>
-    </p>
-    <div class="header-content">
-        <p class="header-caption" aria-hidden="true">Faites défiler l'écran</p>
-        <Image id="headerImage" src={headerImage} widths={[350, 700]} sizes="(max-width: 480px) 150vw, 700px"
-               loading="eager" fetchpriority="high"
-               alt="Console murale en chêne massif et acier noir à deux plateaux, réalisée sur mesure" />
-        <p class="header-caption">Basé à Sannois, Val d'Oise</p>
+    <div class="hero-content">
+        <a class="hero-caption tap-link" href="#about">Faites défiler <span aria-hidden="true">↓</span></a>
+        <div class="hero-media">
+            <Picture id="headerImage" src={headerImage} formats={['avif', 'webp']} widths={[350, 520, 700]}
+                     sizes="(max-width: 480px) 90vw, (max-width: 1024px) 60vw, 520px"
+                     loading="eager" fetchpriority="high"
+                     alt="Console murale en chêne massif et acier noir à deux plateaux, réalisée sur mesure" />
+        </div>
+        <p class="hero-caption hero-caption-end">Basé à Sannois, Val d'Oise</p>
     </div>
 </header>
 
-<section id="about" aria-labelledby="about-title">
-    <div class="container">
-        <h2 id="about-title" class="sr-only">Notre démarche</h2>
-        <p class="title-2" id="about-text">
-            Metal Nature c’est du mobilier artisanal unique conçu avec soin et des matériaux nobles. Nous allions
-            menuiserie et métallerie pour fabriquer des meubles à la fois esthétiques et robustes. Nous dédions un
-            accompagnement sur mesure à vos projets de leur création à leur installation finale.
+<!-- ======================= NOTRE DÉMARCHE ======================= -->
+<section id="about" class="about" aria-labelledby="about-title">
+    <div class="container about-intro">
+        <h2 id="about-title" class="eyebrow">Notre démarche</h2>
+        <p class="title-2 split-lines" id="about-text">
+            Metal Nature, c’est du mobilier artisanal unique, conçu avec soin dans des matériaux nobles. Nous allions
+            menuiserie et métallerie pour fabriquer des meubles à la fois beaux et robustes, et nous vous accompagnons
+            de l’idée à l’installation.
         </p>
         <div class="separator" aria-hidden="true"></div>
+        <a class="tap-link about-skip" href="#products">Passer à nos réalisations <span aria-hidden="true">↓</span></a>
     </div>
 
-    <div class="about-caption-list">
-        <p id="about-caption-1" class="about-caption title-2 strong">Respirez</p>
-        <p id="about-caption-2" class="about-caption title-2">Vous êtes encadré</p>
-        <p id="about-caption-3" class="about-caption title-2">De votre idée de projet initial</p>
-        <p id="about-caption-4" class="about-caption title-2">À sa conception finale</p>
-        <p id="about-caption-5" class="about-caption title-2">Nous vous accompagnons</p>
-        <p id="about-caption-6" class="about-caption title-2">Nous allions des matériaux robustes à un savoir-faire artisanal</p>
-        <p id="about-caption-7" class="about-caption title-2">Pour créer du mobilier fonctionnel qui vous ressemble</p>
-        <p id="about-caption-8" class="about-caption title-2">Avec un design à la fois organique et brut</p>
+    <div class="about-pin">
+        <div class="container about-stage">
+            <ol class="about-steps">
+                <li class="about-step">
+                    <span class="about-step-number" aria-hidden="true">01</span>
+                    <span class="title-2">De votre idée à son installation, <span class="strong">nous vous accompagnons.</span></span>
+                </li>
+                <li class="about-step">
+                    <span class="about-step-number" aria-hidden="true">02</span>
+                    <span class="title-2">Des matériaux robustes, <span class="strong">un savoir-faire artisanal.</span></span>
+                </li>
+                <li class="about-step">
+                    <span class="about-step-number" aria-hidden="true">03</span>
+                    <span class="title-2">Un mobilier fonctionnel, <span class="strong">au design organique et brut.</span></span>
+                </li>
+            </ol>
+            <div class="about-progress" aria-hidden="true"><span class="about-progress-bar"></span></div>
+            <div class="about-visual" data-spline-url="https://prod.spline.design/idrErWFAM5jNCV1n/scene.splinecode">
+                <Picture class="spline-poster" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="360px"
+                         loading="lazy" alt="Bibliothèque en bois et métal réalisée par Metal Nature" />
+                <button type="button" class="button button-ghost spline-trigger" hidden>Voir en 3D</button>
+            </div>
+        </div>
     </div>
-    <div class="about-render" data-spline-url="https://prod.spline.design/idrErWFAM5jNCV1n/scene.splinecode" aria-hidden="true"></div>
 </section>
 
-<section id="products" class="dark-theme" aria-labelledby="products-title">
-    <div class="container">
-        <h2 id="products-title" class="sr-only">Nos réalisations</h2>
-        <p id="product-caption" class="title-2">
+<!-- ======================== RÉALISATIONS ======================== -->
+<section id="products" class="products dark-theme" aria-labelledby="products-title">
+    <div class="container products-intro">
+        <h2 id="products-title" class="eyebrow">Nos réalisations</h2>
+        <p id="product-caption" class="title-2 split-lines">
             Depuis plus de cinq ans, nous créons sur mesure le mobilier qui s'intègre parfaitement à votre intérieur.
             Découvrez les projets que nous avons réalisés pour nos clients et imaginez ce que nous pourrions créer pour vous.
         </p>
@@ -106,46 +129,49 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais réaliser un devis avec vous au 
 
     <div class="carousel-container">
         <ul class="carousel" id="carousel" aria-label="Réalisations">
-            {realisations.map((item) => (
+            {realisations.map((item, index) => (
                 <li class="carousel-item">
                     <a class="carousel-item-button" href={`/realisations/${item.id}/`}
                        data-title={item.data.title}
                        data-caption={item.body?.trim()}
-                       data-spline={item.data.splineToken}>
-                        <Image src={item.data.image} widths={[300, 600]} sizes="(max-width: 1024px) 300px, 25vw"
-                               alt="" loading="lazy" />
+                       data-spline={item.data.splineToken}
+                       data-poster={posters[index].src}
+                       data-poster-alt={item.data.imageAlt}>
+                        {/* alt vide volontaire : le nom de la réalisation est déjà le texte du lien */}
+                        <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
+                                 sizes="(max-width: 1024px) 300px, 25vw" alt="" loading="lazy" />
                         <span class="carousel-item-caption">
-                            <span>{item.data.title}</span>
+                            <span>{item.data.title}<span class="sr-only">, </span></span>
                             <span>{item.data.year}</span>
                         </span>
                     </a>
                 </li>
             ))}
         </ul>
-        <div class="carousel-action-group">
-            <button type="button" id="carouselPrevious" class="carousel-action" aria-controls="carousel" aria-label="Réalisations précédentes">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" focusable="false">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
-                </svg>
-            </button>
-            <button type="button" id="carouselNext" class="carousel-action" aria-controls="carousel" aria-label="Réalisations suivantes">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" focusable="false">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                </svg>
-            </button>
+        <div class="container carousel-footer">
+            <div class="carousel-action-group">
+                <button type="button" id="carouselPrevious" class="carousel-action" aria-controls="carousel" aria-label="Réalisations précédentes">
+                    <ArrowIcon direction="left" />
+                </button>
+                <button type="button" id="carouselNext" class="carousel-action" aria-controls="carousel" aria-label="Réalisations suivantes">
+                    <ArrowIcon direction="right" />
+                </button>
+            </div>
+            <a class="tap-link" href="/realisations/">Voir toutes les réalisations</a>
         </div>
     </div>
 </section>
 
-<section id="author" aria-labelledby="author-name">
+<!-- =========================== ARTISAN ========================== -->
+<section id="author" class="author" aria-labelledby="author-name">
     <p class="scroll-title" aria-hidden="true">
         <span class="part-1">Artisan</span>
         <span class="part-2 strong">Créateur</span>
     </p>
-    <article class="container">
-        <Image src={portrait} widths={[300, 481]} sizes="(max-width: 768px) 100vw, 300px" loading="lazy"
-               alt="Portrait de Michel Valade, menuisier et métallier, fondateur de Metal Nature" />
-        <div class="about-quote">
+    <article class="container author-card">
+        <Picture src={portrait} formats={['avif', 'webp']} widths={[320, 481]} sizes="(max-width: 768px) 90vw, 320px" loading="lazy"
+                 alt="Portrait de Michel Valade, menuisier et métallier, fondateur de Metal Nature" />
+        <div class="about-quote prose">
             <h2 id="author-name" class="title-2">Michel Valade, artisan créateur</h2>
             <p>
                 Autrefois exclusivement menuisier, Michel a enrichi son parcours en devenant également métallier. Aujourd'hui, il crée des meubles sur mesure, alliant bois et métal avec une délicatesse et une précision admirables. Ses mains expertes donnent vie à des pièces uniques, alliant esthétique et fonctionnalité avec une simplicité touchante.
@@ -157,65 +183,69 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais réaliser un devis avec vous au 
     </article>
 </section>
 
-<section id="proposal" aria-labelledby="proposal-title" style={`--proposal-bg: url(${proposalBg.src})`}>
+<!-- ===================== CE QUE NOUS FABRIQUONS ==================== -->
+<section id="proposal" class="proposal" aria-labelledby="proposal-title">
+    <Image class="proposal-bg" src={proposalBackground} widths={[800, 1600]} sizes="100vw" format="webp"
+           loading="lazy" alt="" />
     <div class="container">
-        <h2 id="proposal-title" class="sr-only">Ce que nous fabriquons</h2>
-        <p id="proposal-caption">
-            De la table basse au bureau fonctionnel, en passant par le dressing et la bibliothèque, chaque création est
-            pensée pour embellir vos espaces. Nous fabriquons des meubles variés et notre plus grande fierté est de les voir matérialisés chez vous.
-        </p>
-        <div class="list-group-container">
+        <div class="proposal-card">
+            <h2 id="proposal-title" class="eyebrow">Ce que nous fabriquons</h2>
+            <p id="proposal-caption" class="proposal-caption">
+                De la table basse au bureau fonctionnel, en passant par le dressing et la bibliothèque, chaque création est
+                pensée pour embellir vos espaces. Nous fabriquons des meubles variés, et notre plus grande fierté est de
+                les voir prendre place chez vous. Choisissez un type de meuble pour nous écrire directement.
+            </p>
             <ul class="list-group">
-                <li class="list-group-item">Dressings</li>
-                <li class="list-group-item">Placards</li>
-                <li class="list-group-item">Rangements sous escalier</li>
-                <li class="list-group-item">Rangements sous combles</li>
-                <li class="list-group-item">Rangements d’entrée</li>
-                <li class="list-group-item">Étagères murales</li>
-                <li class="list-group-item">Bibliothèques</li>
-            </ul>
-            <ul class="list-group">
-                <li class="list-group-item">Lits</li>
-                <li class="list-group-item">Bureaux</li>
-                <li class="list-group-item">Tables</li>
-                <li class="list-group-item">Tables basses</li>
-                <li class="list-group-item">Caissons de bureau</li>
-                <li class="list-group-item">Buffets</li>
-                <li class="list-group-item">Bancs</li>
+                {FURNITURE_TYPES.map(({ label, name }) => (
+                    <li class="list-group-item">
+                        <MailLink class="list-group-link" subject={`Projet de ${name} sur mesure`} body={furnitureBody(name)}>
+                            <span>{label}</span>
+                            <span class="sr-only"> : nous écrire</span>
+                            <ArrowIcon direction="right" />
+                        </MailLink>
+                    </li>
+                ))}
             </ul>
         </div>
     </div>
 </section>
 
-<section id="contact" class="dark-theme" aria-labelledby="contact-title">
-    <div class="container">
-        <Image src={contactImage} widths={[360]} loading="lazy" alt="" />
+<!-- =========================== CONTACT ========================== -->
+<section id="contact" class="contact dark-theme" aria-labelledby="contact-title">
+    <div class="container contact-grid">
         <div class="contact-group">
             <div>
-                <h2 id="contact-title">Un projet à nous <span class="strong">confier ?</span></h2>
-                <p class="secondary-text">
-                    Contactez-nous — Nous serions ravis de discuter des détails de votre projet et de réaliser
-                    gratuitement un devis avec vous.
+                <h2 id="contact-title" class="title-2">Un projet à nous <span class="strong">confier ?</span></h2>
+                <p class="secondary-text prose">
+                    Décrivez-nous votre idée : nous vous rappelons pour en discuter et établir un devis, gratuitement.
                 </p>
             </div>
+
+            <ul class="reassurance" aria-label="Nos engagements">
+                <li><span><strong>Devis gratuit</strong> et sans engagement</span></li>
+                <li><span><strong>Réponse {SITE.responseTime}</strong></span></li>
+                <li><span><strong>Intervention</strong> à {SITE.areaServed}</span></li>
+            </ul>
+
+            <ContactForm />
+
             <address class="contact-details">
                 <div>
-                    <p>Atelier</p>
-                    <p class="secondary-text">{SITE.city} ({SITE.postalCode}), {SITE.department}</p>
+                    <p class="contact-label">Téléphone</p>
+                    <a class="tap-link" href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a>
                 </div>
                 <div>
-                    <p>Courriel</p>
-                    <p class="secondary-text"><MailLink /></p>
+                    <p class="contact-label">Courriel</p>
+                    <MailLink class="tap-link" subject="Projet de meuble sur mesure" body={mailBody} />
                 </div>
                 <div>
-                    <p>Téléphone</p>
-                    <p class="secondary-text"><a href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a></p>
+                    <p class="contact-label">Atelier</p>
+                    <p class="contact-value">{SITE.city} ({SITE.postalCode}), {SITE.department}</p>
                 </div>
             </address>
-            <MailLink class="contact-button" subject="Projet de meuble sur mesure" body={mailBody}>
-                Envoyez-nous un mail
-            </MailLink>
         </div>
+        <Picture class="contact-image" src={contactImage} formats={['avif', 'webp']} widths={[360]}
+                 sizes="(max-width: 768px) 100vw, 50vw" loading="lazy" alt="" />
     </div>
 </section>
 </main>
@@ -223,28 +253,28 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais réaliser un devis avec vous au 
 <!-- Fenêtre de détail d'une réalisation, ouverte depuis le carrousel (scripts/products.ts). -->
 <div class="product-details-container" role="dialog" aria-modal="true"
      aria-labelledby="details-name" aria-describedby="details-caption" hidden>
-    <button type="button" class="product-details-close-button">Fermer</button>
-    <div class="product-caption">
-        <div class="product-content" aria-live="polite">
-            <h2 id="details-name"></h2>
-            <p id="details-caption"></p>
-            <a id="details-link" class="details-link" href="/">Voir la fiche complète</a>
+    <button type="button" class="product-details-close-button button">Fermer</button>
+    <div class="product-details-layout">
+        <div class="product-stage" aria-hidden="true">
+            <img class="product-poster" alt="" />
+            <div class="product-skeleton"><span>Chargement de la vue 3D…</span></div>
+            <button type="button" class="button button-ghost spline-trigger" hidden>Voir en 3D</button>
         </div>
-        <div class="carousel-action-group">
-            <button type="button" class="carousel-action details-previous" aria-label="Réalisation précédente">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" focusable="false">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
-                </svg>
-            </button>
-            <button type="button" class="carousel-action details-next" aria-label="Réalisation suivante">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" focusable="false">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
-                </svg>
-            </button>
+        <div class="product-caption">
+            <div class="product-content" aria-live="polite">
+                <h2 id="details-name" class="title-2"></h2>
+                <p id="details-caption"></p>
+                <a id="details-link" class="tap-link" href="/realisations/">Voir la fiche complète</a>
+            </div>
+            <div class="carousel-action-group">
+                <button type="button" class="carousel-action details-previous" aria-label="Réalisation précédente">
+                    <ArrowIcon direction="left" />
+                </button>
+                <button type="button" class="carousel-action details-next" aria-label="Réalisation suivante">
+                    <ArrowIcon direction="right" />
+                </button>
+            </div>
         </div>
-    </div>
-    <div class="render-container" aria-hidden="true">
-        {realisations.map(() => <div class="product-render"></div>)}
     </div>
 </div>
 

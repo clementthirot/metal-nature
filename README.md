@@ -25,7 +25,7 @@ npm run preview   # sert dist/ en local pour vérifier le build
 | `src/components/`, `src/layouts/` | Navigation, pied de page, gabarit commun (SEO, Open Graph) |
 | `src/scripts/` | Animations GSAP, carrousel, fenêtre de détail, chargement des scènes Spline |
 | `src/styles/` | CSS globaux |
-| `src/site.ts` | Coordonnées de l'entreprise (téléphone, ville…) réutilisées partout |
+| `src/site.ts` | Coordonnées, zone d'intervention, délai de réponse, adresse d'envoi du formulaire, types de meubles |
 | `public/` | Fichiers copiés tels quels : favicons, `robots.txt`, `_headers` Cloudflare, image de partage |
 
 ## Ajouter une réalisation
@@ -64,7 +64,26 @@ Connecter le dépôt GitHub dans Cloudflare (Workers & Pages → Créer → Page
 Les en-têtes de sécurité et de cache sont définis dans `public/_headers`.
 Chaque branche poussée obtient une URL de prévisualisation.
 
+## Formulaire de devis
+
+Sans configuration, le formulaire prépare un e-mail prérempli dans la messagerie du visiteur.
+Pour un envoi direct (avec photo jointe), créer un formulaire sur Formspree, Web3Forms ou équivalent,
+puis renseigner son adresse dans `formEndpoint` (`src/site.ts`). Le champ photo apparaît alors.
+
+## Scènes 3D (Spline)
+
+Les scènes sont chargées avec `@splinetool/runtime` (npm), un seul canvas par emplacement,
+résolution plafonnée et rendu stoppé hors écran. Sur mobile, appareil modeste, économie de données
+ou « réduire les animations », une image s'affiche avec un bouton « Voir en 3D ».
+
+La scène de « Notre démarche » a été animée dans Spline pour l'ancienne section de 12 000 px :
+`ABOUT_SCENE_SCROLL_LENGTH` (`src/scripts/home.ts`) étire la section épinglée sur cette plage.
+Si la scène est retravaillée dans Spline, ajuster cette valeur.
+
 ## À compléter
 
 - Mentions légales : statut juridique, SIRET, adresse (`src/pages/mentions-legales.astro`)
-- Photos des réalisations en meilleure résolution (sources actuelles en 360 × 480 px)
+- Photos des réalisations en meilleure résolution (sources actuelles en 360 × 480 px) et galeries
+- Fiche technique : dimensions, finition, durée de fabrication (champs facultatifs des fichiers Markdown)
+- Délai de réponse affiché (`responseTime` dans `src/site.ts`) à confirmer
+- Avis clients

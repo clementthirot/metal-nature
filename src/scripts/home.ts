@@ -1,24 +1,17 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from './motion';
-import { mountSplineWhenVisible } from './spline';
-import { splitParagraphToWords } from './split-words';
+import { setupLazyStage, type SplineStage } from './spline';
+import { splitIntoLines } from './split-words';
 import { initCarousel, initProductDetails } from './products';
-
-const scrollTriggerStart = 'top 100%';
-
-function buildScrollTimeline(trigger: gsap.DOMTarget, scrub = false): gsap.core.Timeline {
-    return gsap.timeline({
-        scrollTrigger: { trigger, start: scrollTriggerStart, scrub },
-    });
-}
 
 export function initHomePage(): void {
     initProductDetails();
     initCarousel();
 
-    const aboutRender = document.querySelector<HTMLElement>('.about-render');
-    mountSplineWhenVisible(aboutRender, aboutRender?.dataset.splineUrl);
+    // Scène 3D de « Notre démarche » : chargée à l'approche, ou à la demande sur appareil léger.
+    const aboutVisual = document.querySelector<HTMLElement>('.about-visual');
+    const aboutStage = aboutVisual?.dataset.splineUrl ? setupLazyStage(aboutVisual, aboutVisual.dataset.splineUrl) : null;
 
     if (prefersReducedMotion()) {
         document.documentElement.classList.replace('motion', 'no-motion');
@@ -27,195 +20,163 @@ export function initHomePage(): void {
 
     gsap.registerPlugin(ScrollTrigger);
     customCursor();
-    animationAuthor();
-    animationHeader();
-    animationAbout();
-    animationProduct();
-    animationProposal();
+    animateHero();
+    animateTextReveals();
+    animateAbout(aboutStage);
+    animateProducts();
+    animateAuthor();
+    animateProposal();
+
+    // Les positions dépendent de la hauteur des textes : on recalcule une fois les polices chargées.
+    document.fonts?.ready.then(() => ScrollTrigger.refresh());
 }
 
-function animationHeader() {
-    gsap.timeline()
-        .to("#headerImage", {
-            duration: 1.5,
-            y: -80,
-            opacity: 0.8,
-            ease: "expo.inOut"
-        })
-        .to("#headerImage", {
-            duration: 1,
-            opacity: 1,
-            scale: 1,
-            ease: "expo.inOut"
-        })
-        .to(".title-line", {
-            y: 0,
-            opacity: 1,
-            duration: 1.5,
-            delay: 0.8,
-            stagger: {amount: 0.2, from: "start"},
-            ease: "power4.out"
-        }, 0)
-        .to(".site-nav", {
-            duration: 1.5,
-            y: 0,
-            delay: 1.3,
-            ease: "expo.inOut"
-        }, 0)
-        .to(".header-caption", {
-            duration: 1.5,
-            y: 0,
-            opacity: 1,
-            ease: "expo.inOut"
-        }, 0);
+/** Ajoute will-change seulement pendant qu'une animation au scroll est active (lot 5.3). */
+const willChange = (targets: gsap.TweenTarget) => (self: ScrollTrigger) =>
+    gsap.set(targets, { willChange: self.isActive ? 'transform' : 'auto' });
+
+/* ---------- Hero (lot 5.1) : image visible dès le premier rendu, transform seulement, < 1,2 s ---------- */
+function animateHero(): void {
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+        .to('#headerImage', { y: 0, scale: 1, duration: 1.1 }, 0)
+        .to('.title-line', { y: 0, duration: 0.9, stagger: 0.1 }, 0.05)
+        .to('.hero-caption', { opacity: 1, duration: 0.6 }, 0.4)
+        .to('.page-home .site-nav', { y: 0, duration: 0.7 }, 0.3);
 }
 
-function animationAbout() {
-    const aboutText = document.getElementById("about-text")!;
-    const aboutWords = splitParagraphToWords(aboutText);
-    const separator = document.querySelector("#about .separator");
-
-    gsap.set(aboutWords, {y: 40, opacity: 1});
-    gsap.set(separator, {width: 0, opacity: 1});
-
-    buildScrollTimeline(aboutText)
-        .to(aboutWords, {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            stagger: 0.015,
-            ease: "power4.out"
-        })
-        .to(separator, {
-            width: '100%',
-            duration: 1,
-            ease: "power4.out"
+/* ---------- Paragraphes révélés ligne par ligne (lot 5.4) ---------- */
+function animateTextReveals(): void {
+    document.querySelectorAll<HTMLElement>('.split-lines').forEach((paragraph) => {
+        const lines = splitIntoLines(paragraph);
+        gsap.set(lines.flat(), { yPercent: 110 });
+        const timeline = gsap.timeline({
+            scrollTrigger: { trigger: paragraph, start: 'top 85%', once: true },
         });
+        lines.forEach((words, index) => {
+            timeline.to(words, { yPercent: 0, duration: 0.8, ease: 'power3.out' }, index * 0.08);
+        });
+    });
 
-    // Phrases qui apparaissent puis disparaissent au fil du défilement (positions en px depuis le déclencheur).
-    const captions = [
-        {id: 1, trigger: 1, start: 0, end: 800, from: {opacity: 0, letterSpacing: 'normal'}, to: {opacity: 1, letterSpacing: '5px'}, out: {opacity: 0}},
-        {id: 2, trigger: 2, start: 800, end: 1600, from: {opacity: 0, scale: 1}, to: {opacity: 1, scale: 1}, out: {opacity: 0, scale: 0}},
-        {id: 3, trigger: 3, start: 1800, end: 5000},
-        {id: 4, trigger: 3, start: 2100, end: 5000},
-        {id: 5, trigger: 3, start: 2400, end: 5000},
-        {id: 6, trigger: 3, start: 5000, end: 6300},
-        {id: 7, trigger: 3, start: 6500, end: 9000},
-        {id: 8, trigger: 3, start: 9000, end: 11000},
-    ];
-
-    captions.forEach(({id, trigger, start, end, from = {opacity: 0, y: 20}, to = {opacity: 1, y: 0}, out = {opacity: 0, y: -20}}) => {
-        const target = `#about-caption-${id}`;
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: `#about-caption-${trigger}`,
-                start: `top+=${start} center`,
-                end: `top+=${end} center`,
-                scrub: true,
-            }
-        })
-            .fromTo(target, from, to)
-            .to(target, out);
+    gsap.to('.separator', {
+        scaleX: 1,
+        duration: 1,
+        ease: 'power3.out',
+        scrollTrigger: { trigger: '.separator', start: 'top 90%', once: true },
     });
 }
 
-function animationProduct() {
-    const productText = document.getElementById("product-caption")!;
-    const productWords = splitParagraphToWords(productText);
-    const productList = document.querySelectorAll('.carousel-item');
-    const carousel = document.querySelector<HTMLElement>('.carousel')!;
+/* ---------- Notre démarche (lot 1.1) : section épinglée, 3 messages, durée liée à l'écran ---------- */
+/** Longueur de défilement pour laquelle la scène 3D de cette section a été animée dans Spline. */
+const ABOUT_SCENE_SCROLL_LENGTH = 11000;
 
-    gsap.set(productWords, {y: 40, opacity: 1});
-    gsap.set(productList, {y: 50, opacity: 0});
+function animateAbout(stage: SplineStage | null): void {
+    const pin = document.querySelector<HTMLElement>('.about-pin');
+    const steps = gsap.utils.toArray<HTMLElement>('.about-step');
+    const bar = document.querySelector<HTMLElement>('.about-progress-bar');
+    if (!pin || !steps.length) return;
 
-    buildScrollTimeline(carousel)
-        .to(productWords, {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            stagger: 0.015,
-            ease: "power4.out"
-        })
-        .to(productList, {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            stagger: 0.15,
-            delay: 0.5,
-            ease: "power4.out"
-        }, "<");
-}
+    gsap.set(steps, { autoAlpha: 0, y: 24 });
+    gsap.set(steps[0], { autoAlpha: 1, y: 0 });
 
-function animationAuthor() {
-    const title = document.querySelector<HTMLElement>(".scroll-title")!;
-    const firstTitle = document.querySelector('.part-1');
-    const lastTitle = document.querySelector('.part-2');
+    const timeline = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+            trigger: pin,
+            start: 'top top',
+            end: () => `+=${window.innerHeight * steps.length}`,
+            pin: true,
+            scrub: 0.5,
+            invalidateOnRefresh: true,
+            onToggle: willChange(steps),
+        },
+    });
 
-    gsap.set(firstTitle, {x: '-30%'});
-    gsap.set(lastTitle, {x: '30%'});
+    if (bar) timeline.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: steps.length }, 0);
 
-    buildScrollTimeline(title, true)
-        .to(firstTitle, {x: '50%', ease: 'none'})
-        .to(lastTitle, {x: '-50%', ease: 'none'}, '<');
-}
+    steps.forEach((step, index) => {
+        if (index === 0) return;
+        // Fondu séquentiel : le message précédent disparaît avant que le suivant n'apparaisse.
+        const at = index - 0.3;
+        timeline
+            .to(steps[index - 1], { autoAlpha: 0, y: -24, duration: 0.25 }, at)
+            .to(step, { autoAlpha: 1, y: 0, duration: 0.3 }, at + 0.3);
+    });
+    // Courte pause sur le dernier message avant de libérer la section.
+    timeline.to({}, { duration: 0.4 });
 
-function animationProposal() {
-    const proposalContainer = document.querySelector<HTMLElement>("#proposal .container")!;
-    const proposalText = document.getElementById("proposal-caption")!;
-    const proposalWords = splitParagraphToWords(proposalText);
-    const proposalList = document.querySelectorAll<HTMLElement>('.list-group-item');
-
-    gsap.set(proposalWords, {y: 40, opacity: 1});
-    gsap.set(proposalList, {width: 0});
-
-    buildScrollTimeline(proposalContainer)
-        .to(proposalWords, {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            stagger: 0.015,
-            ease: "power4.out"
+    // La scène Spline a été réglée pour l'ancienne section de 12 000 px : on étire la progression
+    // de la section épinglée (≈ 3 écrans) sur la plage de défilement attendue par la scène.
+    const trigger = timeline.scrollTrigger;
+    stage?.ready.then(() => {
+        stage.remapScroll((scrollY) => {
+            if (!trigger || scrollY <= trigger.start) return scrollY;
+            const length = Math.max(trigger.end - trigger.start, 1);
+            const progress = Math.min((scrollY - trigger.start) / length, 1);
+            return trigger.start + progress * ABOUT_SCENE_SCROLL_LENGTH + Math.max(scrollY - trigger.end, 0);
         });
-
-    proposalList.forEach(item => {
-        const words = splitParagraphToWords(item);
-        gsap.set(words, {y: 40, opacity: 1});
-        buildScrollTimeline(item)
-            .to(words, {
-                y: 0,
-                opacity: 1,
-                duration: 1,
-                stagger: 0.015,
-                ease: "expo.inOut",
-            })
-            .to(item, {
-                width: '100%',
-                duration: 1,
-                ease: "expo.inOut",
-            });
     });
 }
 
-function customCursor() {
-    // Uniquement avec une souris (pas sur tablette tactile, même large).
+/* ---------- Réalisations ---------- */
+function animateProducts(): void {
+    ScrollTrigger.batch('.carousel-item', {
+        start: 'top 90%',
+        once: true,
+        onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out' }),
+    });
+}
+
+/* ---------- Artisan / Créateur ---------- */
+function animateAuthor(): void {
+    const title = document.querySelector<HTMLElement>('.scroll-title');
+    if (!title) return;
+    const parts = title.querySelectorAll('span');
+    gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+            trigger: title,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+            onToggle: willChange(parts),
+        },
+    })
+        .fromTo('.part-1', { xPercent: -20 }, { xPercent: 20 }, 0)
+        .fromTo('.part-2', { xPercent: 20 }, { xPercent: -20 }, 0);
+}
+
+/* ---------- Ce que nous fabriquons : un seul ScrollTrigger groupé pour la liste (lot 5.3) ---------- */
+function animateProposal(): void {
+    ScrollTrigger.batch('.list-group-item', {
+        start: 'top 92%',
+        once: true,
+        onEnter: (batch) => gsap.to(batch, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.04,
+            ease: 'power3.out',
+            onStart: () => batch.forEach((item) => item.classList.add('is-drawn')),
+        }),
+    });
+}
+
+/* ---------- Curseur (lot 5.3) : quickTo + scale, écouteurs passifs ---------- */
+function customCursor(): void {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches || window.innerWidth <= 1024) return;
 
     const cursor = document.createElement('div');
-    cursor.classList.add('custom-cursor');
+    cursor.className = 'custom-cursor';
     cursor.setAttribute('aria-hidden', 'true');
     document.body.appendChild(cursor);
 
-    document.addEventListener('mousemove', (e) => {
-        gsap.to(cursor, {x: e.clientX, y: e.clientY, duration: 0.1, ease: 'power2.out'});
-    });
+    const moveX = gsap.quickTo(cursor, 'x', { duration: 0.15, ease: 'power3.out' });
+    const moveY = gsap.quickTo(cursor, 'y', { duration: 0.15, ease: 'power3.out' });
+    const grow = gsap.quickTo(cursor, 'scale', { duration: 0.2, ease: 'power3.out' });
 
-    const grow = (size: string) => () => gsap.to(cursor, {width: size, height: size, duration: 0.2, ease: 'power2.out'});
-    // Délégation : couvre aussi les éléments créés plus tard (modale, cartes).
-    document.addEventListener('mouseover', (e) => {
-        if ((e.target as Element).closest('a, button:not(:disabled)')) grow('48px')();
-    });
-    document.addEventListener('mouseout', (e) => {
-        if ((e.target as Element).closest('a, button:not(:disabled)')) grow('24px')();
-    });
+    document.addEventListener('pointermove', (e) => { moveX(e.clientX); moveY(e.clientY); }, { passive: true });
+    const isInteractive = (target: EventTarget | null) =>
+        target instanceof Element && target.closest('a, button:not(:disabled), select, input, textarea');
+    document.addEventListener('pointerover', (e) => { if (isInteractive(e.target)) grow(2); }, { passive: true });
+    document.addEventListener('pointerout', (e) => { if (isInteractive(e.target)) grow(1); }, { passive: true });
 }
-

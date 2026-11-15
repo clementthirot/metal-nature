@@ -28,3 +28,22 @@ export function splitParagraphToWords(element: HTMLElement): HTMLElement[] {
     element.replaceChildren(srText, visual);
     return words;
 }
+
+/**
+ * Découpe en mots puis regroupe les mots par ligne affichée (même offsetTop).
+ * Animer ligne par ligne est plus lisible et moins coûteux que mot à mot (lot 5.4).
+ */
+export function splitIntoLines(element: HTMLElement): HTMLElement[][] {
+    const words = splitParagraphToWords(element);
+    const lines: HTMLElement[][] = [];
+    let lastTop: number | null = null;
+    words.forEach((word) => {
+        const top = (word.parentElement as HTMLElement).offsetTop;
+        if (lastTop === null || Math.abs(top - lastTop) > 2) {
+            lines.push([]);
+            lastTop = top;
+        }
+        lines[lines.length - 1].push(word);
+    });
+    return lines;
+}

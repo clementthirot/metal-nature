@@ -1,13 +1,13 @@
 ---
-import logo from '../assets/images/logo-metal-nature.svg';
+import Logo from './Logo.astro';
 const year = new Date().getFullYear();
 ---
-<footer class="dark-theme">
+<footer class="site-footer dark-theme">
     <div class="container">
-        <img src={logo.src} alt="" width={logo.width} height={logo.height} loading="lazy">
+        <Logo class="footer-logo" />
         <div class="footer-links">
             <p class="secondary-text">© {year} Metal Nature. Tous droits réservés.</p>
-            <a class="secondary-text" href="/mentions-legales/">Mentions légales</a>
+            <a class="tap-link secondary-text" href="/mentions-legales/">Mentions légales</a>
         </div>
     </div>
 </footer>

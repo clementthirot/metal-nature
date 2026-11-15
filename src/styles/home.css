@@ -1,0 +1,896 @@
+/* ==========================================================================
+   Page d'accueil
+   Les états initiaux des animations ne s'appliquent que sous html.motion :
+   sans JS ou avec « réduire les animations », tout reste visible et en place.
+   ========================================================================== */
+
+/* ============================== HERO ============================== */
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding-top: calc(var(--nav-height) + var(--spacing-xl));
+    padding-bottom: var(--section-space);
+    overflow: hidden;
+}
+
+.hero-title {
+    text-align: center;
+}
+
+.hero-line {
+    display: block;
+    overflow: hidden;
+}
+
+.title-line {
+    display: block;
+}
+
+.hero-content {
+    display: grid;
+    grid-template-columns: minmax(12ch, 1fr) minmax(0, 520px) minmax(12ch, 1fr);
+    align-items: center;
+    gap: var(--spacing-xl);
+    width: 100%;
+}
+
+.hero-caption {
+    min-width: 12ch;
+    white-space: nowrap;
+    color: inherit;
+    text-decoration: none;
+}
+
+.hero-caption-end {
+    justify-self: end;
+    text-align: right;
+}
+
+.hero-media img {
+    width: 100%;
+    max-height: min(62vh, 640px);
+    object-fit: cover;
+    border-radius: 999px 999px 0 0;
+}
+
+/* Intro (lot 5.1) : l'image est opaque dès le premier rendu, seul transform est animé. */
+.motion .title-line { transform: translateY(100%); }
+.motion #headerImage { transform: translateY(40px) scale(.96); }
+.motion .hero-caption { opacity: 0; }
+.motion .page-home .site-nav { transform: translateY(-100%); }
+
+@media (max-width: 768px) {
+    .hero-content {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        gap: var(--spacing-sm);
+    }
+
+    .hero-caption {
+        order: 2;
+    }
+
+    .hero-caption-end {
+        justify-self: center;
+        order: 3;
+    }
+
+    .hero-media {
+        width: min(100%, 420px);
+    }
+}
+
+/* ========================= NOTRE DÉMARCHE ========================= */
+
+.about-intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding-bottom: var(--section-space);
+}
+
+.about-intro .title-2 {
+    max-width: 30ch;
+}
+
+.separator {
+    height: 2px;
+    background-color: var(--color-black);
+    transform-origin: left center;
+}
+
+.motion .separator {
+    transform: scaleX(0);
+}
+
+.about-skip {
+    align-self: flex-start;
+}
+
+.about-pin {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    padding: calc(var(--nav-height) + var(--spacing-md)) 0 var(--spacing-xl);
+    overflow: hidden;
+}
+
+/*
+ * Desktop : la scène 3D occupe tout le cadre (elle a été conçue plein écran) et le texte
+ * est posé dans une carte semi-opaque : le modèle ne barre jamais les phrases (lot 1.1).
+ */
+.about-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 440px) 1fr;
+    grid-template-rows: auto auto;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.about-steps,
+.about-progress {
+    position: relative;
+    z-index: 1;
+}
+
+.about-steps {
+    display: grid;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--color-white) 82%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    list-style: none;
+}
+
+/* Les trois messages se superposent dans la même cellule et se relaient au scroll. */
+.motion .about-step {
+    grid-area: 1 / 1;
+}
+
+.about-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.about-step-number {
+    font-family: var(--font-serif);
+    font-style: italic;
+    opacity: .6;
+}
+
+.about-progress {
+    grid-column: 1;
+    grid-row: 2;
+    margin: 0 var(--spacing-lg);
+    height: 2px;
+    background: color-mix(in srgb, var(--color-black) 15%, transparent);
+    overflow: hidden;
+}
+
+.about-progress-bar {
+    display: block;
+    height: 100%;
+    background: var(--color-black);
+    transform-origin: left center;
+    transform: scaleX(0);
+}
+
+.about-visual {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: calc(var(--nav-height) + var(--spacing-md)) max(var(--gutter), calc((100vw - var(--container-width)) / 2 + var(--gutter))) var(--spacing-xl);
+}
+
+.about-visual picture {
+    width: min(42%, 420px);
+}
+
+.about-visual picture {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity .6s;
+}
+
+img.spline-poster,
+.product-poster {
+    max-height: 100%;
+    width: auto;
+    object-fit: contain;
+    border-radius: var(--radius);
+}
+
+.spline-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0;
+    transition: opacity .6s;
+}
+
+[data-spline-state="ready"] > .spline-canvas { opacity: 1; }
+[data-spline-state="ready"] > picture,
+[data-spline-state="ready"] > .product-poster { opacity: 0; }
+
+.spline-trigger {
+    position: absolute;
+    bottom: var(--spacing-sm);
+    left: 50%;
+    transform: translateX(-50%);
+    background: color-mix(in srgb, var(--color-white) 85%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.spline-trigger[hidden] { display: none; }
+
+/* Version statique (pas d'animation) : messages empilés dans la carte, pas d'épinglage. */
+html:not(.motion) .about-steps {
+    gap: var(--spacing-lg);
+}
+
+html:not(.motion) .about-progress {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .about-stage {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: var(--spacing-md);
+    }
+
+    .about-visual {
+        position: relative;
+        inset: auto;
+        grid-column: 1;
+        grid-row: 1;
+        height: 38vh;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .about-visual picture {
+        width: auto;
+    }
+
+    .about-steps {
+        padding: 0;
+        background: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    .about-progress {
+        margin: 0;
+    }
+
+    .about-steps { grid-row: 2; }
+    .about-progress { grid-row: 3; }
+}
+
+/* =========================== RÉALISATIONS =========================== */
+
+.products {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    padding: var(--section-space) 0 var(--spacing-xl);
+}
+
+.products-intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.products-intro .title-2 {
+    max-width: 38ch;
+}
+
+.carousel-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    overflow: hidden;
+}
+
+.carousel {
+    display: flex;
+    gap: var(--spacing-md);
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+    list-style: none;
+    touch-action: pan-y;
+}
+
+.carousel-item {
+    flex: 0 0 calc((100% - 3 * var(--spacing-md)) / 4);
+}
+
+.motion .carousel-item {
+    opacity: 0;
+    transform: translateY(40px);
+}
+
+.carousel-item-button {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    color: inherit;
+    text-decoration: none;
+}
+
+.carousel-item-button picture {
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+
+.carousel-item-button img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    transition: transform .5s var(--ease-out);
+}
+
+.carousel-item-button:hover img,
+.carousel-item-button:focus-visible img {
+    transform: scale(1.03);
+}
+
+.carousel-item-caption {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-xs);
+    font-size: clamp(1rem, 1.3vw, 1.375rem);
+}
+
+.carousel-item-caption span:last-child {
+    color: var(--color-muted-light);
+}
+
+.carousel-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+}
+
+.carousel-action-group {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.carousel-action {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--color-white);
+    color: var(--color-black);
+    cursor: pointer;
+    transition: background-color .2s, color .2s, box-shadow .2s;
+}
+
+.carousel-action:hover:not(:disabled) {
+    background-color: #d9d9d9;
+}
+
+/* État désactivé lisible : contour clair plutôt qu'un gris délavé (3,8:1 sur noir). */
+.carousel-action:disabled {
+    background-color: transparent;
+    color: #8a8c8e;
+    box-shadow: inset 0 0 0 1px #8a8c8e;
+    cursor: default;
+}
+
+@media (max-width: 1024px) {
+    .carousel { gap: var(--spacing-sm); }
+    .carousel-item { flex: 0 0 280px; }
+}
+
+@media (max-width: 480px) {
+    .carousel-item { flex: 0 0 78vw; }
+}
+
+/* ===================== FENÊTRE DE DÉTAIL (modale) ===================== */
+
+.product-details-container {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background-color: var(--color-white);
+    color: var(--color-black);
+    overflow: auto;
+}
+
+.product-details-container[hidden] {
+    display: none;
+}
+
+.product-details-close-button {
+    position: absolute;
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+    z-index: 3;
+}
+
+/* Au-dessus de 1024 px : modèle à gauche, texte à droite, sans chevauchement (lot 2.2). */
+.product-details-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 440px);
+    min-height: 100%;
+}
+
+.product-stage {
+    position: relative;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ececec;
+    overflow: hidden;
+}
+
+.product-poster {
+    max-height: 70vh;
+    transition: opacity .6s;
+}
+
+/* Squelette pendant le chargement de la scène */
+.product-skeleton {
+    position: absolute;
+    inset: auto 0 var(--spacing-md);
+    display: none;
+    justify-content: center;
+}
+
+.product-skeleton span {
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-white) 85%, transparent);
+    font-size: .875rem;
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+.product-stage[data-spline-state="loading"] .product-skeleton {
+    display: flex;
+}
+
+@keyframes pulse {
+    50% { opacity: .5; }
+}
+
+.product-caption {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    padding: calc(var(--spacing-xl) * 1.5) var(--spacing-lg);
+}
+
+.product-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.product-caption .carousel-action {
+    background-color: var(--color-black);
+    color: var(--color-white);
+}
+
+.product-caption .carousel-action:hover:not(:disabled) {
+    background-color: #36383a;
+}
+
+.product-caption .carousel-action:disabled {
+    background-color: transparent;
+    color: #6f7173;
+    box-shadow: inset 0 0 0 1px #6f7173;
+}
+
+@media (max-width: 1024px) {
+    .product-details-layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    .product-stage {
+        min-height: 55vh;
+    }
+
+    .product-caption {
+        justify-content: flex-start;
+        padding: var(--spacing-lg) var(--gutter);
+    }
+}
+
+/* ============================== ARTISAN ============================== */
+
+.author {
+    padding: var(--section-space) 0;
+    overflow: clip;
+}
+
+/* Lot 5.4 : taille bornée et couche contenue pour un rendu léger */
+.scroll-title {
+    font-size: clamp(6rem, 22vw, 18rem);
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+    contain: paint;
+    overflow: clip;
+}
+
+.scroll-title span {
+    display: block;
+}
+
+.scroll-title .part-2 {
+    text-align: right;
+}
+
+.author-card {
+    display: grid;
+    grid-template-columns: minmax(200px, 320px) minmax(0, 1fr);
+    gap: var(--spacing-xl);
+    align-items: start;
+    padding-top: var(--section-space);
+}
+
+.author-card img {
+    width: 100%;
+    border-radius: var(--radius);
+}
+
+.about-quote {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    font-size: 1.125rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .author-card {
+        grid-template-columns: 1fr;
+    }
+
+    .author-card picture {
+        max-width: 360px;
+    }
+}
+
+/* ======================= CE QUE NOUS FABRIQUONS ======================= */
+
+/* Lot 0.1 : plus de hauteur forcée ni de transform, la carte occupe sa place réelle. */
+.proposal {
+    position: relative;
+    padding: var(--section-space-lg) 0 var(--section-space);
+    isolation: isolate;
+}
+
+.proposal-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.proposal-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius);
+    background-color: var(--color-white);
+}
+
+.proposal-caption {
+    max-width: 65ch;
+    font-size: 1.125rem;
+}
+
+.list-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--spacing-xxl);
+    padding: 0;
+    list-style: none;
+}
+
+.list-group-item {
+    position: relative;
+}
+
+/* Trait sous chaque ligne, tracé en scaleX (lot 5.3) */
+.list-group-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: #a9a9a9;
+    transform-origin: left center;
+    transition: transform .9s var(--ease-out);
+}
+
+.motion .list-group-item {
+    opacity: 0;
+    transform: translateY(24px);
+}
+
+.motion .list-group-item::after {
+    transform: scaleX(0);
+}
+
+.motion .list-group-item.is-drawn::after {
+    transform: scaleX(1);
+}
+
+.list-group-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-xs);
+    min-height: 56px;
+    color: inherit;
+    font-size: clamp(1.125rem, 1rem + .5vw, 1.375rem);
+    text-decoration: none;
+}
+
+.list-group-link .arrow-icon {
+    flex: none;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity .2s, transform .3s var(--ease-out);
+}
+
+.list-group-link:hover .arrow-icon,
+.list-group-link:focus-visible .arrow-icon {
+    opacity: 1;
+    transform: none;
+}
+
+@media (hover: none) {
+    .list-group-link .arrow-icon {
+        opacity: .5;
+        transform: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .list-group {
+        grid-template-columns: 1fr;
+    }
+
+    .proposal-card {
+        padding: var(--spacing-lg) var(--spacing-sm);
+    }
+}
+
+/* ============================== CONTACT ============================== */
+
+.contact {
+    padding: var(--section-space-lg) 0;
+}
+
+/* Lot 0.2 : grille, le texte à gauche, l'image à droite, plus d'écrasement */
+.contact-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 5fr) 7fr;
+    gap: var(--spacing-xl);
+    align-items: start;
+}
+
+.contact-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    min-width: 0;
+}
+
+.contact-grid > picture {
+    min-width: 0;
+}
+
+img.contact-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: var(--radius);
+    position: sticky;
+    top: calc(var(--nav-height) + var(--spacing-md));
+}
+
+.reassurance {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxs);
+    padding: 0;
+    list-style: none;
+}
+
+.reassurance li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--spacing-xs);
+    align-items: baseline;
+}
+
+.reassurance li::before {
+    content: "✓";
+    color: var(--color-muted-light);
+}
+
+.reassurance strong {
+    font-weight: 600;
+}
+
+.contact-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-sm);
+    font-style: normal;
+    padding-top: var(--spacing-md);
+    border-top: 1px solid #3a3c3e;
+}
+
+.contact-label {
+    color: var(--color-muted-light);
+    font-size: .9375rem;
+}
+
+.contact-value {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-grid > picture {
+        order: -1;
+        max-width: 420px;
+    }
+
+    img.contact-image {
+        aspect-ratio: 4 / 3;
+        position: static;
+    }
+}
+
+/* ---------- Formulaire ---------- */
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--spacing-sm);
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field label {
+    font-weight: 500;
+}
+
+.field-optional,
+.field-hint {
+    color: var(--color-muted-light);
+    font-weight: 400;
+    font-size: .9375rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid #6f7173;
+    border-radius: 8px;
+    background: #232527;
+    color: var(--color-white);
+}
+
+.field textarea {
+    resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+    color: #9a9c9e;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+    outline: 2px solid var(--color-white);
+    outline-offset: 2px;
+    border-color: var(--color-white);
+}
+
+.field [aria-invalid="true"] {
+    border-color: #ff8a80;
+}
+
+.field-error {
+    color: #ff8a80;
+    font-size: .9375rem;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.form-status:empty {
+    display: none;
+}
+
+/* ============================== CURSEUR ============================== */
+
+.custom-cursor {
+    position: fixed;
+    top: -12px;
+    left: -12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: var(--color-white);
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+/* ========================= TEXTE ANIMÉ PAR LIGNE ========================= */
+
+.animate-word-container {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+    padding-bottom: .08em;
+}
+
+.animate-word {
+    display: inline-block;
+}

@@ -17,6 +17,13 @@ const realisations = defineCollection({
             image: image(),
             imageAlt: z.string(),
             splineToken: z.string().optional(),
+            // Fiche technique (facultative)
+            materials: z.string().optional(),
+            dimensions: z.string().optional(),
+            finish: z.string().optional(),
+            duration: z.string().optional(),
+            // Photos supplémentaires (facultatives)
+            gallery: z.array(z.object({ image: image(), alt: z.string() })).default([]),
             draft: z.boolean().default(false),
         }),
 });

@@ -1,0 +1,17 @@
+---
+// Logo en SVG intégré : sa couleur suit `color` (currentColor), ce qui permet
+// à la navigation de basculer entre fond clair et fond sombre.
+import raw from '../assets/images/logo-metal-nature.svg?raw';
+
+interface Props {
+    class?: string;
+    title?: string;
+}
+const { class: className, title } = Astro.props;
+
+const svg = raw
+    .replace(/fill="white"/g, 'fill="currentColor"')
+    .replace('<svg ', `<svg class="${className ?? ''}" ${title ? 'role="img"' : 'aria-hidden="true"'} focusable="false" `)
+    .replace(/(<svg[^>]*>)/, title ? `$1<title>${title}</title>` : '$1');
+---
+<Fragment set:html={svg} />

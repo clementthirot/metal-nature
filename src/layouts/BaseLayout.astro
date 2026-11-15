@@ -1,6 +1,8 @@
 ---
 import '@fontsource-variable/urbanist';
-import '@fontsource/arapey/400-italic.css';
+import '@fontsource/arapey/latin-400-italic.css';
+// Fichier de police du titre principal, préchargé pour accélérer le premier rendu (lot 5.4).
+import urbanistLatin from '@fontsource-variable/urbanist/files/urbanist-latin-wght-normal.woff2?url';
 import '../styles/base.css';
 import { SITE } from '../site';
 
@@ -56,6 +58,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <link rel="icon" type="image/x-icon" sizes="32x32" href="/favicon-metal-nature-32x32.ico">
     <link rel="icon" type="image/x-icon" sizes="16x16" href="/favicon-metal-nature-16x16.ico">
     <link rel="sitemap" href="/sitemap-index.xml">
+    <link rel="preload" as="font" type="font/woff2" href={urbanistLatin} crossorigin>
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 

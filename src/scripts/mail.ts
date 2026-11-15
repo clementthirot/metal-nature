@@ -9,6 +9,6 @@ export function initMailLinks(): void {
         if (body) params.set('body', body);
         const query = params.toString().replace(/\+/g, '%20');
         link.href = `mailto:${address}${query ? `?${query}` : ''}`;
-        if (!subject) link.textContent = address;
+        if (link.textContent?.includes('[at]')) link.textContent = address;
     });
 }

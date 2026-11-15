@@ -16,6 +16,7 @@
     "@astrojs/sitemap": "^3.7.5",
     "@fontsource-variable/urbanist": "^5.3.0",
     "@fontsource/arapey": "^5.3.0",
+    "@splinetool/runtime": "1.9.99",
     "astro": "^7.4.12",
     "gsap": "^3.15.1"
   }
