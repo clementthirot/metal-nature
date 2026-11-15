@@ -29,12 +29,10 @@
 
 @media screen and (max-width: 768px) {
 
-    nav .container {
-        justify-content: start;
-    }
-
-    .nav-list-items {
-        display: none;
+    /* Le bouton de contact reste visible sur mobile, en version compacte. */
+    nav .contact-button {
+        padding: var(--spacing-xxs) var(--spacing-xs);
+        font-size: 0.875rem;
     }
 
     .header-content {
