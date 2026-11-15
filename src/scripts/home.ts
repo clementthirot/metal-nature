@@ -1,7 +1,7 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from './motion';
-import { setupLazyStage, type SplineStage } from './spline';
+import { isLightDevice, setupLazyStage, type SplineStage } from './spline';
 import { splitIntoLines } from './split-words';
 import { initCarousel, initProductDetails } from './products';
 
@@ -65,9 +65,14 @@ function animateTextReveals(): void {
     });
 }
 
-/* ---------- Notre démarche (lot 1.1) : section épinglée, 3 messages, durée liée à l'écran ---------- */
-/** Longueur de défilement pour laquelle la scène 3D de cette section a été animée dans Spline. */
+/* ---------- Notre démarche : section épinglée, messages synchronisés avec la scène 3D ---------- */
+/**
+ * Longueur de défilement (px) pour laquelle la scène Spline de cette section a été animée
+ * (ancienne section de 12 000 px : 11 000 px épinglés + l'intro). Valeur fixe tant que la scène
+ * vient de Spline : ses caméras sont liées à des positions de défilement absolues.
+ */
 const ABOUT_SCENE_SCROLL_LENGTH = 11000;
+const FADE = 300; // px de fondu à l'entrée et à la sortie de chaque message (piste longue)
 
 function animateAbout(stage: SplineStage | null): void {
     const pin = document.querySelector<HTMLElement>('.about-pin');
@@ -75,6 +80,47 @@ function animateAbout(stage: SplineStage | null): void {
     const bar = document.querySelector<HTMLElement>('.about-progress-bar');
     if (!pin || !steps.length) return;
 
+    const mm = gsap.matchMedia();
+
+    // Desktop avec scène chargée : piste longue, chaque message suit sa plage de la scène.
+    mm.add('(min-width: 769px)', () => {
+        if (!stage || isLightDevice()) return shortTrack(pin, steps, bar);
+
+        gsap.set(steps, { autoAlpha: 0, y: 24 });
+        const timeline = gsap.timeline({
+            defaults: { ease: 'none' },
+            scrollTrigger: {
+                trigger: pin,
+                start: 'top top',
+                end: `+=${ABOUT_SCENE_SCROLL_LENGTH}`,
+                pin: true,
+                scrub: 0.3,
+                onToggle: willChange(steps),
+            },
+        });
+        // 1 unité de timeline = 1 px de défilement.
+        timeline.set({}, {}, ABOUT_SCENE_SCROLL_LENGTH);
+        if (bar) timeline.fromTo(bar, { scaleX: 0 }, { scaleX: 1, duration: ABOUT_SCENE_SCROLL_LENGTH }, 0);
+
+        steps.forEach((step, index) => {
+            const start = Number(step.dataset.sceneStart ?? 0);
+            const end = Number(step.dataset.sceneEnd ?? ABOUT_SCENE_SCROLL_LENGTH);
+            if (index === 0 && start === 0) gsap.set(step, { autoAlpha: 1, y: 0 });
+            else timeline.to(step, { autoAlpha: 1, y: 0, duration: FADE }, start);
+            if (end < ABOUT_SCENE_SCROLL_LENGTH) {
+                timeline.to(step, { autoAlpha: 0, y: -24, duration: FADE }, end - FADE);
+            }
+        });
+        // La piste fait la longueur attendue par la scène : pas de remappage du défilement.
+        // Si la scène finit de charger en cours de section, on la cale tout de suite sur la position.
+        stage.ready.then(() => window.dispatchEvent(new Event('scroll')));
+    });
+
+    // Mobile : la scène n'est pas chargée d'office, piste courte (un écran par message).
+    mm.add('(max-width: 768px)', () => shortTrack(pin, steps, bar));
+}
+
+function shortTrack(pin: HTMLElement, steps: HTMLElement[], bar: HTMLElement | null): void {
     gsap.set(steps, { autoAlpha: 0, y: 24 });
     gsap.set(steps[0], { autoAlpha: 1, y: 0 });
 
@@ -83,7 +129,7 @@ function animateAbout(stage: SplineStage | null): void {
         scrollTrigger: {
             trigger: pin,
             start: 'top top',
-            end: () => `+=${window.innerHeight * steps.length}`,
+            end: () => `+=${window.innerHeight * steps.length * 0.8}`,
             pin: true,
             scrub: 0.5,
             invalidateOnRefresh: true,
@@ -103,18 +149,6 @@ function animateAbout(stage: SplineStage | null): void {
     });
     // Courte pause sur le dernier message avant de libérer la section.
     timeline.to({}, { duration: 0.4 });
-
-    // La scène Spline a été réglée pour l'ancienne section de 12 000 px : on étire la progression
-    // de la section épinglée (≈ 3 écrans) sur la plage de défilement attendue par la scène.
-    const trigger = timeline.scrollTrigger;
-    stage?.ready.then(() => {
-        stage.remapScroll((scrollY) => {
-            if (!trigger || scrollY <= trigger.start) return scrollY;
-            const length = Math.max(trigger.end - trigger.start, 1);
-            const progress = Math.min((scrollY - trigger.start) / length, 1);
-            return trigger.start + progress * ABOUT_SCENE_SCROLL_LENGTH + Math.max(scrollY - trigger.end, 0);
-        });
-    });
 }
 
 /* ---------- Réalisations ---------- */

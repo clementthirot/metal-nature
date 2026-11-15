@@ -10,8 +10,9 @@ import { prefersReducedMotion } from './motion';
 
 const MAX_PIXEL_RATIO = 1.5;
 
+/** Scènes copiées dans public/spline/ (lot E.1) : plus d'appel à prod.spline.design. */
 export function splineSceneUrl(token: string): string {
-    return `https://prod.spline.design/${token}/scene.splinecode`;
+    return `/spline/${token}.splinecode`;
 }
 
 /** Vrai quand il vaut mieux ne pas charger la 3D automatiquement. */
@@ -32,8 +33,31 @@ export function whenIdle(task: () => void, timeout = 1500): void {
 /** Laisse le navigateur souffler entre deux étapes coûteuses (découpe les tâches longues). */
 const nextIdle = () => new Promise<void>((resolve) => whenIdle(() => resolve(), 500));
 
+/**
+ * Certaines scènes affichent des cotes en Urbanist, chargée par le runtime depuis fonts.gstatic.com.
+ * On sert la copie de public/spline/fonts/ à la place (lot E.1 : aucun appel tiers).
+ */
+const SPLINE_FONTS: Record<string, string> = {
+    'https://fonts.gstatic.com/s/urbanist/v10/L0xjDF02iFML4hGCyOCpRdycFsGxSrqDyx4fFpOrS8SlKw.ttf': '/spline/fonts/urbanist.ttf',
+};
+
+function redirectSplineFonts(): void {
+    const w = window as Window & { __splineFontsPatched?: boolean };
+    if (w.__splineFontsPatched) return;
+    w.__splineFontsPatched = true;
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+        const local = SPLINE_FONTS[url];
+        return nativeFetch(local ?? input, init);
+    };
+}
+
 let runtimePromise: Promise<typeof import('@splinetool/runtime')> | null = null;
-const loadRuntime = () => (runtimePromise ??= import('@splinetool/runtime'));
+const loadRuntime = () => {
+    redirectSplineFonts();
+    return (runtimePromise ??= import('@splinetool/runtime'));
+};
 
 type StageState = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -123,40 +147,6 @@ export class SplineStage {
         else this.app.stop();
     }
 
-    /**
-     * Les événements « Scroll » d'une scène Spline lisent window.scrollY en pixels absolus.
-     * `mapY` convertit la position réelle en position « virtuelle » attendue par la scène,
-     * ce qui permet de jouer une scène prévue pour un long défilement sur une piste plus courte.
-     */
-    remapScroll(mapY: (scrollY: number) => number): boolean {
-        const handler = (this.app as unknown as {
-            _eventManager?: { handlers?: { Scroll?: {
-                onScroll: EventListener;
-                isInview: boolean;
-                scrollEventsPerObject: Map<{ dispatchEvent: (e: object) => void }, { dispatch: (t: object) => void }[]>;
-            } } };
-        } | null)?._eventManager?.handlers?.Scroll;
-        if (!handler?.scrollEventsPerObject || typeof handler.onScroll !== 'function') return false;
-
-        const original = handler.onScroll;
-        window.removeEventListener('scroll', original);
-        window.removeEventListener('scroll', original, true);
-        document.removeEventListener('scroll', original);
-
-        const onScroll = () => {
-            if (!handler.isInview) return;
-            const position = { y: mapY(window.scrollY), x: window.scrollX };
-            handler.scrollEventsPerObject.forEach((events, object) => {
-                object.dispatchEvent({ type: 'beginEvent', eventName: 'Scroll', scroll: position });
-                events.forEach((event) => event.dispatch(position));
-            });
-        };
-        handler.onScroll = onScroll;
-        window.addEventListener('scroll', onScroll, { passive: true });
-        onScroll();
-        return true;
-    }
-
     setActive(active: boolean): void {
         this.active = active;
         this.sync();
@@ -177,8 +167,10 @@ export class SplineStage {
  * Prépare un emplacement 3D avec son image de repli :
  * chargement automatique à l'approche de l'écran, ou bouton « Voir en 3D » sur appareil léger.
  */
-export function setupLazyStage(container: HTMLElement, url: string): SplineStage {
+export function setupLazyStage(container: HTMLElement, url: string, options: { zoom?: number } = {}): SplineStage {
     const stage = new SplineStage(container);
+    // Lot D.3 : resserre le cadrage sur l'objet (les scènes Spline le montrent de loin).
+    if (options.zoom && options.zoom !== 1) stage.ready.then((app) => app.setZoom(options.zoom!));
     stage.pauseWhenHidden();
     const trigger = container.querySelector<HTMLButtonElement>('.spline-trigger');
 
@@ -198,7 +190,7 @@ export function setupLazyStage(container: HTMLElement, url: string): SplineStage
             observer.disconnect();
             whenIdle(() => stage.load(url));
         }
-    }, { rootMargin: '50% 0px' });
+    }, { rootMargin: '600px 0px' });
     observer.observe(container);
     return stage;
 }

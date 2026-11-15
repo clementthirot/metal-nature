@@ -9,17 +9,27 @@ import { SITE } from '../../site';
 const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
     .sort((a, b) => a.data.order - b.data.order);
 
-const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: 'Réalisations Metal Nature',
-    url: `${SITE.url}/realisations/`,
-    hasPart: realisations.map((item) => ({
-        '@type': 'CreativeWork',
-        name: item.data.title,
-        url: `${SITE.url}/realisations/${item.id}/`,
-    })),
-};
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: 'Réalisations Metal Nature',
+        url: `${SITE.url}/realisations/`,
+        hasPart: realisations.map((item) => ({
+            '@type': 'CreativeWork',
+            name: item.data.title,
+            url: `${SITE.url}/realisations/${item.id}/`,
+        })),
+    },
+    {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${SITE.url}/` },
+            { '@type': 'ListItem', position: 2, name: 'Réalisations', item: `${SITE.url}/realisations/` },
+        ],
+    },
+];
 ---
 <BaseLayout
     title="Nos réalisations • Meubles sur mesure en bois et métal | Metal Nature"
@@ -61,7 +71,11 @@ const jsonLd = {
 
     <aside class="index-cta">
         <p class="title-2">Un projet en tête ?</p>
-        <a class="button" href="/#contact">Demander un devis gratuit</a>
+        <div class="index-cta-actions">
+            <a class="button" href={`tel:${SITE.phone}`}>Appeler Michel · {SITE.phoneDisplay}</a>
+            <a class="tap-link" href="/#contact">Autres moyens de contact</a>
+        </div>
+        <p class="secondary-text">Devis gratuit et sans engagement.</p>
     </aside>
 </main>
 
@@ -131,6 +145,12 @@ const jsonLd = {
     }
     .index-card-title {
         font-size: 1.25rem;
+    }
+    .index-cta-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--spacing-xs) var(--spacing-sm);
     }
     .index-cta {
         display: flex;

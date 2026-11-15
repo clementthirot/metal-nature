@@ -7,7 +7,8 @@ imageAlt: "Bibliothèque en bois et métal à structure de pont"
 splineToken: "4177cj8T59jYKDBT"
 materials: "Bois et métal"
 # Champs facultatifs, affichés dans la fiche technique quand ils sont remplis :
-# dimensions: "300 × 210 × 40 cm"
+dimensions: "300 × 210 × 60 cm (L × H × P)"
+viewZoom: 1.8
 # finish: "Huile naturelle, acier verni mat"
 # duration: "3 semaines"
 # gallery:

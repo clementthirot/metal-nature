@@ -12,14 +12,9 @@ export const SITE = {
     department: "Val d'Oise",
     region: 'Île-de-France',
     areaServed: "Sannois, le Val-d'Oise et toute l'Île-de-France",
-    // À CONFIRMER avec Michel avant la mise en ligne : délai affiché près du formulaire.
-    responseTime: 'sous 48 h ouvrées',
-    /**
-     * Adresse d'envoi du formulaire de devis (Formspree, Web3Forms…).
-     * Vide : le formulaire prépare un e-mail dans la messagerie du visiteur (mailto).
-     * Exemple : 'https://formspree.io/f/xxxxxxx'
-     */
-    formEndpoint: '',
+    // À CONFIRMER avec Michel avant la mise en ligne : créneaux où il décroche.
+    // Chaîne vide pour masquer la mention sur le site.
+    callHours: 'en semaine, de 8 h à 18 h',
 } as const;
 
 /** Types de meubles : liste « Ce que nous fabriquons » (label) et objet du mail / choix du formulaire (name). */

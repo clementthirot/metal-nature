@@ -1,9 +1,30 @@
 ---
 import Logo from './Logo.astro';
+import { SITE } from '../site';
 const year = new Date().getFullYear();
 ---
 <footer class="site-footer dark-theme">
     <div class="container">
+        <div class="footer-columns">
+            <nav class="footer-column" aria-labelledby="footer-nav-title">
+                <p id="footer-nav-title" class="footer-title">Navigation</p>
+                <ul>
+                    <li><a class="tap-link" href="/">Accueil</a></li>
+                    <li><a class="tap-link" href="/realisations/">Réalisations</a></li>
+                    <li><a class="tap-link" href="/#about">Savoir-faire</a></li>
+                    <li><a class="tap-link" href="/#author">L'artisan</a></li>
+                    <li><a class="tap-link" href="/#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="footer-column">
+                <p class="footer-title">Contact</p>
+                <ul>
+                    <li><a class="tap-link" href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a></li>
+                    <li class="footer-text">Atelier à {SITE.city} ({SITE.postalCode}), {SITE.department}</li>
+                    {SITE.callHours && <li class="footer-text secondary-text">Joignable {SITE.callHours}</li>}
+                </ul>
+            </div>
+        </div>
         <Logo class="footer-logo" />
         <div class="footer-links">
             <p class="secondary-text">© {year} Metal Nature. Tous droits réservés.</p>

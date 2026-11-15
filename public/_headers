@@ -9,3 +9,9 @@
 # Fichiers générés par Astro avec un hash dans le nom : cache long
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Scènes 3D et décodeur Draco hébergés sur le site (lot E.1)
+/spline/*
+  Cache-Control: public, max-age=604800
+/draco/*
+  Cache-Control: public, max-age=31536000

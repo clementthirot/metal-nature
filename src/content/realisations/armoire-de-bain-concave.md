@@ -5,6 +5,7 @@ order: 6
 image: ../../assets/realisations/meuble-bois-armoire-bain.png
 imageAlt: "Armoire de salle de bain en bois aux lignes concaves"
 splineToken: "OjOP1nKHr2XJXThk"
+viewZoom: 1
 materials: "Bois"
 # Champs facultatifs, affichés dans la fiche technique quand ils sont remplis :
 # dimensions: "300 × 210 × 40 cm"

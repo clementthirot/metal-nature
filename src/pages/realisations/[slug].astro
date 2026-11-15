@@ -27,7 +27,7 @@ interface Props {
 
 const { entry, previous, next } = Astro.props;
 const { Content } = await render(entry);
-const { title, year, image, imageAlt, splineToken, materials, dimensions, finish, duration, gallery } = entry.data;
+const { title, year, image, imageAlt, splineToken, viewZoom = 1.6, materials, dimensions, finish, duration, gallery } = entry.data;
 const description = (entry.body ?? '').trim().replace(/\s+/g, ' ');
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = await getImage({ src: image, format: 'jpeg', width: 1200 });
@@ -74,7 +74,6 @@ const jsonLd = [
     jsonLd={jsonLd}
     bodyClass="page-realisation"
 >
-{splineToken && <link slot="head" rel="preconnect" href="https://prod.spline.design" crossorigin />}
 <SiteNav />
 
 <main id="main" class="realisation container">
@@ -109,7 +108,11 @@ const jsonLd = [
                 </dl>
             </section>
 
-            <a class="button" href="/#contact">Un projet similaire ? Demandez un devis gratuit</a>
+            <div class="realisation-cta">
+                <p>Un projet similaire ? Le devis est gratuit.</p>
+                <a class="button" href={`tel:${SITE.phone}`}>Appeler Michel · {SITE.phoneDisplay}</a>
+                <a class="tap-link" href="/#contact">Autres moyens de contact</a>
+            </div>
         </div>
     </article>
 
@@ -130,7 +133,7 @@ const jsonLd = [
     {splineToken && (
         <section class="realisation-3d" aria-labelledby="view3d-title">
             <h2 id="view3d-title" class="eyebrow">Vue 3D</h2>
-            <div class="realisation-3d-render" data-spline-token={splineToken}>
+            <div class="realisation-3d-render" data-spline-token={splineToken} data-view-zoom={viewZoom}>
                 <button type="button" class="button button-ghost spline-trigger" hidden>Voir en 3D</button>
                 <p class="realisation-3d-loading">Chargement de la vue 3D…</p>
             </div>
@@ -222,9 +225,21 @@ const jsonLd = [
         object-fit: cover;
         border-radius: var(--radius);
     }
+    .realisation-cta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--spacing-xs) var(--spacing-sm);
+    }
+    .realisation-cta p {
+        flex-basis: 100%;
+    }
+    /* Lot D.3 : zone plus compacte, centrée, avec squelette animé pendant le chargement. */
     .realisation-3d-render {
         position: relative;
-        height: 70vh;
+        height: 60vh;
+        max-width: 960px;
+        margin-inline: auto;
         margin-top: var(--spacing-xs);
         border-radius: var(--radius);
         overflow: hidden;
@@ -255,6 +270,18 @@ const jsonLd = [
     .realisation-3d-render[data-spline-state="loading"] .realisation-3d-loading {
         display: block;
     }
+    .realisation-3d-render[data-spline-state="loading"]::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / .55) 50%, transparent 70%);
+        background-size: 200% 100%;
+        animation: skeleton 1.4s linear infinite;
+    }
+    @keyframes skeleton {
+        from { background-position: 150% 0; }
+        to { background-position: -50% 0; }
+    }
     .realisation-3d-hint {
         margin-top: var(--spacing-xxs);
         font-size: .9375rem;
@@ -277,6 +304,10 @@ const jsonLd = [
         .realisation-3d-render {
             height: 50vh;
         }
+        .realisation-cta .button {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>
 
@@ -284,6 +315,6 @@ const jsonLd = [
     import { setupLazyStage, splineSceneUrl } from '../../scripts/spline';
     const render = document.querySelector<HTMLElement>('.realisation-3d-render');
     const token = render?.dataset.splineToken;
-    if (render && token) setupLazyStage(render, splineSceneUrl(token));
+    if (render && token) setupLazyStage(render, splineSceneUrl(token), { zoom: Number(render.dataset.viewZoom) || 1 });
 </script>
 </BaseLayout>

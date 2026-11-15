@@ -17,6 +17,8 @@ const realisations = defineCollection({
             image: image(),
             imageAlt: z.string(),
             splineToken: z.string().optional(),
+            // Zoom de la vue 3D sur la fiche (1 = cadrage d'origine de Spline). Défaut : 1.6.
+            viewZoom: z.number().positive().optional(),
             // Fiche technique (facultative)
             materials: z.string().optional(),
             dimensions: z.string().optional(),

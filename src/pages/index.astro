@@ -5,7 +5,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MailLink from '../components/MailLink.astro';
-import ContactForm from '../components/ContactForm.astro';
 import ArrowIcon from '../components/ArrowIcon.astro';
 import { SITE, FURNITURE_TYPES } from '../site';
 import '../styles/home.css';
@@ -45,8 +44,7 @@ const jsonLd = {
     knowsAbout: ['Menuiserie', 'Métallerie', 'Mobilier sur mesure'],
 };
 
-const mailBody = "Bonjour Michel,\n\nJ'aimerais réaliser un devis avec vous au sujet de [décrivez votre projet].\nPouvez-vous me recontacter ?\n\nCordialement";
-const furnitureBody = (name: string) => `Bonjour Michel,\n\nJe souhaite faire réaliser un(e) ${name} sur mesure.\n\nDimensions approximatives :\nPièce :\nMatériaux souhaités :\n\nCordialement`;
+const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant :\n\nType de meuble :\nPièce :\nDimensions approximatives :\nMatériaux souhaités :\n\nVous pouvez me rappeler au :\n\nCordialement";
 ---
 <BaseLayout
     title="Metal Nature • Meubles artisanaux sur mesure en bois et métal – Sannois, Val d'Oise"
@@ -54,9 +52,8 @@ const furnitureBody = (name: string) => `Bonjour Michel,\n\nJe souhaite faire r�
     jsonLd={jsonLd}
     bodyClass="page-home"
 >
-<link slot="head" rel="preconnect" href="https://prod.spline.design" crossorigin />
 
-<SiteNav contactHref="#contact" />
+<SiteNav />
 
 <main id="main">
 <!-- ============================ HERO ============================ -->
@@ -93,22 +90,31 @@ const furnitureBody = (name: string) => `Bonjour Michel,\n\nJe souhaite faire r�
 
     <div class="about-pin">
         <div class="container about-stage">
+            <!-- data-scene-start / data-scene-end : plage de défilement (px) où le message est affiché,
+                 calée sur les plans de caméra de la scène Spline (ancienne section de 12 000 px). -->
             <ol class="about-steps">
-                <li class="about-step">
+                <li class="about-step about-step-intro" data-scene-start="0" data-scene-end="1600">
+                    <span class="title-2">Respirez, <span class="strong">vous êtes bien accompagné.</span></span>
+                </li>
+                <li class="about-step" data-scene-start="1800" data-scene-end="5000">
                     <span class="about-step-number" aria-hidden="true">01</span>
                     <span class="title-2">De votre idée à son installation, <span class="strong">nous vous accompagnons.</span></span>
                 </li>
-                <li class="about-step">
+                <li class="about-step" data-scene-start="5000" data-scene-end="6300">
                     <span class="about-step-number" aria-hidden="true">02</span>
                     <span class="title-2">Des matériaux robustes, <span class="strong">un savoir-faire artisanal.</span></span>
                 </li>
-                <li class="about-step">
+                <li class="about-step" data-scene-start="6500" data-scene-end="9000">
                     <span class="about-step-number" aria-hidden="true">03</span>
-                    <span class="title-2">Un mobilier fonctionnel, <span class="strong">au design organique et brut.</span></span>
+                    <span class="title-2">Un mobilier fonctionnel, <span class="strong">qui vous ressemble.</span></span>
+                </li>
+                <li class="about-step" data-scene-start="9000" data-scene-end="11000">
+                    <span class="about-step-number" aria-hidden="true">04</span>
+                    <span class="title-2">Un design à la fois <span class="strong">organique et brut.</span></span>
                 </li>
             </ol>
             <div class="about-progress" aria-hidden="true"><span class="about-progress-bar"></span></div>
-            <div class="about-visual" data-spline-url="https://prod.spline.design/idrErWFAM5jNCV1n/scene.splinecode">
+            <div class="about-visual" data-spline-url="/spline/idrErWFAM5jNCV1n.splinecode">
                 <Picture class="spline-poster" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="360px"
                          loading="lazy" alt="Bibliothèque en bois et métal réalisée par Metal Nature" />
                 <button type="button" class="button button-ghost spline-trigger" hidden>Voir en 3D</button>
@@ -193,19 +199,14 @@ const furnitureBody = (name: string) => `Bonjour Michel,\n\nJe souhaite faire r�
             <p id="proposal-caption" class="proposal-caption">
                 De la table basse au bureau fonctionnel, en passant par le dressing et la bibliothèque, chaque création est
                 pensée pour embellir vos espaces. Nous fabriquons des meubles variés, et notre plus grande fierté est de
-                les voir prendre place chez vous. Choisissez un type de meuble pour nous écrire directement.
+                les voir prendre place chez vous. Votre projet n'est pas dans la liste ? Parlons-en.
             </p>
             <ul class="list-group">
-                {FURNITURE_TYPES.map(({ label, name }) => (
-                    <li class="list-group-item">
-                        <MailLink class="list-group-link" subject={`Projet de ${name} sur mesure`} body={furnitureBody(name)}>
-                            <span>{label}</span>
-                            <span class="sr-only"> : nous écrire</span>
-                            <ArrowIcon direction="right" />
-                        </MailLink>
-                    </li>
+                {FURNITURE_TYPES.map(({ label }) => (
+                    <li class="list-group-item"><span class="list-group-label">{label}</span></li>
                 ))}
             </ul>
+            <a class="button proposal-cta" href="#contact">Parler de mon projet</a>
         </div>
     </div>
 </section>
@@ -214,30 +215,34 @@ const furnitureBody = (name: string) => `Bonjour Michel,\n\nJe souhaite faire r�
 <section id="contact" class="contact dark-theme" aria-labelledby="contact-title">
     <div class="container contact-grid">
         <div class="contact-group">
-            <div>
-                <h2 id="contact-title" class="title-2">Un projet à nous <span class="strong">confier ?</span></h2>
-                <p class="secondary-text prose">
-                    Décrivez-nous votre idée : nous vous rappelons pour en discuter et établir un devis, gratuitement.
+            <h2 id="contact-title" class="title-2">Un projet à nous <span class="strong">confier ?</span></h2>
+
+            <!-- Le téléphone d'abord (lot B) : Michel préfère échanger de vive voix. -->
+            <div class="contact-call">
+                <a class="button button-call" href={`tel:${SITE.phone}`}>
+                    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                    <span>Appeler Michel <span class="button-call-number">{SITE.phoneDisplay}</span></span>
+                </a>
+                <p class="secondary-text">
+                    {SITE.callHours && <>Joignable {SITE.callHours}. </>}Pas de réponse ? Laissez un message, Michel vous rappelle.
                 </p>
             </div>
 
             <ul class="reassurance" aria-label="Nos engagements">
+                <li><span><strong>Un appel suffit</strong> pour un premier échange</span></li>
                 <li><span><strong>Devis gratuit</strong> et sans engagement</span></li>
-                <li><span><strong>Réponse {SITE.responseTime}</strong></span></li>
                 <li><span><strong>Intervention</strong> à {SITE.areaServed}</span></li>
             </ul>
 
-            <ContactForm />
+            <div class="contact-secondary">
+                <p class="secondary-text">Vous préférez écrire ?</p>
+                <MailLink class="button button-ghost" subject="Projet de meuble sur mesure" body={mailBody}>Écrire un e-mail</MailLink>
+            </div>
 
             <address class="contact-details">
-                <div>
-                    <p class="contact-label">Téléphone</p>
-                    <a class="tap-link" href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a>
-                </div>
-                <div>
-                    <p class="contact-label">Courriel</p>
-                    <MailLink class="tap-link" subject="Projet de meuble sur mesure" body={mailBody} />
-                </div>
                 <div>
                     <p class="contact-label">Atelier</p>
                     <p class="contact-value">{SITE.city} ({SITE.postalCode}), {SITE.department}</p>
