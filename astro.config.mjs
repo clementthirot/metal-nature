@@ -3,9 +3,9 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 // Site 100 % statique (dossier dist/).
-// Production : www.metal-nature.fr à la racine (valeurs par défaut).
+// Production : https://metal-nature.com à la racine (valeurs par défaut), hébergée sur Cloudflare.
 // Démo GitHub Pages : SITE_URL et BASE_PATH sont fournis par .github/workflows/deploy.yml.
-const site = process.env.SITE_URL || 'https://www.metal-nature.fr';
+const site = process.env.SITE_URL || 'https://metal-nature.com';
 const base = process.env.BASE_PATH || '/';
 
 export default defineConfig({

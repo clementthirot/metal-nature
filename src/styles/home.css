@@ -44,13 +44,6 @@
 .hero-caption {
     grid-column: 1 / span 1;
     grid-row: 1;
-}
-
-.hero-caption-end {
-    grid-column: -2 / -1;
-}
-
-.hero-caption {
     min-width: 12ch;
     white-space: nowrap;
     color: inherit;
@@ -58,6 +51,7 @@
 }
 
 .hero-caption-end {
+    grid-column: -2 / -1;
     justify-self: end;
     text-align: right;
 }
@@ -355,9 +349,7 @@ html:not(.motion) .about-progress {
     padding: 0;
     list-style: none;
     touch-action: pan-y;
-}
-
-.carousel {
+    box-sizing: border-box;
     --carousel-span: 1;
 }
 
@@ -378,10 +370,6 @@ html:not(.motion) .about-progress {
 .carousel-item {
     flex: 0 0 calc(100% / var(--grid-columns) * var(--carousel-span));
     padding-inline: var(--line-pad);
-    box-sizing: border-box;
-}
-
-.carousel {
     box-sizing: border-box;
 }
 
@@ -618,10 +606,6 @@ html:not(.motion) .about-progress {
     grid-column: 1 / span 1;
 }
 
-.about-quote {
-    grid-column: 2 / -1;
-}
-
 .author-card img {
     width: 100%;
 }
@@ -633,6 +617,7 @@ html:not(.motion) .about-progress {
 }
 
 .about-quote {
+    grid-column: 2 / -1;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -701,6 +686,9 @@ html:not(.motion) .about-progress {
 
 .list-group-item {
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
 }
 
 /* Trait sous chaque ligne, tracé en scaleX (lot 5.3) */
@@ -727,12 +715,6 @@ html:not(.motion) .about-progress {
 
 .motion .list-group-item.is-drawn::after {
     transform: scaleX(1);
-}
-
-.list-group-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
 }
 
 /* Lot H5 : numérotation discrète des catégories */
@@ -790,13 +772,6 @@ html:not(.motion) .about-progress {
 
 .contact-group {
     grid-column: 1 / span 2;
-}
-
-.contact-grid > picture {
-    grid-column: 3 / -1;
-}
-
-.contact-group {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
@@ -804,6 +779,7 @@ html:not(.motion) .about-progress {
 }
 
 .contact-grid > picture {
+    grid-column: 3 / -1;
     min-width: 0;
     display: block;
 }

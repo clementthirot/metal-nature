@@ -27,7 +27,6 @@ import {
     type BufferGeometry,
     type Material,
     type Mesh,
-    type Object3D,
     type Texture,
 } from 'three';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -74,7 +73,7 @@ const MODELS: Record<string, FinishRule> = {
     },
 };
 
-export function hasModel(name: string): boolean {
+function hasModel(name: string): boolean {
     return name in MODELS;
 }
 

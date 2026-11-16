@@ -288,7 +288,8 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
      aria-labelledby="details-name" aria-describedby="details-caption" hidden>
     <button type="button" class="product-details-close-button button">Fermer</button>
     <div class="product-details-layout">
-        <div class="product-stage" aria-hidden="true">
+        <!-- Pas d'aria-hidden ici : la zone contient le bouton « Voir en 3D » (focusable). Le canvas est masqué seul. -->
+        <div class="product-stage">
             <img class="product-poster" alt="" />
             <div class="product-skeleton"><span>Chargement de la vue 3D…</span></div>
             <button type="button" class="button button-ghost model-trigger" hidden>Voir en 3D</button>

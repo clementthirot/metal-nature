@@ -18,8 +18,9 @@ export function isLightDevice(): boolean {
 
 /** Exécute `task` quand le navigateur est disponible, pour ne pas bloquer l'interface. */
 export function whenIdle(task: () => void, timeout = 1500): void {
-    if ('requestIdleCallback' in window) window.requestIdleCallback(task, { timeout });
-    else window.setTimeout(task, 200);
+    // Safari ne connaît pas requestIdleCallback : repli sur un court délai.
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(task, { timeout });
+    else setTimeout(task, 200);
 }
 
 type StageState = 'idle' | 'loading' | 'ready' | 'error';

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.metal-nature.fr/sitemap-index.xml
+Sitemap: https://metal-nature.com/sitemap-index.xml

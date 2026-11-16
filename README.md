@@ -2,7 +2,8 @@
 
 Site vitrine de Metal Nature, meubles artisanaux sur mesure en bois et métal (Sannois, Val d'Oise).
 
-Site statique généré avec [Astro](https://astro.build), hébergé sur Cloudflare Pages.
+Site statique généré avec [Astro](https://astro.build), en production sur **https://metal-nature.com**
+(Cloudflare Pages). Une démo non indexée est publiée sur GitHub Pages à chaque push sur `main`.
 
 ## Développement
 
@@ -64,6 +65,24 @@ Connecter le dépôt GitHub dans Cloudflare (Workers & Pages → Créer → Page
 Les en-têtes de sécurité et de cache sont définis dans `public/_headers`.
 Chaque branche poussée obtient une URL de prévisualisation.
 
+Domaine : le site de production est `https://metal-nature.com` (sans www). C'est la valeur par
+défaut de `site` (`astro.config.mjs`) et de `SITE.url` (`src/site.ts`) : canonical, sitemap,
+Open Graph et données structurées en dépendent. Seul ce domaine est indexé (`index, follow`) ;
+toute autre adresse, comme la démo GitHub Pages, est servie en `noindex`.
+Pour éviter le contenu dupliqué, `www.metal-nature.com` doit rediriger vers `metal-nature.com`
+(règle de redirection dans Cloudflare, côté DNS : elle ne se règle pas dans le code).
+
+## Démo GitHub Pages
+
+`.github/workflows/deploy.yml` construit le site avec `SITE_URL` et `BASE_PATH` fournis par GitHub
+(sous-dossier `/metal-nature/`) ; tous les liens passent par `withBase()` (`src/utils/paths.ts`).
+
+## Vérification du code
+
+```bash
+npm run check   # types TypeScript et Astro (0 erreur attendue)
+```
+
 ## Contact
 
 Michel préfère le téléphone : le bloc contact met en avant un bouton « Appeler Michel » (`tel:`),
@@ -96,10 +115,11 @@ l'approche de la section (`src/scripts/about-stage.ts`) :
 - modèles GLB dans `public/3d/models/` (étagère, tables emboîtées, commode), normalisés au chargement ;
 - textures extraites de l'ancienne scène Spline dans `public/3d/textures/` : le métal est un matcap
   (`MeshMatcapMaterial`, aucun éclairage), le bois un `MeshStandardMaterial` éclairé ;
-- cadrage automatique (boîte englobante, marge de 15 %, zone à droite de la carte de texte sur desktop) ;
+- cadrage automatique (boîte englobante, marge de 15 %), meuble centré dans l'écran ;
+- passage « du trait à la matière » : arêtes (`EdgesGeometry`) puis bois et chrome, coupé sur appareil modeste ;
 - rendu à la demande uniquement, pixel ratio plafonné à 1,5.
 
-La séquence (tunnel, étagère de trois quarts, tables qui se déboîtent, commode qui tourne) est réglée dans
+La séquence (traversée des 3 cadres, pivot, étagère de trois quarts, tables qui se déboîtent, commode qui tourne) est réglée dans
 `PHASES` (`about-scene.ts`). Les messages utilisent les mêmes plages via `data-progress-start` /
 `data-progress-end` (`src/pages/index.astro`) ; une seule timeline GSAP épinglée pilote les deux
 (`src/scripts/home.ts`, piste de `ABOUT_TRACK_SCREENS` hauteurs d'écran). Avec « réduire les animations »,

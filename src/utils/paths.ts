@@ -1,6 +1,6 @@
 /**
  * Chemins compatibles avec un déploiement dans un sous-dossier.
- * En production (www.metal-nature.fr) la base est « / » ; pour la démo GitHub Pages
+ * En production (metal-nature.com) la base est « / » ; pour la démo GitHub Pages
  * elle vaut « /metal-nature/ » (voir BASE_PATH dans astro.config.mjs et le workflow).
  */
 const BASE = import.meta.env.BASE_URL.replace(/\/+$/, '');

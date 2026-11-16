@@ -75,7 +75,7 @@ interface Piece {
     edges: LineBasicMaterial | null;
 }
 
-export interface AboutSceneOptions {
+interface AboutSceneOptions {
     /** Effet « arêtes puis matière » (désactivé sur les appareils modestes). */
     edges?: boolean;
 }

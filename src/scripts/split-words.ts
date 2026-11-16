@@ -3,7 +3,7 @@
  * Le texte intégral reste lisible par les lecteurs d'écran (span .sr-only),
  * les mots découpés sont masqués des technologies d'assistance.
  */
-export function splitParagraphToWords(element: HTMLElement): HTMLElement[] {
+function splitParagraphToWords(element: HTMLElement): HTMLElement[] {
     const text = (element.textContent ?? '').trim().replace(/\s+/g, ' ');
     const srText = document.createElement('span');
     srText.className = 'sr-only';
