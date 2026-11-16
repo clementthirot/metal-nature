@@ -72,7 +72,7 @@ const jsonLd = [
         ))}
     </ul>
 
-    <aside class="index-cta">
+    <aside class="index-cta bleed">
         <p class="title-2">Un projet en tête ?</p>
         <div class="index-cta-actions">
             <a class="button" href={`tel:${SITE.phone}`}>Appeler Michel · {SITE.phoneDisplay}</a>
@@ -114,12 +114,16 @@ const jsonLd = [
     .index-intro {
         font-size: 1.125rem;
     }
+    /* Une carte par colonne de la grille, photo calée sur la ligne de gauche. */
     .index-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: var(--spacing-xl) var(--spacing-md);
+        grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+        row-gap: var(--spacing-xl);
         padding: 0;
         list-style: none;
+    }
+    .index-grid > li {
+        padding-right: var(--col-gap);
     }
     .index-card {
         display: flex;
@@ -149,19 +153,36 @@ const jsonLd = [
     .index-card-title {
         font-size: 1.25rem;
     }
+    .index-cta > .title-2 {
+        grid-column: 1 / span 2;
+        grid-row: 1 / span 2;
+        padding-right: var(--col-gap);
+    }
+    .index-cta > .index-cta-actions,
+    .index-cta > .secondary-text {
+        grid-column: 3 / -1;
+    }
+    @media (max-width: 1024px) {
+        .index-cta > .title-2 { grid-column: 1 / -1; grid-row: auto; }
+        .index-cta > .index-cta-actions,
+        .index-cta > .secondary-text { grid-column: 1 / -1; }
+    }
     .index-cta-actions {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         gap: var(--spacing-xs) var(--spacing-sm);
     }
+    /* Encart sur la grille : titre sur la 1re moitié, actions et mention sur la 2de. */
     .index-cta {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
         align-items: center;
-        justify-content: space-between;
-        gap: var(--spacing-md);
-        padding: var(--spacing-xl);
+        row-gap: var(--spacing-xs);
+        padding-block: var(--spacing-xl);
+        /* Le fond déborde des lignes (.bleed) : le contenu reste aligné sur la grille. */
+        margin-inline: calc(-1 * var(--bleed));
+        padding-inline: var(--bleed);
         border-radius: var(--radius);
         background: #e9e9e9;
     }

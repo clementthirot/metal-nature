@@ -189,11 +189,19 @@ const jsonLd = [
         margin-right: var(--spacing-xxs);
         opacity: .5;
     }
+    /* Grille : photo dans la 1re colonne, texte et fiche à partir de la 2e ligne verticale. */
     .realisation-layout {
         display: grid;
-        grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
-        gap: var(--spacing-xl);
+        grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+        row-gap: var(--spacing-xl);
         align-items: start;
+    }
+    .realisation-figure {
+        grid-column: 1 / span 1;
+        padding-right: var(--col-gap);
+    }
+    .realisation-content {
+        grid-column: 2 / -1;
     }
     :global(img.realisation-image) {
         width: 100%;
@@ -282,11 +290,14 @@ const jsonLd = [
     }
     .gallery ul {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: var(--spacing-sm);
+        grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+        row-gap: var(--spacing-sm);
         margin-top: var(--spacing-xs);
         padding: 0;
         list-style: none;
+    }
+    .gallery li {
+        padding-right: var(--col-gap);
     }
     .gallery :global(img) {
         width: 100%;
@@ -307,8 +318,6 @@ const jsonLd = [
     .realisation-3d-render {
         position: relative;
         height: 60vh;
-        max-width: 960px;
-        margin-inline: auto;
         margin-top: var(--spacing-xs);
         border-radius: var(--radius);
         overflow: hidden;
@@ -363,12 +372,17 @@ const jsonLd = [
         padding-top: var(--spacing-md);
         border-top: var(--border-secondary);
     }
-    @media (max-width: 768px) {
-        .realisation-layout {
-            grid-template-columns: 1fr;
+    @media (max-width: 1024px) {
+        .realisation-figure { grid-column: 1 / span 1; }
+        .realisation-content { grid-column: 2 / -1; }
+    }
+    @media (max-width: 640px) {
+        .realisation-figure,
+        .realisation-content {
+            grid-column: 1 / -1;
         }
-        :global(img.realisation-image) {
-            max-width: 360px;
+        .realisation-figure {
+            padding-right: 0;
         }
         .realisation-3d-render {
             height: 50vh;

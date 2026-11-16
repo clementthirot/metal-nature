@@ -201,6 +201,33 @@ h2, .title-2 {
     opacity: 0;
 }
 
+/*
+ * Règles d'alignement sur la grille :
+ * - .grid-cols : grille aux colonnes du calque (sans gouttière : les bords des cellules
+ *   tombent sur les lignes) ;
+ * - un bloc commence toujours sur une ligne ; s'il ne va pas jusqu'à la ligne suivante,
+ *   il s'arrête --col-gap avant (.col-inset) ;
+ * - une carte à fond (.bleed) déborde à l'extérieur des lignes : c'est son contenu qui s'aligne.
+ */
+:root {
+    --col-gap: var(--spacing-sm);
+    --bleed: min(var(--spacing-lg), var(--gutter));
+}
+
+.grid-cols {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+}
+
+.col-inset {
+    padding-right: var(--col-gap);
+}
+
+.bleed {
+    margin-inline: calc(-1 * var(--bleed));
+    padding-inline: var(--bleed);
+}
+
 /* Filet horizontal : 1 px, de la première à la dernière ligne verticale */
 .rule {
     display: block;
@@ -432,9 +459,23 @@ h2, .title-2 {
 
 .footer-columns {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: var(--spacing-lg);
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    row-gap: var(--spacing-lg);
     margin-bottom: var(--section-space);
+}
+
+/* Deux colonnes de pied de page, chacune sur la moitié de la grille */
+.footer-column {
+    grid-column: span calc(var(--grid-columns) / 2);
+    padding-right: var(--col-gap);
+}
+
+@media (max-width: 1024px) {
+    .footer-column { grid-column: span 3; }
+}
+
+@media (max-width: 640px) {
+    .footer-column { grid-column: span 2; }
 }
 
 .footer-column ul {

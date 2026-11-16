@@ -31,10 +31,23 @@
 
 .hero-content {
     display: grid;
-    grid-template-columns: minmax(12ch, 1fr) minmax(0, 520px) minmax(12ch, 1fr);
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
     align-items: center;
-    gap: var(--spacing-xl);
     width: 100%;
+}
+
+/* Image sur les colonnes centrales, légendes dans la première et la dernière colonne */
+.hero-media {
+    grid-column: 2 / -2;
+}
+
+.hero-caption {
+    grid-column: 1 / span 1;
+    grid-row: 1;
+}
+
+.hero-caption-end {
+    grid-column: -2 / -1;
 }
 
 .hero-caption {
@@ -64,22 +77,22 @@
 
 @media (max-width: 768px) {
     .hero-content {
-        grid-template-columns: 1fr;
-        justify-items: center;
-        gap: var(--spacing-sm);
-    }
-
-    .hero-caption {
-        order: 2;
-    }
-
-    .hero-caption-end {
-        justify-self: center;
-        order: 3;
+        grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+        row-gap: var(--spacing-sm);
     }
 
     .hero-media {
-        width: min(100%, 420px);
+        grid-column: 1 / -1;
+        order: 1;
+    }
+
+    .hero-caption {
+        grid-row: 2;
+        justify-self: start;
+    }
+
+    .hero-caption-end {
+        justify-self: end;
     }
 }
 
@@ -336,7 +349,7 @@ html:not(.motion) .about-progress {
 
 .carousel {
     display: flex;
-    gap: var(--spacing-md);
+    gap: 0;
     width: 100%;
     max-width: var(--container-width);
     margin: 0 auto;
@@ -345,8 +358,19 @@ html:not(.motion) .about-progress {
     touch-action: pan-y;
 }
 
+.carousel {
+    --carousel-span: 1;
+}
+
+/* Une carte = une colonne de la grille ; la photo s'arrête --col-gap avant la ligne suivante. */
 .carousel-item {
-    flex: 0 0 calc((100% - 3 * var(--spacing-md)) / 4);
+    flex: 0 0 calc(100% / var(--grid-columns) * var(--carousel-span));
+    padding-right: var(--col-gap);
+    box-sizing: border-box;
+}
+
+.carousel {
+    box-sizing: border-box;
 }
 
 
@@ -426,13 +450,9 @@ html:not(.motion) .about-progress {
     cursor: default;
 }
 
-@media (max-width: 1024px) {
-    .carousel { gap: var(--spacing-sm); }
-    .carousel-item { flex: 0 0 280px; }
-}
-
-@media (max-width: 480px) {
-    .carousel-item { flex: 0 0 78vw; }
+/* Mobile (2 colonnes) : une carte occupe les deux colonnes */
+@media (max-width: 640px) {
+    .carousel { --carousel-span: 2; }
 }
 
 /* ===================== FENÊTRE DE DÉTAIL (modale) ===================== */
@@ -576,10 +596,19 @@ html:not(.motion) .about-progress {
 
 .author-card {
     display: grid;
-    grid-template-columns: minmax(200px, 320px) minmax(0, 1fr);
-    gap: var(--spacing-xl);
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    row-gap: var(--spacing-lg);
     align-items: start;
     padding-top: var(--section-space);
+}
+
+.author-portrait {
+    grid-column: 1 / span 1;
+    padding-right: var(--col-gap);
+}
+
+.about-quote {
+    grid-column: 2 / -1;
 }
 
 .author-card img {
@@ -600,13 +629,10 @@ html:not(.motion) .about-progress {
     line-height: 1.6;
 }
 
-@media (max-width: 768px) {
-    .author-card {
-        grid-template-columns: 1fr;
-    }
-
-    .author-card picture {
-        max-width: 360px;
+@media (max-width: 640px) {
+    .author-portrait,
+    .about-quote {
+        grid-column: 1 / -1;
     }
 }
 
@@ -635,7 +661,7 @@ html:not(.motion) .about-progress {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
-    padding: var(--spacing-xl);
+    padding-block: var(--spacing-xl);
     border-radius: var(--radius);
     background-color: var(--color-white);
 }
@@ -648,9 +674,14 @@ html:not(.motion) .about-progress {
     margin: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: var(--spacing-xxl);
+    column-gap: 0;
     padding: 0;
     list-style: none;
+}
+
+/* Chaque moitié de liste occupe deux colonnes de la grille. */
+.list-group-item {
+    margin-right: var(--col-gap);
 }
 
 .list-group-item {
@@ -716,7 +747,7 @@ html:not(.motion) .about-progress {
     }
 
     .proposal-card {
-        padding: var(--spacing-lg) var(--spacing-sm);
+        padding-block: var(--spacing-lg);
     }
 }
 
@@ -733,9 +764,18 @@ html:not(.motion) .about-progress {
 /* Lot 0.2 : grille, le texte à gauche, l'image à droite, plus d'écrasement */
 .contact-grid {
     display: grid;
-    grid-template-columns: minmax(320px, 5fr) 7fr;
-    gap: var(--spacing-xl);
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    row-gap: var(--spacing-xl);
     align-items: start;
+}
+
+.contact-group {
+    grid-column: 1 / span 2;
+    padding-right: var(--col-gap);
+}
+
+.contact-grid > picture {
+    grid-column: 3 / -1;
 }
 
 .contact-group {
@@ -747,6 +787,7 @@ html:not(.motion) .about-progress {
 
 .contact-grid > picture {
     min-width: 0;
+    display: block;
 }
 
 img.contact-image {
@@ -839,13 +880,14 @@ img.contact-image {
 }
 
 @media (max-width: 768px) {
-    .contact-grid {
-        grid-template-columns: 1fr;
+    /* Lot B : le bouton d'appel arrive avant la photo sur mobile. */
+    .contact-group,
+    .contact-grid > picture {
+        grid-column: 1 / -1;
     }
 
-    /* Lot B : le bouton d'appel arrive avant la photo sur mobile. */
-    .contact-grid > picture {
-        max-width: 420px;
+    .contact-group {
+        padding-right: 0;
     }
 
     img.contact-image {
