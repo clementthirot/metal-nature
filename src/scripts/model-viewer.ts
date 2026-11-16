@@ -32,6 +32,7 @@ import {
 } from 'three';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { withBase } from '../utils/paths';
 
 const MAX_PIXEL_RATIO = 1.5;
 const FOV = 32;
@@ -89,7 +90,7 @@ class Finishes {
     private texture(name: string, repeat = false): Promise<Texture> {
         let promise = this.textures.get(name);
         if (!promise) {
-            promise = this.loader.loadAsync(`/3d/textures/${name}.webp`).then((texture) => {
+            promise = this.loader.loadAsync(withBase(`/3d/textures/${name}.webp`)).then((texture) => {
                 texture.colorSpace = SRGBColorSpace;
                 if (repeat) texture.wrapS = texture.wrapT = RepeatWrapping;
                 return texture;
@@ -243,7 +244,7 @@ export class ModelViewer {
     private prepare(name: string): Promise<Prepared> {
         let promise = this.prepared.get(name);
         if (!promise) {
-            promise = this.loader.loadAsync(`/3d/models/${name}.glb`).then((gltf) => this.build(name, gltf));
+            promise = this.loader.loadAsync(withBase(`/3d/models/${name}.glb`)).then((gltf) => this.build(name, gltf));
             promise.catch(() => this.prepared.delete(name));
             this.prepared.set(name, promise);
         }

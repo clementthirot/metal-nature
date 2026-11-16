@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../utils/paths';
 import Logo from './Logo.astro';
 import { SITE } from '../site';
 const year = new Date().getFullYear();
@@ -9,11 +10,11 @@ const year = new Date().getFullYear();
             <nav class="footer-column" aria-labelledby="footer-nav-title">
                 <p id="footer-nav-title" class="footer-title">Navigation</p>
                 <ul>
-                    <li><a class="tap-link" href="/">Accueil</a></li>
-                    <li><a class="tap-link" href="/realisations/">Réalisations</a></li>
-                    <li><a class="tap-link" href="/#about">Savoir-faire</a></li>
-                    <li><a class="tap-link" href="/#author">L'artisan</a></li>
-                    <li><a class="tap-link" href="/#contact">Contact</a></li>
+                    <li><a class="tap-link" href={withBase('/')}>Accueil</a></li>
+                    <li><a class="tap-link" href={withBase('/realisations/')}>Réalisations</a></li>
+                    <li><a class="tap-link" href={withBase('/#about')}>Savoir-faire</a></li>
+                    <li><a class="tap-link" href={withBase('/#author')}>L'artisan</a></li>
+                    <li><a class="tap-link" href={withBase('/#contact')}>Contact</a></li>
                 </ul>
             </nav>
             <div class="footer-column">
@@ -28,7 +29,7 @@ const year = new Date().getFullYear();
         <Logo class="footer-logo" />
         <div class="footer-links">
             <p class="secondary-text">© {year} Metal Nature. Tous droits réservés.</p>
-            <a class="tap-link secondary-text" href="/mentions-legales/">Mentions légales</a>
+            <a class="tap-link secondary-text" href={withBase('/mentions-legales/')}>Mentions légales</a>
         </div>
     </div>
 </footer>

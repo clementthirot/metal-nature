@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../utils/paths';
 import { getCollection } from 'astro:content';
 import { Image, Picture, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
@@ -146,7 +147,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
         <ul class="carousel" id="carousel" aria-label="Réalisations">
             {realisations.map((item, index) => (
                 <li class="carousel-item">
-                    <a class="carousel-item-button" href={`/realisations/${item.id}/`}
+                    <a class="carousel-item-button" href={withBase(`/realisations/${item.id}/`)}
                        data-title={item.data.title}
                        data-caption={item.body?.trim()}
                        data-model={item.data.model}
@@ -172,7 +173,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                     <ArrowIcon direction="right" />
                 </button>
             </div>
-            <a class="tap-link" href="/realisations/">Voir toutes les réalisations</a>
+            <a class="tap-link" href={withBase('/realisations/')}>Voir toutes les réalisations</a>
         </div>
     </div>
 </section>
@@ -278,7 +279,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
             <div class="product-content" aria-live="polite">
                 <h2 id="details-name" class="title-2"></h2>
                 <p id="details-caption"></p>
-                <a id="details-link" class="tap-link" href="/realisations/">Voir la fiche complète</a>
+                <a id="details-link" class="tap-link" href={withBase('/realisations/')}>Voir la fiche complète</a>
             </div>
             <div class="carousel-action-group">
                 <button type="button" class="carousel-action details-previous" aria-label="Réalisation précédente">

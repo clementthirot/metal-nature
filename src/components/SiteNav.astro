@@ -1,9 +1,10 @@
 ---
+import { withBase, stripBase } from '../utils/paths';
 import Logo from './Logo.astro';
 import { SITE } from '../site';
 
 // Ancres en chemin absolu (/#about) : elles fonctionnent aussi depuis les sous-pages.
-const path = Astro.url.pathname;
+const path = stripBase(Astro.url.pathname);
 const links = [
     { href: '/realisations/', label: 'Réalisations', current: path.startsWith('/realisations') },
     { href: '/#about', label: 'Savoir-faire', current: false },
@@ -12,17 +13,17 @@ const links = [
 ---
 <nav class="site-nav" aria-label="Navigation principale">
     <div class="container">
-        <a href="/" class="nav-logo">
+        <a href={withBase('/')} class="nav-logo">
             <Logo title="Metal Nature – accueil" />
         </a>
         <ul class="nav-links">
             {links.map(({ href, label, current }, index) => (
                 // Sur mobile, seul « Réalisations » reste affiché (pas de menu pour 3 liens).
                 <li class:list={{ 'nav-link-secondary': index > 0 }}>
-                    <a class="nav-link" href={href} aria-current={current ? 'page' : undefined}>{label}</a>
+                    <a class="nav-link" href={withBase(href)} aria-current={current ? 'page' : undefined}>{label}</a>
                 </li>
             ))}
-            <li class="nav-cta-desktop"><a class="button" href="/#contact">Nous contacter</a></li>
+            <li class="nav-cta-desktop"><a class="button" href={withBase('/#contact')}>Nous contacter</a></li>
             <li class="nav-cta-mobile">
                 <a class="button" href={`tel:${SITE.phone}`} aria-label={`Appeler Michel au ${SITE.phoneDisplay}`}>
                     <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"

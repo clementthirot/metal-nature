@@ -4,14 +4,41 @@
     {
       "name": "astro-preview",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "preview", "--", "--port", "4321"],
+      "runtimeArgs": [
+        "run",
+        "preview",
+        "--",
+        "--port",
+        "4321"
+      ],
       "port": 4321
     },
     {
       "name": "astro-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "4322"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "4322"
+      ],
       "port": 4322
+    },
+    {
+      "name": "astro-preview-demo",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "SITE_URL=https://clementthirot.github.io",
+        "BASE_PATH=/metal-nature/",
+        "npm",
+        "run",
+        "preview",
+        "--",
+        "--port",
+        "4323"
+      ],
+      "port": 4323
     }
   ]
 }

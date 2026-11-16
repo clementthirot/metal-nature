@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../../utils/paths';
 import { getCollection } from 'astro:content';
 import { Picture } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -41,7 +42,7 @@ const jsonLd = [
 <main id="main" class="container realisations-index">
     <nav class="breadcrumb" aria-label="Fil d'Ariane">
         <ol>
-            <li><a class="tap-link" href="/">Accueil</a></li>
+            <li><a class="tap-link" href={withBase('/')}>Accueil</a></li>
             <li aria-current="page">Réalisations</li>
         </ol>
     </nav>
@@ -56,7 +57,7 @@ const jsonLd = [
     <ul class="index-grid">
         {realisations.map((item, index) => (
             <li>
-                <a class="index-card" href={`/realisations/${item.id}/`}>
+                <a class="index-card" href={withBase(`/realisations/${item.id}/`)}>
                     <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
                              sizes="(max-width: 480px) 90vw, (max-width: 1024px) 45vw, 300px"
                              alt="" loading={index < 4 ? 'eager' : 'lazy'} />
@@ -73,7 +74,7 @@ const jsonLd = [
         <p class="title-2">Un projet en tête ?</p>
         <div class="index-cta-actions">
             <a class="button" href={`tel:${SITE.phone}`}>Appeler Michel · {SITE.phoneDisplay}</a>
-            <a class="tap-link" href="/#contact">Autres moyens de contact</a>
+            <a class="tap-link" href={withBase('/#contact')}>Autres moyens de contact</a>
         </div>
         <p class="secondary-text">Devis gratuit et sans engagement.</p>
     </aside>

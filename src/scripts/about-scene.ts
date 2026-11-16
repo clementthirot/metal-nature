@@ -30,6 +30,7 @@ import {
     type Object3D,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { withBase } from '../utils/paths';
 
 const MAX_PIXEL_RATIO = 1.5;
 const FOV = 45;
@@ -94,8 +95,8 @@ export class AboutScene {
     async load(): Promise<void> {
         const textures = new TextureLoader();
         const [matcap, wood, models] = await Promise.all([
-            textures.loadAsync('/3d/textures/matcap-metal.webp'),
-            textures.loadAsync('/3d/textures/bois.webp'),
+            textures.loadAsync(withBase('/3d/textures/matcap-metal.webp')),
+            textures.loadAsync(withBase('/3d/textures/bois.webp')),
             this.loadModels(),
         ]);
         matcap.colorSpace = SRGBColorSpace;
@@ -149,7 +150,7 @@ export class AboutScene {
     private loadModels() {
         const loader = new GLTFLoader();
         return Promise.all(['bibliotheque', 'tables-basses-imbriquees', 'commode-arquee']
-            .map((name) => loader.loadAsync(`/3d/models/${name}.glb`).then((gltf) => gltf.scene)));
+            .map((name) => loader.loadAsync(withBase(`/3d/models/${name}.glb`)).then((gltf) => gltf.scene)));
     }
 
     private makePiece(source: Object3D, material: (mesh: Mesh) => Material | null): Piece {
