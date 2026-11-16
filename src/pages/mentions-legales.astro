@@ -18,9 +18,9 @@ import { SITE } from '../site';
     <h2>Éditeur du site</h2>
     <p>
         {SITE.name} — {SITE.owner}<br>
-        Statut juridique : <span class="todo">[À COMPLÉTER : micro-entreprise, EI, SARL…]</span><br>
-        SIRET : <span class="todo">[À COMPLÉTER]</span><br>
-        Adresse : <span class="todo">[À COMPLÉTER : adresse complète]</span>, {SITE.postalCode} {SITE.city}, France<br>
+        Statut juridique : Micro entreprise<br>
+        SIRET : 32758820800030<br>
+        Adresse : 22 Rue Touzelin, {SITE.postalCode} {SITE.city}, France<br>
         Téléphone : <a href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a><br>
         Courriel : <MailLink /><br>
         Directeur de la publication : {SITE.owner}
