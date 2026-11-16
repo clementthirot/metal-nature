@@ -203,29 +203,40 @@ h2, .title-2 {
 
 /*
  * Règles d'alignement sur la grille :
- * - .grid-cols : grille aux colonnes du calque (sans gouttière : les bords des cellules
- *   tombent sur les lignes) ;
- * - un bloc commence toujours sur une ligne ; s'il ne va pas jusqu'à la ligne suivante,
- *   il s'arrête --col-gap avant (.col-inset) ;
+ * - les grilles de mise en page (.grid-layout) ont les colonnes du calque, sans gouttière :
+ *   les bords des cellules tombent sur les lignes ;
+ * - tout contenu garde une marge --line-pad de chaque côté des lignes, pour ne jamais les toucher ;
  * - une carte à fond (.bleed) déborde à l'extérieur des lignes : c'est son contenu qui s'aligne.
  */
 :root {
-    --col-gap: var(--spacing-sm);
+    --line-pad: 16px;
     --bleed: min(var(--spacing-lg), var(--gutter));
 }
 
-.grid-cols {
+@media (max-width: 640px) {
+    :root { --line-pad: 10px; }
+}
+
+.grid-layout {
     display: grid;
     grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
 }
 
-.col-inset {
-    padding-right: var(--col-gap);
+/* Marge entre les lignes et les contenus : enfants directs des conteneurs et cellules de grille. */
+.has-grid .container > :not(.grid-layout, .bleed, .card, .sr-only),
+.has-grid.container > :not(.grid-layout, .bleed, .card, .sr-only),
+.has-grid .grid-layout > :not(.card, .sr-only) {
+    padding-inline: var(--line-pad);
 }
 
 .bleed {
     margin-inline: calc(-1 * var(--bleed));
-    padding-inline: var(--bleed);
+    padding-inline: calc(var(--bleed) + var(--line-pad));
+}
+
+/* Une carte à fond posée dans une colonne s'aligne sur la marge des contenus. */
+.has-grid .card {
+    margin-inline: var(--line-pad);
 }
 
 /* Filet horizontal : 1 px, de la première à la dernière ligne verticale */
@@ -458,8 +469,6 @@ h2, .title-2 {
 }
 
 .footer-columns {
-    display: grid;
-    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
     row-gap: var(--spacing-lg);
     margin-bottom: var(--section-space);
 }
@@ -467,7 +476,6 @@ h2, .title-2 {
 /* Deux colonnes de pied de page, chacune sur la moitié de la grille */
 .footer-column {
     grid-column: span calc(var(--grid-columns) / 2);
-    padding-right: var(--col-gap);
 }
 
 @media (max-width: 1024px) {

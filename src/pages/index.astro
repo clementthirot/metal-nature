@@ -66,7 +66,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
         <span class="hero-line"><span class="title-1 title-line">La touche authentique</span></span>
         <span class="hero-line"><span class="title-1 title-line strong">à votre intérieur</span></span>
     </p>
-    <div class="hero-content">
+    <div class="hero-content grid-layout">
         <a class="hero-caption tap-link" href="#about">Faites défiler <span aria-hidden="true">↓</span></a>
         <div class="hero-media">
             <Picture id="headerImage" src={headerImage} formats={['avif', 'webp']} widths={[350, 520, 700]}
@@ -92,11 +92,11 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
     </div>
 
     <div class="about-pin">
-        <div class="container about-stage">
+        <div class="container about-stage grid-layout">
             <!-- data-progress-start / data-progress-end : plage (0 → 1) de la section où le message est affiché,
                  alignée sur les phases de la scène 3D (scripts/about-scene.ts, PHASES).
                  Les images .about-step-still ne s'affichent qu'avec « réduire les animations ». -->
-            <ol class="about-steps">
+            <ol class="about-steps card">
                 <li class="about-step about-step-intro" data-progress-start="0" data-progress-end="0.12">
                     <span class="title-2">Respirez, <span class="strong">vous êtes bien accompagné.</span></span>
                 </li>
@@ -123,7 +123,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                              loading="lazy" alt="Commode arquée en métal chromé réalisée par Metal Nature" />
                 </li>
             </ol>
-            <div class="about-progress" aria-hidden="true"><span class="about-progress-bar"></span></div>
+            <div class="about-progress card" aria-hidden="true"><span class="about-progress-bar"></span></div>
             <div class="about-visual">
                 <Picture class="model-poster" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="360px"
                          loading="lazy" alt="Bibliothèque en bois et métal réalisée par Metal Nature" />
@@ -134,7 +134,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 </section>
 
 <!-- ======================== RÉALISATIONS ======================== -->
-<section id="products" class="products dark-theme has-grid" aria-labelledby="products-title">
+<section id="products" class="products dark-theme has-grid" data-tempo="1.8" aria-labelledby="products-title">
     <div class="container products-intro">
         <h2 id="products-title" class="eyebrow">Nos réalisations</h2>
         <p id="product-caption" class="statement split-lines">
@@ -145,6 +145,8 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
     </div>
 
     <div class="carousel-container">
+        <!-- Fenêtre du carrousel : exactement la largeur de la grille, rien ne dépasse des lignes. -->
+        <div class="carousel-viewport">
         <ul class="carousel" id="carousel" aria-label="Réalisations">
             {realisations.map((item, index) => (
                 <li class="carousel-item">
@@ -167,6 +169,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                 </li>
             ))}
         </ul>
+        </div>
         <div class="container carousel-footer">
             <div class="carousel-action-group">
                 <button type="button" id="carouselPrevious" class="carousel-action" aria-controls="carousel" aria-label="Réalisations précédentes">
@@ -187,7 +190,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
         <span class="part-1">Artisan</span>
         <span class="part-2 strong">Créateur</span>
     </p>
-    <article class="container author-card">
+    <article class="container author-card grid-layout">
         <span class="sketch sketch-square author-portrait" data-sketch>
             <Picture src={portrait} formats={['avif', 'webp']} widths={[320, 481]} sizes="(max-width: 768px) 90vw, 320px" loading="lazy"
                      alt="Portrait de Michel Valade, menuisier et métallier, fondateur de Metal Nature" />
@@ -239,7 +242,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
     <div class="container contact-heading">
         <h2 id="contact-title" class="statement">Un projet à nous <span class="strong">confier ?</span></h2>
     </div>
-    <div class="container contact-grid">
+    <div class="container contact-grid grid-layout">
         <div class="contact-group">
 
             <!-- Le téléphone d'abord (lot B) : Michel préfère échanger de vive voix. -->

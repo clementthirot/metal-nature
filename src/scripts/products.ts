@@ -159,20 +159,20 @@ export function initCarousel(): void {
     const metrics = () => {
         const style = getComputedStyle(carousel);
         const gap = parseFloat(style.columnGap) || 0;
-        const padding = parseFloat(style.paddingLeft) || 0;
         const itemWidth = items[0].getBoundingClientRect().width;
-        const containerWidth = carousel.parentElement?.clientWidth ?? window.innerWidth;
-        const visible = Math.max(1, Math.floor((containerWidth - padding + gap) / (itemWidth + gap)));
+        // Zone visible = largeur du carrousel, calée entre la première et la dernière ligne de la grille.
+        const visible = Math.max(1, Math.round((carousel.clientWidth + gap) / (itemWidth + gap)));
         return { gap, itemWidth, visible, maxIndex: Math.max(0, items.length - visible) };
     };
 
     function update(animate = true): void {
         const { gap, itemWidth, maxIndex } = metrics();
         currentIndex = Math.min(currentIndex, maxIndex);
+        // Défilement posé : 0,9 s, accélération et freinage doux.
         gsap.to(carousel, {
             x: -currentIndex * (itemWidth + gap),
-            duration: animate ? motionDuration(0.5) : 0,
-            ease: 'power3.out',
+            duration: animate ? motionDuration(0.9) : 0,
+            ease: 'power2.inOut',
         });
         prevBtn!.disabled = currentIndex === 0;
         nextBtn!.disabled = currentIndex >= maxIndex;

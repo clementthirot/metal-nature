@@ -54,7 +54,7 @@ const jsonLd = [
         </p>
     </header>
 
-    <ul class="index-grid">
+    <ul class="index-grid grid-layout">
         {realisations.map((item, index) => (
             <li>
                 <a class="index-card" href={withBase(`/realisations/${item.id}/`)}>
@@ -122,9 +122,6 @@ const jsonLd = [
         padding: 0;
         list-style: none;
     }
-    .index-grid > li {
-        padding-right: var(--col-gap);
-    }
     .index-card {
         display: flex;
         flex-direction: column;
@@ -156,16 +153,18 @@ const jsonLd = [
     .index-cta > .title-2 {
         grid-column: 1 / span 2;
         grid-row: 1 / span 2;
-        padding-right: var(--col-gap);
+        padding-right: var(--line-pad);
     }
+    /* La moitié droite démarre sur la ligne du milieu : marge pour ne pas la toucher. */
     .index-cta > .index-cta-actions,
     .index-cta > .secondary-text {
         grid-column: 3 / -1;
+        padding-left: var(--line-pad);
     }
     @media (max-width: 1024px) {
         .index-cta > .title-2 { grid-column: 1 / -1; grid-row: auto; }
         .index-cta > .index-cta-actions,
-        .index-cta > .secondary-text { grid-column: 1 / -1; }
+        .index-cta > .secondary-text { grid-column: 1 / -1; padding-left: 0; }
     }
     .index-cta-actions {
         display: flex;
@@ -182,7 +181,7 @@ const jsonLd = [
         padding-block: var(--spacing-xl);
         /* Le fond déborde des lignes (.bleed) : le contenu reste aligné sur la grille. */
         margin-inline: calc(-1 * var(--bleed));
-        padding-inline: var(--bleed);
+        padding-inline: calc(var(--bleed) + var(--line-pad));
         border-radius: var(--radius);
         background: #e9e9e9;
     }

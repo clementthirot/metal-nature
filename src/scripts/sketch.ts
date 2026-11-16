@@ -41,23 +41,30 @@ function addFrame(element: HTMLElement): SVGRectElement {
     return rect;
 }
 
+/** Facteur de lenteur défini sur la section (data-tempo="1.8" : 1,8 fois plus lent). */
+export function tempoOf(element: Element): number {
+    const value = Number(element.closest<HTMLElement>('[data-tempo]')?.dataset.tempo);
+    return Number.isFinite(value) && value > 0 ? value : 1;
+}
+
 function play(element: HTMLElement, delay: number): void {
     const img = element.querySelector<HTMLElement>('img');
+    const tempo = tempoOf(element);
     const rect = addFrame(element);
     const svg = rect.ownerSVGElement!;
 
     const draw = rect.animate(
         [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
-        { duration: 500, delay, easing: 'cubic-bezier(.65, 0, .35, 1)', fill: 'forwards' },
+        { duration: 500 * tempo, delay, easing: 'cubic-bezier(.65, 0, .35, 1)', fill: 'forwards' },
     );
     const outlineOnly = element.dataset.sketch === 'outline';
     draw.finished.then(() => {
         const reveal = outlineOnly ? undefined : img?.animate(
             [{ clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0 0 0 0)' }],
-            { duration: 600, easing: EASE, fill: 'forwards' },
+            { duration: 600 * tempo, easing: EASE, fill: 'forwards' },
         );
         element.classList.add('is-sketched');
-        const fade = svg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, delay: 350, fill: 'forwards' });
+        const fade = svg.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400 * tempo, delay: 350 * tempo, fill: 'forwards' });
         Promise.all([reveal?.finished, fade.finished]).then(() => {
             svg.remove();
             reveal?.cancel(); // l'état final est porté par la classe .is-sketched
@@ -84,7 +91,7 @@ export function initSketches(root: ParentNode = document): void {
             const element = entry.target as HTMLElement;
             observer.unobserve(element);
             if (element.hasAttribute('data-rule-draw')) element.classList.add('is-drawn');
-            else play(element, index * STAGGER);
+            else play(element, index * STAGGER * tempoOf(element));
         });
     }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
 

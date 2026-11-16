@@ -88,7 +88,7 @@ const jsonLd = [
         </ol>
     </nav>
 
-    <article class="realisation-layout">
+    <article class="realisation-layout grid-layout">
         <figure class="realisation-figure">
             <!-- Photo principale déjà visible au chargement : seul le contour se trace (pas de retard du LCP). -->
             <span class="sketch" data-sketch="outline">
@@ -133,7 +133,7 @@ const jsonLd = [
     {gallery.length > 0 && (
         <section class="gallery" aria-labelledby="gallery-title">
             <h2 id="gallery-title" class="eyebrow">Galerie</h2>
-            <ul>
+            <ul class="grid-layout">
                 {gallery.map((photo) => (
                     <li>
                         <Picture src={photo.image} formats={['avif', 'webp']} widths={[400, 800]}
@@ -198,7 +198,6 @@ const jsonLd = [
     }
     .realisation-figure {
         grid-column: 1 / span 1;
-        padding-right: var(--col-gap);
     }
     .realisation-content {
         grid-column: 2 / -1;
@@ -296,9 +295,6 @@ const jsonLd = [
         padding: 0;
         list-style: none;
     }
-    .gallery li {
-        padding-right: var(--col-gap);
-    }
     .gallery :global(img) {
         width: 100%;
         aspect-ratio: 4 / 3;
@@ -381,9 +377,7 @@ const jsonLd = [
         .realisation-content {
             grid-column: 1 / -1;
         }
-        .realisation-figure {
-            padding-right: 0;
-        }
+
         .realisation-3d-render {
             height: 50vh;
         }

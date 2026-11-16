@@ -351,9 +351,8 @@ html:not(.motion) .about-progress {
     display: flex;
     gap: 0;
     width: 100%;
-    max-width: var(--container-width);
-    margin: 0 auto;
-    padding: 0 var(--gutter);
+    margin: 0;
+    padding: 0;
     list-style: none;
     touch-action: pan-y;
 }
@@ -362,10 +361,23 @@ html:not(.motion) .about-progress {
     --carousel-span: 1;
 }
 
-/* Une carte = une colonne de la grille ; la photo s'arrête --col-gap avant la ligne suivante. */
+/*
+ * Fenêtre du carrousel : exactement la largeur de la grille (de la première à la dernière ligne).
+ * Seules les cartes entières y sont visibles : 4 sur desktop, 3 sur tablette, 1 sur mobile.
+ */
+.carousel-viewport {
+    /* largeur explicite : dans un conteneur flex en colonne, margin auto réduirait la fenêtre à son contenu */
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding-inline: var(--gutter);
+    clip-path: inset(0 var(--gutter));
+}
+
+/* Une carte = une colonne, avec la même marge que les textes de chaque côté des lignes. */
 .carousel-item {
     flex: 0 0 calc(100% / var(--grid-columns) * var(--carousel-span));
-    padding-right: var(--col-gap);
+    padding-inline: var(--line-pad);
     box-sizing: border-box;
 }
 
@@ -604,7 +616,6 @@ html:not(.motion) .about-progress {
 
 .author-portrait {
     grid-column: 1 / span 1;
-    padding-right: var(--col-gap);
 }
 
 .about-quote {
@@ -679,9 +690,13 @@ html:not(.motion) .about-progress {
     list-style: none;
 }
 
-/* Chaque moitié de liste occupe deux colonnes de la grille. */
-.list-group-item {
-    margin-right: var(--col-gap);
+/* Chaque moitié de liste occupe deux colonnes ; la 2de moitié démarre sur la ligne du milieu. */
+.list-group-item:nth-child(odd) {
+    padding-right: var(--line-pad);
+}
+
+.list-group-item:nth-child(even) {
+    padding-left: var(--line-pad);
 }
 
 .list-group-item {
@@ -746,6 +761,10 @@ html:not(.motion) .about-progress {
         grid-template-columns: 1fr;
     }
 
+    .list-group-item:nth-child(n) {
+        padding-inline: 0;
+    }
+
     .proposal-card {
         padding-block: var(--spacing-lg);
     }
@@ -771,7 +790,6 @@ html:not(.motion) .about-progress {
 
 .contact-group {
     grid-column: 1 / span 2;
-    padding-right: var(--col-gap);
 }
 
 .contact-grid > picture {
@@ -886,9 +904,6 @@ img.contact-image {
         grid-column: 1 / -1;
     }
 
-    .contact-group {
-        padding-right: 0;
-    }
 
     img.contact-image {
         aspect-ratio: 4 / 3;

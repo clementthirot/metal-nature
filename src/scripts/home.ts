@@ -4,7 +4,7 @@ import { prefersReducedMotion } from './motion';
 import { setupAboutStage, type AboutStage } from './about-stage';
 import { splitIntoLines } from './split-words';
 import { initCarousel, initProductDetails } from './products';
-import { initSketches } from './sketch';
+import { initSketches, tempoOf } from './sketch';
 
 export function initHomePage(): void {
     initProductDetails();
@@ -50,12 +50,13 @@ function animateHero(): void {
 function animateTextReveals(): void {
     document.querySelectorAll<HTMLElement>('.split-lines').forEach((paragraph) => {
         const lines = splitIntoLines(paragraph);
+        const tempo = tempoOf(paragraph);
         gsap.set(lines.flat(), { yPercent: 110 });
         const timeline = gsap.timeline({
             scrollTrigger: { trigger: paragraph, start: 'top 85%', once: true },
         });
         lines.forEach((words, index) => {
-            timeline.to(words, { yPercent: 0, duration: 0.8, ease: 'power3.out' }, index * 0.08);
+            timeline.to(words, { yPercent: 0, duration: 0.8 * tempo, ease: 'power3.out' }, index * 0.08 * tempo);
         });
     });
 
