@@ -1,7 +1,8 @@
 /**
  * Chargement paresseux de la scène 3D de « Notre démarche » (Three.js, lot G).
  * - Le code 3D (~150 Ko gzip) et les modèles ne sont chargés qu'à l'approche de la section.
- * - En mode économie de données : image fixe + bouton « Voir en 3D ».
+ * - Mobile, économie de données ou appareil modeste : image fixe + bouton « Voir en 3D » (lot H4.7).
+ * - L'effet « arêtes puis matière » est coupé sur les appareils modestes.
  * - La progression demandée avant la fin du chargement est conservée et appliquée ensuite.
  */
 import type { AboutScene } from './about-scene';
@@ -21,7 +22,7 @@ export function setupAboutStage(container: HTMLElement): AboutStage {
         container.dataset.sceneState = 'loading';
         try {
             const { AboutScene } = await import('./about-scene');
-            const instance = new AboutScene(container);
+            const instance = new AboutScene(container, { edges: !modestDevice });
             container.appendChild(instance.canvas);
             await instance.load();
             instance.setProgress(progress);
@@ -40,8 +41,10 @@ export function setupAboutStage(container: HTMLElement): AboutStage {
     };
 
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    const modestDevice = (navigator.hardwareConcurrency ?? 8) <= 4;
+    const onDemand = saveData || modestDevice || window.matchMedia('(max-width: 768px)').matches;
     const trigger = container.querySelector<HTMLButtonElement>('.model-trigger');
-    if (saveData && trigger) {
+    if (onDemand && trigger) {
         trigger.hidden = false;
         trigger.addEventListener('click', () => { trigger.hidden = true; start(); }, { once: true });
     } else {

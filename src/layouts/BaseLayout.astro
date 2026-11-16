@@ -75,5 +75,7 @@ const isProduction = Astro.site?.hostname.endsWith('metal-nature.fr') ?? false;
 <body class={bodyClass}>
 <a class="skip-link" href="#main">Aller au contenu</a>
 <slot />
+<!-- Lot H1 : les lignes de grille apparaissent en fondu une fois la page affichée. -->
+<script is:inline>requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('grid-ready')));</script>
 </body>
 </html>

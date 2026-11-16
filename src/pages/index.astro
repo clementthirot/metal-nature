@@ -60,7 +60,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 
 <main id="main">
 <!-- ============================ HERO ============================ -->
-<header id="home" class="hero container">
+<header id="home" class="hero container has-grid">
     <h1 class="sr-only">Metal Nature, meubles artisanaux sur mesure en bois et métal à Sannois (Val d'Oise)</h1>
     <p class="hero-title" aria-hidden="true">
         <span class="hero-line"><span class="title-1 title-line">La touche authentique</span></span>
@@ -79,15 +79,15 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 </header>
 
 <!-- ======================= NOTRE DÉMARCHE ======================= -->
-<section id="about" class="about" aria-labelledby="about-title">
+<section id="about" class="about has-grid" aria-labelledby="about-title">
     <div class="container about-intro">
         <h2 id="about-title" class="eyebrow">Notre démarche</h2>
-        <p class="title-2 split-lines" id="about-text">
-            Metal Nature, c’est du mobilier artisanal unique, conçu avec soin dans des matériaux nobles. Nous allions
-            menuiserie et métallerie pour fabriquer des meubles à la fois beaux et robustes, et nous vous accompagnons
-            de l’idée à l’installation.
+        <p class="statement split-lines" id="about-text">
+            Metal Nature, c’est du mobilier <span class="strong">artisanal et unique</span>, conçu avec soin dans des
+            matériaux nobles. Nous allions menuiserie et métallerie pour fabriquer des meubles à la fois beaux et
+            robustes, et nous vous accompagnons <span class="strong">de l’idée à l’installation.</span>
         </p>
-        <div class="separator" aria-hidden="true"></div>
+        <hr class="rule separator" aria-hidden="true" />
         <a class="tap-link about-skip" href="#products">Passer à nos réalisations <span aria-hidden="true">↓</span></a>
     </div>
 
@@ -134,12 +134,13 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 </section>
 
 <!-- ======================== RÉALISATIONS ======================== -->
-<section id="products" class="products dark-theme" aria-labelledby="products-title">
+<section id="products" class="products dark-theme has-grid" aria-labelledby="products-title">
     <div class="container products-intro">
         <h2 id="products-title" class="eyebrow">Nos réalisations</h2>
-        <p id="product-caption" class="title-2 split-lines">
-            Depuis plus de cinq ans, nous créons sur mesure le mobilier qui s'intègre parfaitement à votre intérieur.
-            Découvrez les projets que nous avons réalisés pour nos clients et imaginez ce que nous pourrions créer pour vous.
+        <p id="product-caption" class="statement split-lines">
+            Depuis plus de cinq ans, nous créons <span class="strong">sur mesure</span> le mobilier qui s'intègre
+            parfaitement à votre intérieur. Découvrez nos projets et imaginez ce que nous
+            pourrions <span class="strong">créer pour vous.</span>
         </p>
     </div>
 
@@ -154,8 +155,10 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                        data-poster={posters[index].src}
                        data-poster-alt={item.data.imageAlt}>
                         {/* alt vide volontaire : le nom de la réalisation est déjà le texte du lien */}
-                        <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
-                                 sizes="(max-width: 1024px) 300px, 25vw" alt="" loading="lazy" />
+                        <span class="sketch" data-sketch>
+                            <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
+                                     sizes="(max-width: 1024px) 300px, 25vw" alt="" loading="lazy" />
+                        </span>
                         <span class="carousel-item-caption">
                             <span>{item.data.title}<span class="sr-only">, </span></span>
                             <span>{item.data.year}</span>
@@ -179,14 +182,16 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 </section>
 
 <!-- =========================== ARTISAN ========================== -->
-<section id="author" class="author" aria-labelledby="author-name">
+<section id="author" class="author has-grid" aria-labelledby="author-name">
     <p class="scroll-title" aria-hidden="true">
         <span class="part-1">Artisan</span>
         <span class="part-2 strong">Créateur</span>
     </p>
     <article class="container author-card">
-        <Picture src={portrait} formats={['avif', 'webp']} widths={[320, 481]} sizes="(max-width: 768px) 90vw, 320px" loading="lazy"
-                 alt="Portrait de Michel Valade, menuisier et métallier, fondateur de Metal Nature" />
+        <span class="sketch sketch-square author-portrait" data-sketch>
+            <Picture src={portrait} formats={['avif', 'webp']} widths={[320, 481]} sizes="(max-width: 768px) 90vw, 320px" loading="lazy"
+                     alt="Portrait de Michel Valade, menuisier et métallier, fondateur de Metal Nature" />
+        </span>
         <div class="about-quote prose">
             <h2 id="author-name" class="title-2">Michel Valade, artisan créateur</h2>
             <p>
@@ -200,32 +205,42 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 </section>
 
 <!-- ===================== CE QUE NOUS FABRIQUONS ==================== -->
-<section id="proposal" class="proposal" aria-labelledby="proposal-title">
-    <Image class="proposal-bg" src={proposalBackground} widths={[800, 1600]} sizes="100vw" format="webp"
-           loading="lazy" alt="" />
+<section id="proposal" class="proposal has-grid" aria-labelledby="proposal-title">
+    <span class="sketch sketch-square proposal-bg-frame" data-sketch>
+        <Image class="proposal-bg" src={proposalBackground} widths={[800, 1600]} sizes="100vw" format="webp"
+               loading="lazy" alt="" />
+    </span>
     <div class="container">
         <div class="proposal-card">
             <h2 id="proposal-title" class="eyebrow">Ce que nous fabriquons</h2>
-            <p id="proposal-caption" class="proposal-caption">
-                De la table basse au bureau fonctionnel, en passant par le dressing et la bibliothèque, chaque création est
-                pensée pour embellir vos espaces. Nous fabriquons des meubles variés, et notre plus grande fierté est de
-                les voir prendre place chez vous. Votre projet n'est pas dans la liste ? Parlons-en.
+            <p id="proposal-caption" class="statement split-lines">
+                De la table basse au bureau, en passant par le dressing et la bibliothèque, chaque création est pensée
+                pour <span class="strong">embellir vos espaces.</span>
             </p>
-            <ul class="list-group">
-                {FURNITURE_TYPES.map(({ label }) => (
-                    <li class="list-group-item"><span class="list-group-label">{label}</span></li>
+            <p class="proposal-caption prose">
+                Nous fabriquons des meubles variés, et notre plus grande fierté est de les voir prendre place chez vous.
+                Votre projet n'est pas dans la liste ? Parlons-en.
+            </p>
+            <ol class="list-group">
+                {FURNITURE_TYPES.map(({ label }, index) => (
+                    <li class="list-group-item">
+                        <span class="list-group-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                        <span class="list-group-label">{label}</span>
+                    </li>
                 ))}
-            </ul>
+            </ol>
             <a class="button proposal-cta" href="#contact">Parler de mon projet</a>
         </div>
     </div>
 </section>
 
 <!-- =========================== CONTACT ========================== -->
-<section id="contact" class="contact dark-theme" aria-labelledby="contact-title">
+<section id="contact" class="contact dark-theme has-grid" aria-labelledby="contact-title">
+    <div class="container contact-heading">
+        <h2 id="contact-title" class="statement">Un projet à nous <span class="strong">confier ?</span></h2>
+    </div>
     <div class="container contact-grid">
         <div class="contact-group">
-            <h2 id="contact-title" class="title-2">Un projet à nous <span class="strong">confier ?</span></h2>
 
             <!-- Le téléphone d'abord (lot B) : Michel préfère échanger de vive voix. -->
             <div class="contact-call">

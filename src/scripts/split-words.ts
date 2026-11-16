@@ -12,16 +12,40 @@ export function splitParagraphToWords(element: HTMLElement): HTMLElement[] {
     const visual = document.createElement('span');
     visual.setAttribute('aria-hidden', 'true');
 
+    // On garde les classes des éléments en ligne (ex. <span class="strong"> en Arapey italique, lot H2).
+    // `glue` : pas d'espace avant ce mot (ponctuation collée à un élément en ligne, ex. « unique, »).
+    const tokens: { word: string; className: string; glue: boolean }[] = [];
+    let pendingSpace = false;
+    const collect = (node: Node, className: string) => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const raw = node.textContent ?? '';
+            raw.split(/(\s+)/).forEach((part) => {
+                if (!part) return;
+                if (/^\s+$/.test(part)) { pendingSpace = true; return; }
+                tokens.push({ word: part, className, glue: tokens.length > 0 && !pendingSpace });
+                pendingSpace = false;
+            });
+        } else if (node instanceof HTMLElement) {
+            const inherited = [className, node.className].filter(Boolean).join(' ');
+            node.childNodes.forEach((child) => collect(child, inherited));
+        }
+    };
+    element.childNodes.forEach((child) => collect(child, ''));
+
     const words: HTMLElement[] = [];
-    text.split(' ').forEach((word, index) => {
-        const container = document.createElement('span');
-        container.className = 'animate-word-container';
+    let container: HTMLElement | null = null;
+    tokens.forEach(({ word, className, glue }) => {
         const inner = document.createElement('span');
-        inner.className = 'animate-word';
+        inner.className = ['animate-word', className].filter(Boolean).join(' ');
         inner.textContent = word;
+        // Un mot « collé » (ponctuation) rejoint le bloc du mot précédent : il ne passe jamais seul à la ligne.
+        if (!glue || !container) {
+            if (container) visual.appendChild(document.createTextNode(' '));
+            container = document.createElement('span');
+            container.className = 'animate-word-container';
+            visual.appendChild(container);
+        }
         container.appendChild(inner);
-        if (index > 0) visual.appendChild(document.createTextNode(' '));
-        visual.appendChild(container);
         words.push(inner);
     });
 

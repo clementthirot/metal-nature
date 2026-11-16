@@ -4,10 +4,12 @@ import { prefersReducedMotion } from './motion';
 import { setupAboutStage, type AboutStage } from './about-stage';
 import { splitIntoLines } from './split-words';
 import { initCarousel, initProductDetails } from './products';
+import { initSketches } from './sketch';
 
 export function initHomePage(): void {
     initProductDetails();
     initCarousel();
+    initSketches();
 
     if (prefersReducedMotion()) {
         // Pas de scène 3D : chaque étape affiche une image fixe du meuble à côté de son texte.
@@ -24,7 +26,6 @@ export function initHomePage(): void {
     animateHero();
     animateTextReveals();
     animateAbout(aboutStage);
-    animateProducts();
     animateAuthor();
     animateProposal();
 
@@ -103,15 +104,6 @@ function animateAbout(stage: AboutStage | null): void {
         if (index === 0 && start === 0) gsap.set(step, { autoAlpha: 1, y: 0 });
         else timeline.to(step, { autoAlpha: 1, y: 0, duration: fade }, start);
         if (end < 1) timeline.to(step, { autoAlpha: 0, y: -24, duration: fade }, end - fade);
-    });
-}
-
-/* ---------- Réalisations ---------- */
-function animateProducts(): void {
-    ScrollTrigger.batch('.carousel-item', {
-        start: 'top 90%',
-        once: true,
-        onEnter: (batch) => gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out' }),
     });
 }
 

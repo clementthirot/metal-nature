@@ -30,6 +30,8 @@ const { entry, previous, next } = Astro.props;
 const { Content } = await render(entry);
 const { title, year, image, imageAlt, model, materials, dimensions, finish, duration, gallery } = entry.data;
 const description = (entry.body ?? '').trim().replace(/\s+/g, ' ');
+// Ligne de cote (lot H3.4) : la largeur réelle, premier nombre du champ « dimensions » (ex. « 300 × 210 × 60 cm »).
+const widthLabel = dimensions?.match(/^\s*(\d+(?:[.,]\d+)?)/)?.[1];
 const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = await getImage({ src: image, format: 'jpeg', width: 1200 });
 
@@ -77,7 +79,7 @@ const jsonLd = [
 >
 <SiteNav />
 
-<main id="main" class="realisation container">
+<main id="main" class="realisation container has-grid">
     <nav class="breadcrumb" aria-label="Fil d'Ariane">
         <ol>
             <li><a class="tap-link" href={withBase('/')}>Accueil</a></li>
@@ -87,8 +89,19 @@ const jsonLd = [
     </nav>
 
     <article class="realisation-layout">
-        <Picture class="realisation-image" src={image} formats={['avif', 'webp']} widths={[360]} sizes="360px"
-                 alt={imageAlt} loading="eager" fetchpriority="high" />
+        <figure class="realisation-figure">
+            <!-- Photo principale déjà visible au chargement : seul le contour se trace (pas de retard du LCP). -->
+            <span class="sketch" data-sketch="outline">
+                <Picture class="realisation-image" src={image} formats={['avif', 'webp']} widths={[360]} sizes="360px"
+                         alt={imageAlt} loading="eager" fetchpriority="high" />
+            </span>
+            {widthLabel && (
+                <figcaption class="cote">
+                    <span class="cote-line" aria-hidden="true"></span>
+                    <span class="cote-label"><span class="sr-only">Largeur : </span>{widthLabel} cm</span>
+                </figcaption>
+            )}
+        </figure>
         <div class="realisation-content">
             <h1 class="title-2">{title}</h1>
             <div class="realisation-text prose"><Content /></div>
@@ -97,12 +110,12 @@ const jsonLd = [
                 <h2 id="specs-title" class="eyebrow">Fiche technique</h2>
                 <dl>
                     {specs.map((spec) => (
-                        <div class="spec-row">
+                        <div class="spec-row" data-rule-draw>
                             <dt>{spec.label}</dt>
                             <dd>{spec.value}</dd>
                         </div>
                     ))}
-                    <div class="spec-row">
+                    <div class="spec-row" data-rule-draw>
                         <dt>Fabrication</dt>
                         <dd>Sur mesure, dans notre atelier de {SITE.city}</dd>
                     </div>
@@ -186,6 +199,43 @@ const jsonLd = [
         width: 100%;
         border-radius: var(--radius);
     }
+    .realisation-figure {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+    /* Ligne de cote : trait fin, deux barres d'extrémité, label centré. Pas de flèches. */
+    .cote {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        font-size: .8125rem;
+        font-weight: 600;
+        letter-spacing: .08em;
+        color: var(--color-muted-dark);
+    }
+    .cote-line {
+        position: relative;
+        width: 100%;
+        height: 9px;
+    }
+    .cote-line::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 4px;
+        height: 1px;
+        background: currentColor;
+    }
+    .cote-line::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-left: 1px solid currentColor;
+        border-right: 1px solid currentColor;
+    }
     .realisation-content {
         display: flex;
         flex-direction: column;
@@ -202,12 +252,30 @@ const jsonLd = [
     .specs dl {
         margin-top: var(--spacing-xs);
     }
+    /* Fiche technique : tableau à filets simples, tracés de gauche à droite à l'apparition (lot H3.4). */
     .spec-row {
+        position: relative;
         display: grid;
         grid-template-columns: minmax(140px, 1fr) 2fr;
         gap: var(--spacing-xs);
         padding: 12px 0;
-        border-bottom: var(--border-secondary);
+    }
+    .spec-row::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background: #a9a9a9;
+        transform-origin: left center;
+        transition: transform .8s var(--ease-out);
+    }
+    :global(.motion) .spec-row:not(.is-drawn)::after {
+        transform: scaleX(0);
+    }
+    .spec-row + .spec-row::after {
+        transition-delay: .06s;
     }
     .spec-row dt {
         color: var(--color-muted-dark);
@@ -313,6 +381,8 @@ const jsonLd = [
 </style>
 
 <script>
+    import { initSketches } from '../../scripts/sketch';
+    initSketches();
     import { setupLazyStage } from '../../scripts/model-stage';
     const render = document.querySelector<HTMLElement>('.realisation-3d-render');
     const model = render?.dataset.model;

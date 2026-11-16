@@ -118,14 +118,14 @@ h2, .title-2 {
     font-style: italic;
 }
 
-/* Surtitre de section, visible (lot 1.2) */
+/* Surtitre de section (lot H5) : petit label Urbanist en capitales espacées, contraste ≥ 6:1. */
 .eyebrow {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 1.125rem;
+    font-family: var(--font-sans);
+    font-size: .8125rem;          /* 13 px */
+    font-weight: 600;
     line-height: 1.4;
-    letter-spacing: .02em;
-    /* Lot C.2 : couleur pleine plutôt qu'une opacité (contraste ≥ 6:1 sur les deux fonds). */
+    letter-spacing: .14em;
+    text-transform: uppercase;
     color: var(--color-muted-dark);
 }
 
@@ -133,8 +133,13 @@ h2, .title-2 {
     color: var(--color-muted-light);
 }
 
-.eyebrow::before {
-    content: "— ";
+/* Texte fort en pleine largeur du conteneur (lot H2) */
+.statement {
+    max-width: none;
+    font-size: clamp(1.75rem, 3.2vw, 3rem);
+    line-height: 1.25;
+    font-weight: 400;
+    text-wrap: balance;
 }
 
 .prose {
@@ -154,6 +159,55 @@ h2, .title-2 {
 }
 
 /* ---------- Mise en page ---------- */
+
+/*
+ * Lot H1 — Lignes de grille d'architecte : les bords des colonnes du conteneur, en traits de 1 px
+ * à 8 % de la couleur du texte (elles s'inversent donc seules sur les sections sombres).
+ * Le calque est posé sous le contenu de chaque section : photos et cartes opaques le masquent.
+ */
+:root {
+    --grid-columns: 4;
+    --grid-color: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+@media (max-width: 1024px) { :root { --grid-columns: 3; } }
+@media (max-width: 640px)  { :root { --grid-columns: 2; } }
+
+.has-grid {
+    position: relative;
+    isolation: isolate;
+}
+
+.has-grid::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    z-index: -1;
+    /* largeur utile du conteneur : de la première à la dernière ligne */
+    width: calc(min(100%, var(--container-width)) - 2 * var(--gutter));
+    transform: translateX(-50%);
+    border-right: 1px solid var(--grid-color);
+    background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px);
+    background-size: calc(100% / var(--grid-columns)) 100%;
+    background-repeat: repeat-x;
+    pointer-events: none;
+    transition: opacity .6s ease-out;
+}
+
+/* Apparition au premier chargement : simple fondu, sans tracé (rien d'animé dans le hero). */
+.motion:not(.grid-ready) .has-grid::before {
+    opacity: 0;
+}
+
+/* Filet horizontal : 1 px, de la première à la dernière ligne verticale */
+.rule {
+    display: block;
+    height: 1px;
+    border: 0;
+    background: color-mix(in srgb, currentColor 10%, transparent);
+}
 
 .container {
     width: 100%;
@@ -413,6 +467,38 @@ h2, .title-2 {
     align-items: center;
     gap: var(--spacing-xs);
     margin-top: var(--spacing-md);
+}
+
+/* ================= CROQUIS PUIS APPARITION (lot H3) =================
+   Un contour fin se trace autour du cadre, puis la photo se révèle de bas en haut
+   et le trait s'efface. Une seule fois ; sans animation, tout est affiché d'emblée. */
+
+.sketch {
+    position: relative;
+    display: block;
+}
+
+.sketch-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    color: inherit;
+}
+
+.sketch-frame rect {
+    fill: none;
+    stroke: color-mix(in srgb, currentColor 35%, transparent);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+}
+
+/* Les visuels déjà à l'écran au chargement (data-sketch="outline") ne sont pas masqués :
+   seul le contour se trace, pour ne pas retarder le LCP. */
+.motion .sketch[data-sketch=""]:not(.is-sketched) img {
+    clip-path: inset(100% 0 0 0);
 }
 
 /* ---------- Réduction des animations ---------- */

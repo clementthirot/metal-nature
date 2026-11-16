@@ -92,13 +92,9 @@
     padding-bottom: var(--section-space);
 }
 
-.about-intro .title-2 {
-    max-width: 30ch;
-}
-
+/* Filet du lot H1 : tracé de gauche à droite à l'apparition */
 .separator {
-    height: 2px;
-    background-color: var(--color-black);
+    width: 100%;
     transform-origin: left center;
 }
 
@@ -110,45 +106,48 @@
     align-self: flex-start;
 }
 
+/*
+ * Lot H4.1 — 3D plein écran, meuble centré. Les messages sont posés en surimpression
+ * dans la première colonne de la grille (desktop) ou en bas d'écran (mobile).
+ */
 .about-pin {
     position: relative;
-    min-height: 100vh;
-    min-height: 100svh;
-    display: flex;
-    align-items: center;
-    padding: calc(var(--nav-height) + var(--spacing-md)) 0 var(--spacing-xl);
+    height: 100vh;
+    height: 100svh;
     overflow: hidden;
 }
 
-/*
- * Desktop : la scène 3D occupe tout le cadre (elle a été conçue plein écran) et le texte
- * est posé dans une carte semi-opaque : le modèle ne barre jamais les phrases (lot 1.1).
- */
 .about-stage {
-    display: grid;
-    grid-template-columns: minmax(0, 440px) 1fr;
-    grid-template-rows: auto auto;
-    gap: var(--spacing-md);
-    align-items: center;
-}
-
-.about-steps,
-.about-progress {
     position: relative;
     z-index: 1;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    grid-template-rows: 1fr auto auto;
+    align-items: center;
+    padding-top: calc(var(--nav-height) + var(--spacing-md));
+    padding-bottom: var(--spacing-xl);
+    pointer-events: none;
 }
 
 .about-steps {
+    grid-column: 1 / span 1;
+    grid-row: 1;
     display: grid;
-    padding: var(--spacing-lg);
-    border-radius: var(--radius);
-    background: color-mix(in srgb, var(--color-white) 82%, transparent);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    padding: var(--spacing-sm);
+    background: color-mix(in srgb, var(--color-white) 85%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     list-style: none;
+    pointer-events: auto;
 }
 
-/* Les trois messages se superposent dans la même cellule et se relaient au scroll. */
+.about-steps .title-2 {
+    font-size: clamp(1.25rem, 1.7vw, 1.75rem);
+    line-height: 1.3;
+}
+
+/* Les messages se superposent dans la même cellule et se relaient au scroll. */
 .motion .about-step {
     grid-area: 1 / 1;
 }
@@ -160,16 +159,17 @@
 }
 
 .about-step-number {
-    font-family: var(--font-serif);
-    font-style: italic;
-    opacity: .6;
+    font-size: .8125rem;
+    font-weight: 600;
+    letter-spacing: .14em;
+    color: var(--color-muted-dark);
 }
 
 .about-progress {
-    grid-column: 1;
+    grid-column: 1 / span 1;
     grid-row: 2;
-    margin: 0 var(--spacing-lg);
-    height: 2px;
+    height: 1px;
+    margin-top: var(--spacing-xs);
     background: color-mix(in srgb, var(--color-black) 15%, transparent);
     overflow: hidden;
 }
@@ -182,21 +182,18 @@
     transform: scaleX(0);
 }
 
+/* Le canvas occupe tout l'écran, sous les messages. */
 .about-visual {
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding: calc(var(--nav-height) + var(--spacing-md)) max(var(--gutter), calc((100vw - var(--container-width)) / 2 + var(--gutter))) var(--spacing-xl);
+    justify-content: center;
+    padding: calc(var(--nav-height) + var(--spacing-md)) var(--gutter) var(--spacing-xl);
 }
 
 .about-visual picture {
-    width: min(42%, 420px);
-}
-
-.about-visual picture {
-    height: 100%;
+    height: min(70%, 560px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -208,7 +205,6 @@ img.model-poster,
     max-height: 100%;
     width: auto;
     object-fit: contain;
-    border-radius: var(--radius);
 }
 
 .model-canvas {
@@ -222,7 +218,6 @@ img.model-poster,
 
 [data-model-state="ready"] > .model-canvas { opacity: 1; }
 
-/* Scène Three.js de « Notre démarche » (lot G) : plein cadre, image affichée jusqu'au chargement. */
 .about-canvas {
     position: absolute;
     inset: 0;
@@ -234,6 +229,7 @@ img.model-poster,
 
 .about-visual[data-scene-state="ready"] > .about-canvas { opacity: 1; }
 .about-visual[data-scene-state="ready"] > picture { opacity: 0; }
+.about-visual[data-scene-state="ready"] > .model-trigger { display: none; }
 
 /* Image fixe de chaque meuble : seulement sans animation (la scène 3D n'est pas chargée). */
 .about-step-still { display: none; }
@@ -243,13 +239,10 @@ html:not(.motion) .about-step-still {
     max-width: 240px;
 }
 
-html:not(.motion) .about-step-still img {
-    border-radius: var(--radius);
-}
-
 html:not(.motion) .about-visual {
     display: none;
 }
+
 [data-model-state="ready"] > picture,
 [data-model-state="ready"] > .product-poster { opacity: 0; }
 
@@ -265,49 +258,57 @@ html:not(.motion) .about-visual {
 
 .model-trigger[hidden] { display: none; }
 
-/* Version statique (pas d'animation) : messages empilés dans la carte, pas d'épinglage. */
+/* Version statique (pas d'animation) : messages empilés, pas d'épinglage ni de plein écran. */
+html:not(.motion) .about-pin {
+    height: auto;
+}
+
+html:not(.motion) .about-stage {
+    padding-top: 0;
+}
+
 html:not(.motion) .about-steps {
+    grid-column: 1 / -1;
     gap: var(--spacing-lg);
+    padding: 0;
+    background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }
 
 html:not(.motion) .about-progress {
     display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
+    .about-steps,
+    .about-progress {
+        grid-column: 1 / span 2;
+    }
+}
+
+/* Mobile : toujours plein écran, messages en bas d'écran par-dessus la scène. */
+@media (max-width: 640px) {
     .about-stage {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
-        gap: var(--spacing-md);
+        grid-template-rows: 1fr auto auto;
+        align-items: end;
+    }
+
+    .about-steps,
+    .about-progress {
+        grid-column: 1 / -1;
     }
 
     .about-visual {
-        position: relative;
-        inset: auto;
-        grid-column: 1;
-        grid-row: 1;
-        height: 38vh;
-        padding: 0;
-        justify-content: center;
+        align-items: flex-start;
+        padding-top: calc(var(--nav-height) + var(--spacing-sm));
+        padding-bottom: 40%;
     }
 
-    .about-visual picture {
-        width: auto;
+    .model-trigger {
+        top: 45%;
+        bottom: auto;
     }
-
-    .about-steps {
-        padding: 0;
-        background: none;
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
-    }
-
-    .about-progress {
-        margin: 0;
-    }
-
-    .about-steps { grid-row: 2; }
-    .about-progress { grid-row: 3; }
 }
 
 /* =========================== RÉALISATIONS =========================== */
@@ -325,9 +326,6 @@ html:not(.motion) .about-progress {
     gap: var(--spacing-md);
 }
 
-.products-intro .title-2 {
-    max-width: 38ch;
-}
 
 .carousel-container {
     display: flex;
@@ -351,10 +349,6 @@ html:not(.motion) .about-progress {
     flex: 0 0 calc((100% - 3 * var(--spacing-md)) / 4);
 }
 
-.motion .carousel-item {
-    opacity: 0;
-    transform: translateY(40px);
-}
 
 .carousel-item-button {
     display: flex;
@@ -365,6 +359,7 @@ html:not(.motion) .about-progress {
 }
 
 .carousel-item-button picture {
+    display: block;
     overflow: hidden;
     border-radius: var(--radius);
 }
@@ -589,7 +584,12 @@ html:not(.motion) .about-progress {
 
 .author-card img {
     width: 100%;
-    border-radius: var(--radius);
+}
+
+/* Lot H5 : portrait à coins droits, accordé aux lignes de la grille */
+.author-portrait,
+.author-portrait picture {
+    display: block;
 }
 
 .about-quote {
@@ -619,10 +619,13 @@ html:not(.motion) .about-progress {
     isolation: isolate;
 }
 
-.proposal-bg {
+.sketch.proposal-bg-frame {
     position: absolute;
     inset: 0;
     z-index: -1;
+}
+
+.proposal-bg {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -638,11 +641,11 @@ html:not(.motion) .about-progress {
 }
 
 .proposal-caption {
-    max-width: 65ch;
     font-size: 1.125rem;
 }
 
 .list-group {
+    margin: 0;
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: var(--spacing-xxl);
@@ -680,6 +683,22 @@ html:not(.motion) .about-progress {
     transform: scaleX(1);
 }
 
+.list-group-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+/* Lot H5 : numérotation discrète des catégories */
+.list-group-number {
+    min-width: 2ch;
+    font-size: .8125rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted-dark);
+}
+
 .list-group-label {
     display: flex;
     align-items: center;
@@ -705,6 +724,10 @@ html:not(.motion) .about-progress {
 
 .contact {
     padding: var(--section-space-lg) 0;
+}
+
+.contact-heading {
+    margin-bottom: var(--spacing-xl);
 }
 
 /* Lot 0.2 : grille, le texte à gauche, l'image à droite, plus d'écrasement */
@@ -858,3 +881,4 @@ img.contact-image {
 .animate-word {
     display: inline-block;
 }
+
