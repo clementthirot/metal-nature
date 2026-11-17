@@ -1,0 +1,20 @@
+---
+import { withBase } from '../utils/paths';
+
+export interface Crumb {
+    label: string;
+    /** Chemin du site (« /realisations/ ») ; absent pour la page courante. */
+    href?: string;
+}
+interface Props {
+    items: Crumb[];
+}
+const { items } = Astro.props;
+---
+<nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <ol>
+        {items.map((item) => item.href
+            ? <li><a class="tap-link" href={withBase(item.href)}>{item.label}</a></li>
+            : <li aria-current="page">{item.label}</li>)}
+    </ol>
+</nav>

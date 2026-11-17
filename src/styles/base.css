@@ -222,9 +222,14 @@ h2, .title-2 {
     grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
 }
 
-/* Marge entre les lignes et les contenus : enfants directs des conteneurs et cellules de grille. */
-.has-grid .container > :not(.grid-layout, .bleed, .card, .sr-only),
-.has-grid.container > :not(.grid-layout, .bleed, .card, .sr-only),
+/*
+ * Marge entre les lignes et les contenus : enfants directs des conteneurs et cellules de grille.
+ * .stack : bloc qui ne prend pas la marge lui-même mais la transmet à ses enfants
+ * (utile quand il contient une grille de cartes, qui doit rester calée sur les colonnes).
+ */
+.has-grid .container > :not(.grid-layout, .bleed, .card, .sr-only, .stack),
+.has-grid.container > :not(.grid-layout, .bleed, .card, .sr-only, .stack),
+.has-grid .stack > :not(.grid-layout, .bleed, .card, .sr-only, .stack),
 .has-grid .grid-layout > :not(.card, .sr-only) {
     padding-inline: var(--line-pad);
 }
@@ -473,17 +478,21 @@ h2, .title-2 {
     margin-bottom: var(--section-space);
 }
 
-/* Deux colonnes de pied de page, chacune sur la moitié de la grille */
+/* Trois colonnes de pied de page calées sur la grille : navigation | meubles sur mesure (2 col.) | contact */
 .footer-column {
-    grid-column: span calc(var(--grid-columns) / 2);
+    grid-column: span 1;
+}
+
+.footer-column:nth-child(2) {
+    grid-column: span 2;
 }
 
 @media (max-width: 1024px) {
-    .footer-column { grid-column: span 3; }
+    .footer-column:nth-child(2) { grid-column: span 1; }
 }
 
 @media (max-width: 640px) {
-    .footer-column { grid-column: span 2; }
+    .footer-column:nth-child(3) { grid-column: span 2; }
 }
 
 .footer-column ul {

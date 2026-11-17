@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import CallCta from '../components/CallCta.astro';
+import { withBase } from '../utils/paths';
+import { breadcrumbLd } from '../utils/seo';
+import { SITE, NEARBY_TOWNS } from '../site';
+import '../styles/pages.css';
+
+const jsonLd = breadcrumbLd([{ label: 'Accueil', href: '/' }, { label: "Zone d'intervention", href: '/zone-intervention/' }]);
+---
+<BaseLayout
+    title="Zone d'intervention : Sannois et Val Parisis | Metal Nature"
+    description="Atelier de meubles sur mesure à Sannois (95) : Michel Valade intervient à Argenteuil, Ermont, Franconville, Cormeilles, dans le Val Parisis et en Île-de-France."
+    jsonLd={jsonLd}
+>
+<SiteNav />
+<main id="main" class="page container has-grid">
+    <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: "Zone d'intervention" }]} />
+    <header class="page-header">
+        <h1 class="title-1">Zone <span class="strong">d'intervention</span></h1>
+        <p class="statement">
+            Un atelier à {SITE.city}, au cœur du Val Parisis, et des meubles livrés et installés dans toute l'Île-de-France.
+        </p>
+    </header>
+
+    <div class="page-body">
+        <h2>L'atelier de Sannois</h2>
+        <p>
+            Les meubles Metal Nature sont dessinés et fabriqués dans l'atelier de Michel Valade, à {SITE.city}
+            ({SITE.postalCode}), dans le {SITE.department}. Le bois et le métal y sont travaillés sur place, de la
+            découpe à la finition.
+        </p>
+
+        <h2>Le Val Parisis et les communes voisines</h2>
+        <p>
+            La proximité facilite chaque étape d'un projet sur mesure : la visite pour prendre les cotes, les échanges
+            pendant la conception, puis la livraison et l'installation. Michel se déplace notamment dans ces
+            communes proches de l'atelier :
+        </p>
+    </div>
+    <ul class="town-list page-body" aria-label="Communes proches de l'atelier">
+        {NEARBY_TOWNS.map((town) => <li>{town}</li>)}
+    </ul>
+
+    <div class="page-body">
+        <h2>Paris et toute l'Île-de-France</h2>
+        <p>
+            Au-delà du Val-d'Oise, Metal Nature réalise des meubles pour des clients à Paris et partout en
+            Île-de-France. Un premier échange téléphonique permet de vérifier ensemble les modalités de déplacement
+            pour la prise de cotes et l'installation.
+        </p>
+
+        <h2>Ce que nous fabriquons</h2>
+        <p>
+            Bibliothèques, dressings et rangements, tables et bureaux, meubles de salle de bain : découvrez
+            <a href={withBase('/meubles-sur-mesure/')}>nos meubles sur mesure</a> et
+            <a href={withBase('/realisations/')}>nos réalisations</a>.
+        </p>
+    </div>
+
+    <CallCta />
+</main>
+<SiteFooter />
+</BaseLayout>

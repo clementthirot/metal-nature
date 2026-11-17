@@ -17,11 +17,22 @@ const year = new Date().getFullYear();
                     <li><a class="tap-link" href={withBase('/#contact')}>Contact</a></li>
                 </ul>
             </nav>
+            <nav class="footer-column" aria-labelledby="footer-services-title">
+                <p id="footer-services-title" class="footer-title">Meubles sur mesure</p>
+                <ul>
+                    <li><a class="tap-link" href={withBase('/meubles-sur-mesure/bibliotheque/')}>Bibliothèques et étagères</a></li>
+                    <li><a class="tap-link" href={withBase('/meubles-sur-mesure/dressing-rangement/')}>Dressings et rangements</a></li>
+                    <li><a class="tap-link" href={withBase('/meubles-sur-mesure/table-bois-metal/')}>Tables et bureaux</a></li>
+                    <li><a class="tap-link" href={withBase('/meubles-sur-mesure/salle-de-bain/')}>Salle de bain</a></li>
+                    <li><a class="tap-link" href={withBase('/zone-intervention/')}>Zone d'intervention</a></li>
+                    <li><a class="tap-link" href={withBase('/questions-frequentes/')}>Questions fréquentes</a></li>
+                </ul>
+            </nav>
             <div class="footer-column">
                 <p class="footer-title">Contact</p>
                 <ul>
                     <li><a class="tap-link" href={`tel:${SITE.phone}`}>{SITE.phoneDisplay}</a></li>
-                    <li class="footer-text">Atelier à {SITE.city} ({SITE.postalCode}), {SITE.department}</li>
+                    <li class="footer-text">Atelier : {SITE.showStreetAddress && <>{SITE.streetAddress}, </>}{SITE.postalCode} {SITE.city}, {SITE.department}</li>
                     {SITE.callHours && <li class="footer-text secondary-text">Joignable {SITE.callHours}</li>}
                 </ul>
             </div>
@@ -33,8 +44,3 @@ const year = new Date().getFullYear();
         </div>
     </div>
 </footer>
-
-<script>
-    import { initMailLinks } from '../scripts/mail';
-    initMailLinks();
-</script>

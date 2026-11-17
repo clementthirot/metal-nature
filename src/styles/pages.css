@@ -1,0 +1,209 @@
+/* ==========================================================================
+   Pages de contenu (services, zone d'intervention, FAQ) : mise en page commune.
+   Même grille que le reste du site : les contenus gardent --line-pad avec les lignes.
+   ========================================================================== */
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+    padding-top: calc(var(--nav-height) + var(--spacing-md));
+    padding-bottom: var(--section-space);
+}
+
+.breadcrumb ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 var(--spacing-xxs);
+    padding: 0;
+    list-style: none;
+    font-size: .9375rem;
+}
+
+.breadcrumb li + li::before {
+    content: '/';
+    margin-right: var(--spacing-xxs);
+    opacity: .5;
+}
+
+.page-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.page-header h1 {
+    max-width: 18ch;
+}
+
+/* Corps de texte rédigé en Markdown */
+.page-body {
+    max-width: 68ch;
+    font-size: 1.125rem;
+}
+
+.page-body h2 {
+    margin: var(--spacing-xl) 0 var(--spacing-xs);
+    font-size: clamp(1.375rem, 1rem + 1vw, 1.875rem);
+    line-height: 1.3;
+}
+
+.page-body h2:first-child {
+    margin-top: 0;
+}
+
+.page-body h3 {
+    margin: var(--spacing-md) 0 var(--spacing-xxs);
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.page-body p + p,
+.page-body p + ul,
+.page-body p + ol,
+.page-body ul + p,
+.page-body ol + p {
+    margin-top: 1em;
+}
+
+.page-body ul,
+.page-body ol {
+    padding-left: 1.25em;
+}
+
+.page-body li + li {
+    margin-top: .4em;
+}
+
+.page-body a {
+    color: inherit;
+    text-underline-offset: 4px;
+}
+
+.page-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* Cartes de réalisations ou de services : une par colonne de la grille */
+.cards {
+    row-gap: var(--spacing-xl);
+    padding: 0;
+    list-style: none;
+}
+
+.card-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    color: inherit;
+    text-decoration: none;
+}
+
+.card-link picture {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+
+.card-link img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    transition: transform .5s var(--ease-out);
+}
+
+.card-link:hover img,
+.card-link:focus-visible img {
+    transform: scale(1.03);
+}
+
+.card-title {
+    font-size: 1.25rem;
+}
+
+.card-text {
+    color: var(--color-muted-dark);
+}
+
+/* Encart d'appel : le fond déborde des lignes, le contenu reste aligné */
+.cta-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding-block: var(--spacing-xl);
+    border-radius: var(--radius);
+    background: #e9e9e9;
+}
+
+.cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* FAQ : questions dépliables */
+.faq-list {
+    max-width: 68ch;
+    padding: 0;
+    list-style: none;
+}
+
+.faq-item {
+    border-bottom: var(--border-secondary);
+}
+
+.faq-item summary {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing-xs);
+    min-height: 56px;
+    padding: var(--spacing-xs) 0;
+    font-size: 1.25rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary::after {
+    content: "+";
+    flex: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    transition: transform .3s var(--ease-out);
+}
+
+.faq-item[open] summary::after {
+    transform: rotate(45deg);
+}
+
+.faq-answer {
+    padding-bottom: var(--spacing-sm);
+    font-size: 1.0625rem;
+    color: var(--color-muted-dark);
+}
+
+.faq-answer a {
+    color: inherit;
+}
+
+.town-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xxs);
+    padding: 0;
+    list-style: none;
+}
+
+.town-list li {
+    padding: 6px 14px;
+    border: 1px solid #c9c9c9;
+    border-radius: 999px;
+}

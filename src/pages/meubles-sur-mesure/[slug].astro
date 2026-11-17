@@ -1,0 +1,90 @@
+---
+import { getCollection, getEntries, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../../components/SiteNav.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import CallCta from '../../components/CallCta.astro';
+import RealisationCards from '../../components/RealisationCards.astro';
+import { withBase } from '../../utils/paths';
+import { absolute, breadcrumbLd, BUSINESS_ID } from '../../utils/seo';
+import { SITE } from '../../site';
+import '../../styles/pages.css';
+
+export async function getStaticPaths() {
+    const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+    return services.map((entry) => ({
+        params: { slug: entry.id },
+        props: { entry, others: services.filter((s) => s.id !== entry.id) },
+    }));
+}
+
+interface Props {
+    entry: CollectionEntry<'services'>;
+    others: CollectionEntry<'services'>[];
+}
+
+const { entry, others } = Astro.props;
+const { Content } = await render(entry);
+const { title, metaTitle, description, intro } = entry.data;
+const realisations = (await getEntries(entry.data.realisations.map((id) => ({ collection: 'realisations' as const, id }))))
+    .filter((item): item is CollectionEntry<'realisations'> => Boolean(item) && !item.data.draft);
+const path = `/meubles-sur-mesure/${entry.id}/`;
+
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'Service',
+        name: title,
+        description,
+        url: absolute(path),
+        serviceType: 'Fabrication de meubles sur mesure',
+        provider: { '@id': BUSINESS_ID, '@type': 'HomeAndConstructionBusiness', name: SITE.name, telephone: SITE.phone },
+        areaServed: [{ '@type': 'AdministrativeArea', name: "Val-d'Oise" }, { '@type': 'AdministrativeArea', name: SITE.region }],
+    },
+    breadcrumbLd([
+        { label: 'Accueil', href: '/' },
+        { label: 'Meubles sur mesure', href: '/meubles-sur-mesure/' },
+        { label: title, href: path },
+    ]),
+];
+---
+<BaseLayout title={metaTitle} description={description} jsonLd={jsonLd} ogType="article">
+<SiteNav />
+<main id="main" class="page container has-grid">
+    <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: 'Meubles sur mesure', href: '/meubles-sur-mesure/' }, { label: title }]} />
+
+    <header class="page-header">
+        <p class="eyebrow">Atelier à {SITE.city}, {SITE.department}</p>
+        <h1 class="title-1">{title}</h1>
+        <p class="statement">{intro}</p>
+    </header>
+
+    <div class="page-body"><Content /></div>
+
+    {realisations.length > 0 && (
+        <section class="page-section stack" aria-labelledby="examples-title">
+            <h2 id="examples-title" class="eyebrow">Exemples de réalisations</h2>
+            <RealisationCards items={realisations} />
+        </section>
+    )}
+
+    <CallCta />
+
+    <section class="page-section stack" aria-labelledby="others-title">
+        <h2 id="others-title" class="eyebrow">Autres meubles sur mesure</h2>
+        <ul class="page-body">
+            {others.map((other) => (
+                <li><a href={withBase(`/meubles-sur-mesure/${other.id}/`)}>{other.data.title}</a></li>
+            ))}
+            <li><a href={withBase('/realisations/')}>Toutes nos réalisations</a></li>
+            <li><a href={withBase('/questions-frequentes/')}>Questions fréquentes : prix, délais, matériaux</a></li>
+        </ul>
+    </section>
+</main>
+<SiteFooter />
+<script>
+    import { initSketches } from '../../scripts/sketch';
+    initSketches();
+</script>
+</BaseLayout>

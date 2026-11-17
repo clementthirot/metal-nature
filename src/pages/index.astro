@@ -7,7 +7,8 @@ import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import MailLink from '../components/MailLink.astro';
 import ArrowIcon from '../components/ArrowIcon.astro';
-import { SITE, FURNITURE_TYPES } from '../site';
+import { SITE, FURNITURE_GROUPS } from '../site';
+import { BUSINESS_ID } from '../utils/seo';
 import '../styles/home.css';
 
 import headerImage from '../assets/images/header.png';
@@ -23,35 +24,48 @@ const realisations = (await getCollection('realisations', ({ data }) => !data.dr
 // Image affichée dans la fenêtre de détail en attendant (ou à la place de) la scène 3D.
 const posters = await Promise.all(realisations.map((item) => getImage({ src: item.data.image, format: 'webp', width: 360 })));
 
+// Données structurées de l'entreprise (audit SEO, P1.7). L'adresse de rue n'est ajoutée que si
+// SITE.showStreetAddress est activé (à décider avec Michel, pour une adresse identique partout).
 const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'HomeAndConstructionBusiness',
+    '@id': BUSINESS_ID,
     name: SITE.name,
-    description: 'Création de meubles artisanaux sur mesure en bois et métal.',
+    description: 'Création de meubles artisanaux sur mesure en bois et métal, de la conception à l’installation.',
     url: `${SITE.url}/`,
     image: `${SITE.url}/og-image.jpg`,
     logo: `${SITE.url}/logo-metal-nature.svg`,
     telephone: SITE.phone,
-    founder: { '@type': 'Person', name: SITE.owner },
+    priceRange: 'Sur devis',
+    openingHours: SITE.openingHours,
+    founder: {
+        '@type': 'Person',
+        name: SITE.owner,
+        jobTitle: 'Menuisier et métallier',
+        knowsAbout: ['Menuiserie', 'Métallerie', 'Mobilier sur mesure'],
+    },
     address: {
         '@type': 'PostalAddress',
+        ...(SITE.showStreetAddress ? { streetAddress: SITE.streetAddress } : {}),
         addressLocality: SITE.city,
         postalCode: SITE.postalCode,
         addressRegion: SITE.region,
         addressCountry: 'FR',
     },
     areaServed: [
+        { '@type': 'City', name: SITE.city },
         { '@type': 'AdministrativeArea', name: "Val-d'Oise" },
         { '@type': 'AdministrativeArea', name: SITE.region },
     ],
-    knowsAbout: ['Menuiserie', 'Métallerie', 'Mobilier sur mesure'],
+    knowsAbout: ['Menuiserie', 'Métallerie', 'Mobilier sur mesure', 'Bibliothèque sur mesure', 'Dressing sur mesure'],
+    ...(SITE.sameAs.length ? { sameAs: SITE.sameAs } : {}),
 };
 
 const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant :\n\nType de meuble :\nPièce :\nDimensions approximatives :\nMatériaux souhaités :\n\nVous pouvez me rappeler au :\n\nCordialement";
 ---
 <BaseLayout
-    title="Metal Nature • Meubles artisanaux sur mesure en bois et métal – Sannois, Val d'Oise"
-    description="Meubles artisanaux sur mesure en bois et métal, fabriqués à Sannois (Val d'Oise) pour toute l'Île-de-France : dressings, bibliothèques, tables, rangements. Devis gratuit."
+    title="Meubles sur mesure bois et métal à Sannois (95) | Metal Nature"
+    description="Meubles sur mesure en bois et métal fabriqués à Sannois (95) pour toute l'Île-de-France : dressings, bibliothèques, tables. Devis gratuit."
     jsonLd={jsonLd}
     bodyClass="page-home"
 >
@@ -81,7 +95,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 <!-- ======================= NOTRE DÉMARCHE ======================= -->
 <section id="about" class="about has-grid" aria-labelledby="about-title">
     <div class="container about-intro">
-        <h2 id="about-title" class="eyebrow">Notre démarche</h2>
+        <h2 id="about-title" class="eyebrow">Menuiserie et métallerie sur mesure</h2>
         <p class="statement split-lines" id="about-text">
             Metal Nature, c’est du mobilier <span class="strong">artisanal et unique</span>, conçu avec soin dans des
             matériaux nobles. Nous allions menuiserie et métallerie pour fabriquer des meubles à la fois beaux et
@@ -136,7 +150,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 <!-- ======================== RÉALISATIONS ======================== -->
 <section id="products" class="products dark-theme has-grid" data-tempo="1.8" aria-labelledby="products-title">
     <div class="container products-intro">
-        <h2 id="products-title" class="eyebrow">Nos réalisations</h2>
+        <h2 id="products-title" class="eyebrow">Nos réalisations de meubles sur mesure</h2>
         <p id="product-caption" class="statement split-lines">
             Depuis plus de cinq ans, nous créons <span class="strong">sur mesure</span> le mobilier qui s'intègre
             parfaitement à votre intérieur. Découvrez nos projets et imaginez ce que nous
@@ -156,10 +170,10 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                        data-model={item.data.model}
                        data-poster={posters[index].src}
                        data-poster-alt={item.data.imageAlt}>
-                        {/* alt vide volontaire : le nom de la réalisation est déjà le texte du lien */}
+                        {/* alt descriptif (audit SEO) : décrit la photo, complète le nom affiché dessous */}
                         <span class="sketch" data-sketch>
                             <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
-                                     sizes="(max-width: 1024px) 300px, 25vw" alt="" loading="lazy" />
+                                     sizes="(max-width: 1024px) 300px, 25vw" alt={item.data.imageAlt} loading="lazy" />
                         </span>
                         <span class="carousel-item-caption">
                             <span>{item.data.title}<span class="sr-only">, </span></span>
@@ -211,11 +225,11 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 <section id="proposal" class="proposal has-grid" aria-labelledby="proposal-title">
     <span class="sketch sketch-square proposal-bg-frame" data-sketch>
         <Image class="proposal-bg" src={proposalBackground} widths={[800, 1600]} sizes="100vw" format="webp"
-               loading="lazy" alt="" />
+               loading="lazy" alt="L'atelier de Metal Nature à Sannois : machines à bois, établi et outillage" />
     </span>
     <div class="container">
         <div class="proposal-card bleed">
-            <h2 id="proposal-title" class="eyebrow">Ce que nous fabriquons</h2>
+            <h2 id="proposal-title" class="eyebrow">Les meubles que nous fabriquons</h2>
             <p id="proposal-caption" class="statement split-lines">
                 De la table basse au bureau, en passant par le dressing et la bibliothèque, chaque création est pensée
                 pour <span class="strong">embellir vos espaces.</span>
@@ -224,11 +238,20 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                 Nous fabriquons des meubles variés, et notre plus grande fierté est de les voir prendre place chez vous.
                 Votre projet n'est pas dans la liste ? Parlons-en.
             </p>
-            <ol class="list-group">
-                {FURNITURE_TYPES.map(({ label }, index) => (
-                    <li class="list-group-item">
-                        <span class="list-group-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
-                        <span class="list-group-label">{label}</span>
+            <!-- Familles de meubles (audit SEO, P1) : un H3 par famille, relié à sa page service. -->
+            <ol class="furniture-groups">
+                {FURNITURE_GROUPS.map((group, index) => (
+                    <li class="furniture-group">
+                        <h3 class="furniture-group-title">
+                            <span class="list-group-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                            {group.service
+                                ? <a href={withBase(`/meubles-sur-mesure/${group.service}/`)}>{group.title}</a>
+                                : <span>{group.title}</span>}
+                        </h3>
+                        <p class="furniture-group-text">{group.text}</p>
+                        <ul class="furniture-group-items">
+                            {group.items.map((item) => <li>{item}</li>)}
+                        </ul>
                     </li>
                 ))}
             </ol>
@@ -267,7 +290,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 
             <div class="contact-secondary">
                 <p class="secondary-text">Vous préférez écrire ?</p>
-                <MailLink class="button button-ghost" subject="Projet de meuble sur mesure" body={mailBody}>Écrire un e-mail</MailLink>
+                <MailLink class="button button-ghost" subject="Projet de meuble sur mesure" body={mailBody}>Écrire à Michel</MailLink>
             </div>
 
             <address class="contact-details">
@@ -278,7 +301,8 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
             </address>
         </div>
         <Picture class="contact-image" src={contactImage} formats={['avif', 'webp']} widths={[360]}
-                 sizes="(max-width: 768px) 100vw, 50vw" loading="lazy" alt="" />
+                 sizes="(max-width: 768px) 100vw, 50vw" loading="lazy"
+                 alt="Bibliothèque en bois et métal fabriquée sur mesure par Metal Nature" />
     </div>
 </section>
 </main>

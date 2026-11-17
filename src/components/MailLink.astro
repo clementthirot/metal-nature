@@ -1,5 +1,4 @@
 ---
-import { withBase } from '../utils/paths';
 import { SITE } from '../site';
 
 interface Props {
@@ -8,8 +7,11 @@ interface Props {
     body?: string;
 }
 const { class: className, subject, body } = Astro.props;
+const address = `${SITE.emailUser}@${SITE.emailDomain}`;
+const params = new URLSearchParams();
+if (subject) params.set('subject', subject);
+if (body) params.set('body', body);
+const query = params.toString().replace(/\+/g, '%20');
 ---
-<!-- L'adresse est reconstituée en JS (scripts/mail.ts) pour ne pas être lisible par les robots de spam. -->
-<a class:list={['js-mail', className]} href={withBase('/#contact')}
-   data-user={SITE.emailUser} data-domain={SITE.emailDomain}
-   data-subject={subject} data-body={body}><slot>{SITE.emailUser} [at] {SITE.emailDomain}</slot></a>
+<!-- Vrai lien mailto dans le HTML : fonctionne sans JavaScript et reste lisible par les moteurs (audit SEO). -->
+<a class={className} href={`mailto:${address}${query ? `?${query}` : ''}`}><slot>{address}</slot></a>

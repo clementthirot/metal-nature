@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SiteNav from '../components/SiteNav.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import CallCta from '../components/CallCta.astro';
+import { FAQ } from '../data/faq';
+import { breadcrumbLd } from '../utils/seo';
+import '../styles/pages.css';
+
+const jsonLd = [
+    {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: FAQ.map(({ question, answer }) => ({
+            '@type': 'Question',
+            name: question,
+            acceptedAnswer: { '@type': 'Answer', text: answer },
+        })),
+    },
+    breadcrumbLd([{ label: 'Accueil', href: '/' }, { label: 'Questions fréquentes', href: '/questions-frequentes/' }]),
+];
+---
+<BaseLayout
+    title="Questions fréquentes : prix, délais, matériaux | Metal Nature"
+    description="Prix d'un meuble sur mesure, délais de fabrication, matériaux, zone d'intervention et entretien : les réponses de Metal Nature, artisan à Sannois (95)."
+    jsonLd={jsonLd}
+>
+<SiteNav />
+<main id="main" class="page container has-grid">
+    <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: 'Questions fréquentes' }]} />
+    <header class="page-header">
+        <h1 class="title-1">Questions <span class="strong">fréquentes</span></h1>
+        <p class="statement">Prix, délais, matériaux, déplacement, entretien&nbsp;: ce qu'on nous demande le plus souvent.</p>
+    </header>
+
+    <ul class="faq-list">
+        {FAQ.map(({ question, answer }) => (
+            <li class="faq-item">
+                <details>
+                    <summary>{question}</summary>
+                    <p class="faq-answer">{answer}</p>
+                </details>
+            </li>
+        ))}
+    </ul>
+
+    <CallCta title="Une autre question ?" />
+</main>
+<SiteFooter />
+</BaseLayout>

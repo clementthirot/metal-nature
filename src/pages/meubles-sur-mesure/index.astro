@@ -1,0 +1,51 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SiteNav from '../../components/SiteNav.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import CallCta from '../../components/CallCta.astro';
+import { withBase } from '../../utils/paths';
+import { breadcrumbLd } from '../../utils/seo';
+import { SITE } from '../../site';
+import '../../styles/pages.css';
+
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+const jsonLd = breadcrumbLd([
+    { label: 'Accueil', href: '/' },
+    { label: 'Meubles sur mesure', href: '/meubles-sur-mesure/' },
+]);
+---
+<BaseLayout
+    title="Meubles sur mesure en bois et métal (95) | Metal Nature"
+    description="Bibliothèques, dressings, tables et meubles de salle de bain sur mesure en bois et métal, fabriqués à Sannois (Val-d'Oise). Devis gratuit."
+    jsonLd={jsonLd}
+>
+<SiteNav />
+<main id="main" class="page container has-grid">
+    <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: 'Meubles sur mesure' }]} />
+    <header class="page-header">
+        <p class="eyebrow">Atelier à {SITE.city}, {SITE.department}</p>
+        <h1 class="title-1">Meubles <span class="strong">sur mesure</span></h1>
+        <p class="statement">
+            Chaque meuble est dessiné pour votre intérieur et fabriqué dans notre atelier, en bois et en métal,
+            de l'idée à l'installation.
+        </p>
+    </header>
+
+    <section class="page-section stack" aria-labelledby="services-title">
+        <h2 id="services-title" class="eyebrow">Ce que nous fabriquons</h2>
+        <ul class="page-body">
+            {services.map((service) => (
+                <li>
+                    <a href={withBase(`/meubles-sur-mesure/${service.id}/`)}><strong>{service.data.title}</strong></a>
+                    <br />{service.data.description}
+                </li>
+            ))}
+        </ul>
+    </section>
+
+    <CallCta />
+</main>
+<SiteFooter />
+</BaseLayout>

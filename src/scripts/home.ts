@@ -129,7 +129,7 @@ function animateAuthor(): void {
 
 /* ---------- Ce que nous fabriquons : un seul ScrollTrigger groupé pour la liste (lot 5.3) ---------- */
 function animateProposal(): void {
-    ScrollTrigger.batch('.list-group-item', {
+    ScrollTrigger.batch('.furniture-group', {
         start: 'top 92%',
         once: true,
         onEnter: (batch) => gsap.to(batch, {

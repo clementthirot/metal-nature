@@ -54,6 +54,15 @@ content:
       - name: duration
         label: Durée de fabrication
         type: string
+      - name: need
+        label: Le projet – besoin du client (facultatif)
+        type: text
+      - name: constraints
+        label: Le projet – contraintes et solution (facultatif)
+        type: text
+      - name: priceFrom
+        label: Prix indicatif (ex. à partir de 1 500 €, facultatif)
+        type: string
       - name: draft
         label: Brouillon (non publié)
         type: boolean
@@ -62,3 +71,22 @@ content:
         label: Description
         type: text
         required: true
+
+  - name: services
+    label: Pages « Meubles sur mesure »
+    type: collection
+    path: src/content/services
+    filename: "{primary}.md"
+    view:
+      fields: [title, order]
+      primary: shortTitle
+      sort: [order]
+    fields:
+      - { name: title, label: Titre de la page (H1), type: string, required: true }
+      - { name: shortTitle, label: Titre court (liens), type: string, required: true }
+      - { name: metaTitle, label: Titre Google (60 caractères environ), type: string, required: true }
+      - { name: description, label: Description Google (155 caractères environ), type: text, required: true }
+      - { name: intro, label: Phrase d'accroche, type: text, required: true }
+      - { name: order, label: Ordre d'affichage, type: number, default: 100 }
+      - { name: realisations, label: Réalisations liées (noms de fichier sans .md), type: string, list: true }
+      - { name: body, label: Contenu, type: rich-text }

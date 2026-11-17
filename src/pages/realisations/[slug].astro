@@ -6,29 +6,42 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import { SITE } from '../../site';
+import RealisationCards from '../../components/RealisationCards.astro';
+import '../../styles/pages.css';
 
 export async function getStaticPaths() {
     const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
         .sort((a, b) => a.data.order - b.data.order);
-    return realisations.map((entry, index) => ({
-        params: { slug: entry.id },
-        props: {
-            entry,
-            previous: realisations[index - 1],
-            next: realisations[index + 1],
-        },
-    }));
+    const services = await getCollection('services');
+    return realisations.map((entry, index) => {
+        // Maillage (audit SEO) : la page service de la famille du meuble et les réalisations de la même famille.
+        const service = services.find((s) => s.data.realisations.includes(entry.id));
+        const similar = realisations.filter((r) => r.id !== entry.id && service?.data.realisations.includes(r.id));
+        const others = realisations.filter((r) => r.id !== entry.id && !similar.includes(r));
+        return {
+            params: { slug: entry.id },
+            props: {
+                entry,
+                previous: realisations[index - 1],
+                next: realisations[index + 1],
+                service,
+                related: [...similar, ...others].slice(0, 4),
+            },
+        };
+    });
 }
 
 interface Props {
     entry: CollectionEntry<'realisations'>;
     previous?: CollectionEntry<'realisations'>;
     next?: CollectionEntry<'realisations'>;
+    service?: CollectionEntry<'services'>;
+    related: CollectionEntry<'realisations'>[];
 }
 
-const { entry, previous, next } = Astro.props;
+const { entry, previous, next, service, related } = Astro.props;
 const { Content } = await render(entry);
-const { title, year, image, imageAlt, model, materials, dimensions, finish, duration, gallery } = entry.data;
+const { title, year, image, imageAlt, model, materials, dimensions, finish, duration, gallery, need, constraints, priceFrom } = entry.data;
 const description = (entry.body ?? '').trim().replace(/\s+/g, ' ');
 // Ligne de cote (lot H3.4) : la largeur réelle, premier nombre du champ « dimensions » (ex. « 300 × 210 × 60 cm »).
 const widthLabel = dimensions?.match(/^\s*(\d+(?:[.,]\d+)?)/)?.[1];
@@ -42,6 +55,7 @@ const specs = [
     { label: 'Dimensions', value: dimensions },
     { label: 'Finition', value: finish },
     { label: 'Durée de fabrication', value: duration },
+    { label: 'Prix', value: priceFrom },
 ].filter((spec): spec is { label: string; value: string } => Boolean(spec.value));
 
 const jsonLd = [
@@ -69,7 +83,7 @@ const jsonLd = [
 ];
 ---
 <BaseLayout
-    title={`${title} • Meuble sur mesure en bois et métal | Metal Nature`}
+    title={`${title} | Meuble sur mesure – Metal Nature`}
     description={description.length > 155 ? `${description.slice(0, 152)}…` : description}
     ogImage={ogImage.src}
     ogImageAlt={imageAlt}
@@ -106,6 +120,14 @@ const jsonLd = [
             <h1 class="title-2">{title}</h1>
             <div class="realisation-text prose"><Content /></div>
 
+            {(need || constraints) && (
+                <section class="project" aria-labelledby="project-title">
+                    <h2 id="project-title" class="eyebrow">Le projet</h2>
+                    {need && <><h3>Le besoin</h3><p>{need}</p></>}
+                    {constraints && <><h3>Contraintes et solution</h3><p>{constraints}</p></>}
+                </section>
+            )}
+
             <section class="specs" aria-labelledby="specs-title">
                 <h2 id="specs-title" class="eyebrow">Fiche technique</h2>
                 <dl>
@@ -131,7 +153,7 @@ const jsonLd = [
     </article>
 
     {gallery.length > 0 && (
-        <section class="gallery" aria-labelledby="gallery-title">
+        <section class="gallery stack" aria-labelledby="gallery-title">
             <h2 id="gallery-title" class="eyebrow">Galerie</h2>
             <ul class="grid-layout">
                 {gallery.map((photo) => (
@@ -152,6 +174,18 @@ const jsonLd = [
                 <p class="realisation-3d-loading">Chargement de la vue 3D…</p>
             </div>
             <p class="secondary-text realisation-3d-hint">Faites pivoter le modèle avec la souris ou le doigt.</p>
+        </section>
+    )}
+
+    {related.length > 0 && (
+        <section class="related stack" aria-labelledby="related-title">
+            <h2 id="related-title" class="eyebrow">Réalisations similaires</h2>
+            <RealisationCards items={related} />
+            {service && (
+                <p class="related-service">
+                    <a class="tap-link" href={withBase(`/meubles-sur-mesure/${service.id}/`)}>{service.data.title} : notre savoir-faire</a>
+                </p>
+            )}
         </section>
     )}
 
@@ -359,6 +393,19 @@ const jsonLd = [
     .realisation-3d-hint {
         margin-top: var(--spacing-xxs);
         font-size: .9375rem;
+    }
+    .project h3 {
+        margin: var(--spacing-xs) 0 4px;
+        font-size: 1.125rem;
+        font-weight: 500;
+    }
+    .project p {
+        max-width: 65ch;
+    }
+    .related {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
     }
     .realisation-pager {
         display: flex;

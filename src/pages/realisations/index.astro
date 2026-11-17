@@ -1,7 +1,7 @@
 ---
 import { withBase } from '../../utils/paths';
 import { getCollection } from 'astro:content';
-import { Picture } from 'astro:assets';
+import { Picture, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
@@ -9,6 +9,9 @@ import { SITE } from '../../site';
 
 const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
     .sort((a, b) => a.data.order - b.data.order);
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+// Image de partage : la première réalisation (et non la console de l'accueil, absente de la liste).
+const ogImage = realisations[0] ? await getImage({ src: realisations[0].data.image, format: 'jpeg', width: 1200 }) : undefined;
 
 const jsonLd = [
     {
@@ -33,9 +36,11 @@ const jsonLd = [
 ];
 ---
 <BaseLayout
-    title="Nos réalisations • Meubles sur mesure en bois et métal | Metal Nature"
+    title="Réalisations : meubles bois et métal sur mesure | Metal Nature"
     description="Bibliothèques, étagères, commodes, tables basses… Découvrez les meubles sur mesure en bois et métal fabriqués par Metal Nature à Sannois (Val d'Oise)."
     jsonLd={jsonLd}
+    ogImage={ogImage?.src}
+    ogImageAlt={realisations[0]?.data.imageAlt}
 >
 <SiteNav />
 
@@ -54,6 +59,7 @@ const jsonLd = [
         </p>
     </header>
 
+    <h2 class="eyebrow index-section-title">{realisations.length} meubles bois et métal fabriqués à {SITE.city}</h2>
     <ul class="index-grid grid-layout">
         {realisations.map((item, index) => (
             <li>
@@ -61,7 +67,7 @@ const jsonLd = [
                     <span class="sketch" data-sketch={index < 4 ? 'outline' : ''}>
                         <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
                                  sizes="(max-width: 480px) 90vw, (max-width: 1024px) 45vw, 300px"
-                                 alt="" loading={index < 4 ? 'eager' : 'lazy'} />
+                                 alt={item.data.imageAlt} loading={index < 4 ? 'eager' : 'lazy'} />
                     </span>
                     <span class="index-card-caption">
                         <span class="index-card-title">{item.data.title}</span>
@@ -72,8 +78,17 @@ const jsonLd = [
         ))}
     </ul>
 
+    <section class="index-services" aria-labelledby="index-services-title">
+        <h2 id="index-services-title" class="eyebrow">Meubles sur mesure par famille</h2>
+        <ul>
+            {services.map((service) => (
+                <li><a class="tap-link" href={withBase(`/meubles-sur-mesure/${service.id}/`)}>{service.data.title}</a></li>
+            ))}
+        </ul>
+    </section>
+
     <aside class="index-cta bleed">
-        <p class="title-2">Un projet en tête ?</p>
+        <h2 class="title-2">Un projet en tête ?</h2>
         <div class="index-cta-actions">
             <a class="button" href={`tel:${SITE.phone}`}>Appeler Michel · {SITE.phoneDisplay}</a>
             <a class="tap-link" href={withBase('/#contact')}>Autres moyens de contact</a>
@@ -173,6 +188,14 @@ const jsonLd = [
         gap: var(--spacing-xs) var(--spacing-sm);
     }
     /* Encart sur la grille : titre sur la 1re moitié, actions et mention sur la 2de. */
+    .index-services ul {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 var(--spacing-md);
+        margin-top: var(--spacing-xxs);
+        padding: 0;
+        list-style: none;
+    }
     .index-cta {
         display: grid;
         grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));

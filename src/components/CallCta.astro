@@ -1,0 +1,18 @@
+---
+import { withBase } from '../utils/paths';
+import { SITE } from '../site';
+
+interface Props {
+    title?: string;
+}
+const { title = 'Un projet en tête ?' } = Astro.props;
+---
+<aside class="cta-box bleed">
+    <h2 class="title-2">{title}</h2>
+    <p>Un premier appel suffit pour en parler. Le devis est gratuit et sans engagement.</p>
+    <div class="cta-actions">
+        <a class="button" href={`tel:${SITE.phone}`}>Appeler Michel · {SITE.phoneDisplay}</a>
+        <a class="tap-link" href={withBase('/#contact')}>Autres moyens de contact</a>
+    </div>
+    {SITE.callHours && <p class="secondary-text">Joignable {SITE.callHours}.</p>}
+</aside>

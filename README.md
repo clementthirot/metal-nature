@@ -125,6 +125,26 @@ La séquence (traversée des 3 cadres, pivot, étagère de trois quarts, tables 
 (`src/scripts/home.ts`, piste de `ABOUT_TRACK_SCREENS` hauteurs d'écran). Avec « réduire les animations »,
 chaque étape affiche une photo fixe du meuble.
 
+## Référencement (SEO)
+
+Mis en place d'après l'audit SEO du 16/11/2026 :
+- **Indexation** : production en `index, follow`, sitemap (`@astrojs/sitemap`) déclaré dans `robots.txt` ;
+  l'URL canonique pointe toujours vers `metal-nature.com`, y compris depuis la démo GitHub Pages.
+- **Titles** d'environ 60 caractères et descriptions d'environ 155 caractères sur chaque page.
+- **Pages service** : `src/content/services/*.md` → `/meubles-sur-mesure/<fichier>/` (bibliothèque,
+  dressing et rangements, table bois et métal, salle de bain), reliées aux réalisations.
+- **Zone d'intervention** (`/zone-intervention/`, communes dans `NEARBY_TOWNS`) et **FAQ**
+  (`/questions-frequentes/`, contenu dans `src/data/faq.ts`, données structurées `FAQPage`).
+- **Données structurées** : entreprise (`HomeAndConstructionBusiness`, accueil), `Service`, `CreativeWork`,
+  `FAQPage`, `BreadcrumbList`. Réglages dans `src/site.ts` : `openingHours`, `showStreetAddress`
+  (adresse de rue affichée et déclarée, à décider avec Michel), `sameAs` (lien de la fiche Google à ajouter).
+- **Fiches réalisation** : champs facultatifs `need`, `constraints`, `priceFrom` (section « Le projet »),
+  réalisations similaires et lien vers la page service de la même famille.
+
+Hors code (à faire par Clément) : fiche Google Business Profile, Search Console et Bing Webmaster Tools,
+annuaires (PagesJaunes, Obat, Houzz, CMA) avec des coordonnées identiques partout, avis clients,
+relations locales (Trophée #Madein95, Val Parisis, Ville de Sannois).
+
 ## À compléter
 
 - Mentions légales : statut juridique, SIRET, adresse (`src/pages/mentions-legales.astro`)

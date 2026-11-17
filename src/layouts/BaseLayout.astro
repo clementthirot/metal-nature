@@ -1,5 +1,5 @@
 ---
-import { withBase } from '../utils/paths';
+import { withBase, stripBase } from '../utils/paths';
 import '@fontsource-variable/urbanist';
 import '@fontsource/arapey/latin-400-italic.css';
 // Fichier de police du titre principal, préchargé pour accélérer le premier rendu (lot 5.4).
@@ -31,7 +31,9 @@ const {
     bodyClass,
 } = Astro.props;
 
-const canonical = new URL(Astro.url.pathname, Astro.site);
+// URL canonique toujours sur le domaine de production : la démo (GitHub Pages) transmet ses signaux
+// à metal-nature.com au lieu de créer un doublon.
+const canonical = new URL(stripBase(Astro.url.pathname), SITE.url);
 // Les images générées par Astro (ogImage.src) contiennent déjà la base ; les chemins de public/ non.
 const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
 const ogImageUrl = new URL(base && ogImage.startsWith(`${base}/`) ? ogImage : withBase(ogImage), Astro.site);
