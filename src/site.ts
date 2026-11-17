@@ -24,8 +24,13 @@ export const SITE = {
      * avec la fiche Google). À décider avec Michel : false = seule la ville est affichée.
      */
     showStreetAddress: false,
-    /** Profils officiels (fiche Google Business Profile, annuaires) : ajoutés aux données structurées. */
-    sameAs: [] as string[],
+    /**
+     * Profils officiels (fiche Google Business Profile, annuaires) : ajoutés aux données structurées.
+     * Fiche Google : URL stable par identifiant (kgmid), plutôt que le lien de partage share.google.
+     */
+    sameAs: [
+        'https://www.google.com/search?kgmid=/g/11p2wmd5_j',
+    ] as string[],
 } as const;
 
 /** Communes citées dans la page « Zone d'intervention » (proches de l'atelier). */
