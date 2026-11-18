@@ -422,28 +422,6 @@ html:not(.motion) .about-progress {
     background: var(--lqip, #2a2b2c) center / cover no-repeat, #2a2b2c;
 }
 
-/*
- * Lot 4 : au survol, la photo laisse apparaître son « dessin technique » (contours extraits par filtre,
- * traits clairs sur fond d'encre), révélé en volet de bas en haut, < 400 ms.
- */
-.card-blueprint {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: var(--photo) center / cover no-repeat;
-    filter: url(#blueprint-edges);
-    clip-path: inset(100% 0 0 0);
-    transition: clip-path .38s var(--ease-out);
-    pointer-events: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-    .carousel-item-button:hover .card-blueprint,
-    .carousel-item-button:focus-visible .card-blueprint {
-        clip-path: inset(0 0 0 0);
-    }
-}
-
 .carousel-item-button img {
     width: 100%;
     aspect-ratio: 3 / 4;
@@ -673,17 +651,25 @@ html:not(.motion) .about-progress {
 }
 
 .author-card img {
+    display: block;
     width: 100%;
 }
 
-/* Lot H5 : portrait à coins droits, accordé aux lignes de la grille */
+/* Portrait arrondi, comme les autres photos du site. */
 .author-portrait,
 .author-portrait picture {
     display: block;
 }
 
+.author-portrait picture {
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+
+/* Le texte occupe ses colonnes jusqu'à la dernière ligne de la grille. */
 .about-quote {
     grid-column: 2 / -1;
+    max-width: none;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -704,18 +690,8 @@ html:not(.motion) .about-progress {
     position: relative;
     padding: var(--section-space-lg) 0 var(--section-space);
     isolation: isolate;
-}
-
-.sketch.proposal-bg-frame {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-}
-
-.proposal-bg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    /* Fond provisoire (la photo de l'atelier a été retirée) : un gris chaud qui détache la carte claire. */
+    background-color: #e3e1dc;
 }
 
 .proposal-card {
@@ -810,18 +786,6 @@ html:not(.motion) .about-progress {
     color: var(--color-muted-dark);
 }
 
-/* Lot H5 : numérotation discrète des familles */
-.list-group-number {
-    min-width: 2ch;
-    font-family: var(--font-mono);
-    font-size: var(--fs-caption);
-    font-weight: 500;
-    font-stretch: normal;
-    letter-spacing: .06em;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-muted-dark);
-}
-
 .proposal-cta {
     align-self: flex-start;
 }
@@ -877,6 +841,7 @@ img.contact-image {
     height: auto;
     aspect-ratio: 4 / 5;
     object-fit: cover;
+    object-position: 60% center; /* machines et établis au centre du cadrage portrait */
     border-radius: var(--radius);
     position: sticky;
     top: calc(var(--nav-height) + var(--spacing-md));

@@ -434,6 +434,8 @@ h3 {
     inset: 0 0 auto 0;
     z-index: 50;
     color: var(--nav-fg);
+    /* Filet bas visible en permanence, y compris tout en haut de la page. */
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--nav-fg) 10%, transparent);
     transition: background-color .15s linear, color .15s linear, box-shadow .15s linear;
 }
 
@@ -446,7 +448,6 @@ h3 {
     background: color-mix(in srgb, var(--nav-bg) 85%, transparent);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
-    box-shadow: 0 1px 0 color-mix(in srgb, var(--nav-fg) 10%, transparent);
 }
 
 .site-nav > .container {

@@ -1,0 +1,26 @@
+---
+/**
+ * Image responsive commune à tout le site, recalculée par Astro à chaque build.
+ * - Une balise <picture> : source AVIF, puis <img> en WebP (repli universel, transparence conservée).
+ * - Plusieurs résolutions (srcset) : seules les largeurs inférieures ou égales à l'image source sont gardées.
+ * - L'image de repli est plafonnée à la plus grande largeur demandée : sans `width`, Astro
+ *   la générerait à la taille d'origine (photos de 15 à 25 Mo en PNG).
+ * Le cache d'Astro (node_modules/.astro/assets) est indexé sur le contenu de l'image source :
+ * remplacer une photo sous le même nom produit bien de nouvelles variantes.
+ */
+import type { ImageMetadata } from 'astro';
+import { Picture } from 'astro:assets';
+
+interface Props {
+    src: ImageMetadata;
+    widths: number[];
+    sizes: string;
+    alt: string;
+    [attribute: string]: unknown;
+}
+
+const { src, widths, ...attributes } = Astro.props;
+const usable = widths.filter((width) => width <= src.width);
+if (!usable.length) usable.push(src.width);
+---
+<Picture src={src} widths={usable} width={Math.max(...usable)} formats={['avif']} fallbackFormat="webp" {...attributes} />

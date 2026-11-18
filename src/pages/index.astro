@@ -1,7 +1,8 @@
 ---
 import { withBase } from '../utils/paths';
 import { getCollection } from 'astro:content';
-import { Image, Picture, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
+import ResponsivePicture from '../components/ResponsivePicture.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -12,9 +13,8 @@ import { BUSINESS_ID } from '../utils/seo';
 import '../styles/home.css';
 
 import headerImage from '../assets/images/header.png';
-import contactImage from '../assets/images/contact.png';
+import contactImage from '../assets/images/visite-atelier-artisant-michel.png';
 import portrait from '../assets/images/portrait-michel-valade-artisan-metal-bois.webp';
-import proposalBackground from '../assets/images/atelier-fond.jpg';
 import aboutPoster from '../assets/realisations/meuble-metal-bois-bibliotheque.png';
 import stillTables from '../assets/realisations/meuble-metal-table-basse-imbriquee.png';
 import stillCommode from '../assets/realisations/meuble-metal-commode-arquee.png';
@@ -101,7 +101,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
     <div class="hero-content grid-layout">
         <a class="hero-caption tap-link" href="#about">Faites défiler <span aria-hidden="true">↓</span></a>
         <div class="hero-media">
-            <Picture id="headerImage" src={headerImage} formats={['avif', 'webp']} widths={[350, 520, 700]}
+            <ResponsivePicture id="headerImage" src={headerImage} widths={[360, 640, 960, 1280]}
                      sizes="(max-width: 768px) calc(100vw - 32px), (max-width: 1024px) 60vw, 640px"
                      loading="eager" fetchpriority="high"
                      alt="Console murale en chêne massif et acier noir à deux plateaux, réalisée sur mesure" />
@@ -127,7 +127,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
         <!-- Lot 3 : la scène 3D couvre toute la largeur de l'écran ; la grille devient le sol de la scène.
              data-sizes : cotes réelles des meubles (mm), affichées en lignes de cote. -->
         <div class="about-visual" data-sizes={JSON.stringify(sceneSizes)}>
-            <Picture class="model-poster" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="360px"
+            <ResponsivePicture class="model-poster" src={aboutPoster} widths={[360, 720]} sizes="360px"
                      loading="lazy" alt="" />
             <svg class="about-dims" aria-hidden="true"></svg>
         </div>
@@ -147,19 +147,19 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                 <li class="about-step" data-progress-start="0.3" data-progress-end="0.45">
                     <span class="about-step-number mono" aria-hidden="true">02 / Matériaux</span>
                     <span class="title-2">Des matériaux robustes, <span class="strong">un savoir-faire artisanal.</span></span>
-                    <Picture class="about-step-still" src={aboutPoster} formats={['avif', 'webp']} widths={[360]} sizes="240px"
+                    <ResponsivePicture class="about-step-still" src={aboutPoster} widths={[240, 480]} sizes="240px"
                              loading="lazy" alt="Bibliothèque en bois et métal réalisée par Metal Nature" />
                 </li>
                 <li class="about-step" data-progress-start="0.45" data-progress-end="0.72">
                     <span class="about-step-number mono" aria-hidden="true">03 / Fonction</span>
                     <span class="title-2">Un mobilier fonctionnel, <span class="strong">qui vous ressemble.</span></span>
-                    <Picture class="about-step-still" src={stillTables} formats={['avif', 'webp']} widths={[360]} sizes="240px"
+                    <ResponsivePicture class="about-step-still" src={stillTables} widths={[240, 480]} sizes="240px"
                              loading="lazy" alt="Tables basses emboîtées en métal réalisées par Metal Nature" />
                 </li>
                 <li class="about-step" data-progress-start="0.72" data-progress-end="1">
                     <span class="about-step-number mono" aria-hidden="true">04 / Design</span>
                     <span class="title-2">Un design à la fois <span class="strong">organique et brut.</span></span>
-                    <Picture class="about-step-still" src={stillCommode} formats={['avif', 'webp']} widths={[360]} sizes="240px"
+                    <ResponsivePicture class="about-step-still" src={stillCommode} widths={[240, 480]} sizes="240px"
                              loading="lazy" alt="Commode arquée en métal chromé réalisée par Metal Nature" />
                 </li>
             </ol>
@@ -193,10 +193,9 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                        data-poster-alt={item.data.imageAlt}>
                         {/* alt descriptif (audit SEO) : décrit la photo, complète le nom affiché dessous */}
                         <span class="sketch card-media" data-sketch style={`--lqip: url(${placeholders[index].src})`}>
-                            <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
+                            <ResponsivePicture src={item.data.image} widths={[300, 360, 600, 720]}
                                      sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) 33vw, 300px" alt={item.data.imageAlt}
                                      loading={index < 4 ? 'eager' : 'lazy'} />
-                            <span class="card-blueprint" aria-hidden="true" style={`--photo: url(${posters[index].src})`}></span>
                         </span>
                         <span class="carousel-item-caption">
                             <span>{item.data.title}<span class="sr-only">, </span></span>
@@ -229,7 +228,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
     </p>
     <article class="container author-card grid-layout">
         <span class="sketch sketch-square author-portrait" data-sketch>
-            <Picture src={portrait} formats={['avif', 'webp']} widths={[320, 481]} sizes="(max-width: 640px) calc(100vw - 32px), 300px" loading="lazy" data-loupe
+            <ResponsivePicture src={portrait} widths={[320, 481]} sizes="(max-width: 640px) calc(100vw - 32px), 300px" loading="lazy" data-loupe
                      alt="Portrait de Michel Valade, menuisier et métallier, fondateur de Metal Nature" />
         </span>
         <div class="about-quote prose">
@@ -246,10 +245,6 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
 
 <!-- ===================== CE QUE NOUS FABRIQUONS ==================== -->
 <section id="proposal" class="proposal has-grid" aria-labelledby="proposal-title">
-    <span class="sketch sketch-square proposal-bg-frame" data-sketch>
-        <Image class="proposal-bg" src={proposalBackground} widths={[800, 1600]} sizes="100vw" format="webp"
-               loading="lazy" alt="L'atelier de Metal Nature à Sannois : machines à bois, établi et outillage" />
-    </span>
     <div class="container">
         <div class="proposal-card bleed">
             <h2 id="proposal-title" class="eyebrow">Les meubles que nous fabriquons</h2>
@@ -262,11 +257,10 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                 Votre projet n'est pas dans la liste ? Parlons-en.
             </p>
             <!-- Familles de meubles (audit SEO, P1) : un H3 par famille, relié à sa page service. -->
-            <ol class="furniture-groups">
-                {FURNITURE_GROUPS.map((group, index) => (
+            <ul class="furniture-groups">
+                {FURNITURE_GROUPS.map((group) => (
                     <li class="furniture-group">
                         <h3 class="furniture-group-title">
-                            <span class="list-group-number" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
                             {group.service
                                 ? <a href={withBase(`/meubles-sur-mesure/${group.service}/`)}>{group.title}</a>
                                 : <span>{group.title}</span>}
@@ -277,7 +271,7 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                         </ul>
                     </li>
                 ))}
-            </ol>
+            </ul>
             <a class="button proposal-cta" href="#contact">Parler de mon projet</a>
         </div>
     </div>
@@ -323,9 +317,9 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
                 </div>
             </address>
         </div>
-        <Picture class="contact-image" src={contactImage} formats={['avif', 'webp']} widths={[360]}
+        <ResponsivePicture class="contact-image" src={contactImage} widths={[360, 600, 900, 1200]}
                  sizes="(max-width: 768px) calc(100vw - 32px), 600px" loading="lazy"
-                 alt="Bibliothèque en bois et métal fabriquée sur mesure par Metal Nature" />
+                 alt="L'atelier de Michel à Sannois : machines à bois, établis et outillage" />
     </div>
 </section>
 </main>
@@ -358,18 +352,6 @@ const mailBody = "Bonjour Michel,\n\nJ'aimerais un devis pour le projet suivant 
         </div>
     </div>
 </div>
-
-<!-- Lot 4 : filtre « dessin technique » des cartes (contours clairs sur fond d'encre). -->
-<svg class="sr-only" aria-hidden="true" focusable="false">
-    <filter id="blueprint-edges" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%">
-        <feColorMatrix type="saturate" values="0" result="gray" />
-        <feConvolveMatrix in="gray" order="3" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1" preserveAlpha="true" result="edges" />
-        <feColorMatrix in="edges" type="matrix" result="lines"
-                       values="0 0 0 0 0.93  0 0 0 0 0.94  0 0 0 0 0.95  2.2 2.2 2.2 0 -0.08" />
-        <feFlood flood-color="#141618" result="ink" />
-        <feComposite in="lines" in2="ink" operator="over" />
-    </filter>
-</svg>
 
 <SiteFooter />
 

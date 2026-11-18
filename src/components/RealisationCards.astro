@@ -1,5 +1,5 @@
 ---
-import { Picture } from 'astro:assets';
+import ResponsivePicture from './ResponsivePicture.astro';
 import type { CollectionEntry } from 'astro:content';
 import { withBase } from '../utils/paths';
 
@@ -13,7 +13,7 @@ const { items } = Astro.props;
         <li>
             <a class="card-link" href={withBase(`/realisations/${item.id}/`)}>
                 <span class="sketch" data-sketch>
-                    <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
+                    <ResponsivePicture src={item.data.image} widths={[300, 360, 600]}
                              sizes="(max-width: 640px) 45vw, 300px" alt={item.data.imageAlt} loading="lazy" />
                 </span>
                 <span class="card-title">{item.data.title}</span>

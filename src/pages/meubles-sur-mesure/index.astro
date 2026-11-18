@@ -5,7 +5,7 @@ import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
 import PageHeader from '../../components/PageHeader.astro';
-import { Picture } from 'astro:assets';
+import ResponsivePicture from '../../components/ResponsivePicture.astro';
 import { getEntry } from 'astro:content';
 import CallCta from '../../components/CallCta.astro';
 import { withBase } from '../../utils/paths';
@@ -45,7 +45,7 @@ const jsonLd = breadcrumbLd([
                     <a class="service-card" href={withBase(`/meubles-sur-mesure/${service.id}/`)}>
                         {covers[index] && (
                             <span class="sketch" data-sketch={index < 4 ? 'outline' : ''}>
-                                <Picture src={covers[index]!.image} formats={['avif', 'webp']} widths={[300, 360]}
+                                <ResponsivePicture src={covers[index]!.image} widths={[300, 360, 600, 720]}
                                          sizes="(max-width: 640px) calc(100vw - 32px), 300px" alt={covers[index]!.imageAlt}
                                          loading={index < 4 ? 'eager' : 'lazy'} />
                             </span>

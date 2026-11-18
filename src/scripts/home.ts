@@ -114,8 +114,8 @@ function animateAuthor(): void {
         },
     })
         // B10 : glissement vers l'intérieur uniquement, le « A » n'est jamais coupé.
-        .fromTo('.part-1', { xPercent: 0 }, { xPercent: 8 }, 0)
-        .fromTo('.part-2', { xPercent: 0 }, { xPercent: -8 }, 0);
+        .fromTo('.part-1', { xPercent: 0 }, { xPercent: 24 }, 0)
+        .fromTo('.part-2', { xPercent: 0 }, { xPercent: -24 }, 0);
 }
 
 /* ---------- Ce que nous fabriquons : un seul ScrollTrigger groupé pour la liste (lot 5.3) ---------- */

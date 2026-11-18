@@ -9,10 +9,11 @@
  *
  * La chorégraphie est pilotée par `setProgress(p)` (0 → 1), appelé par la timeline GSAP de la section.
  *
- * Lot H4 — « Du trait à la matière » : l'étagère et la commode apparaissent d'abord en arêtes seules
- * (EdgesGeometry + LineSegments, 1 px), puis le bois et le chrome se matérialisent et les arêtes s'effacent.
- * La caméra traverse les 3 cadres de l'étagère (accélération au passage de chacun, FOV 45° → 52°),
- * ressort et pivote pour révéler l'étagère entière, centrée dans l'écran.
+ * Lot H4 — « Du trait à la matière » : la commode apparaît d'abord en arêtes seules
+ * (EdgesGeometry + LineSegments, 1 px), puis le chrome se matérialise et les arêtes s'effacent.
+ * L'étagère est visible en matière dès le départ : la caméra part du fond, recule à travers ses cadres
+ * (accélération au passage de chacun), puis continue en ligne droite jusqu'à la cadrer entière.
+ * Tous les meubles sont posés sur le même sol : la grille ne bouge pas d'un meuble à l'autre.
  *
  * Review UI, Lot 3 — 3D plein écran :
  * - le canvas couvre toute la largeur ; le cadrage se fait dans une « zone utile » hors de la colonne
@@ -59,12 +60,13 @@ const EDGE_COLOR = 0x2a2b2c;
 const MARGIN = 0.12; // marge autour de chaque meuble dans le cadre (zone utile)
 const SURFACE = 0xf5f5f5; // fond de la page : le sol s'y fond au loin
 const GRID_COLOR = 0xbdbdbd;
+const FLOOR_Y = -0.6; // sol commun à tous les meubles (repère de la scène)
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /* ---------- Plages de la séquence (progression 0 → 1 de la section) ---------- */
 export const PHASES = {
-    traverse: [0, 0.2],     // la caméra avance à travers les 3 cadres (arêtes → matière)
-    reveal: [0.2, 0.3],     // elle ressort et pivote pour révéler l'étagère entière
+    traverse: [0, 0.2],     // partie du fond, la caméra recule à travers les cadres de l'étagère
+    reveal: [0.2, 0.3],     // elle continue de reculer en ligne droite jusqu'à l'étagère entière
     shelfTurn: [0.3, 0.4],  // l'étagère pivote de trois quarts
     shelfOut: [0.4, 0.45],  // puis sort du cadre
     tablesIn: [0.45, 0.5],
@@ -189,10 +191,11 @@ export class AboutScene {
 
         // Étagère : les planches (instances de « Cube 4 ») sont en bois, le reste en métal.
         // Les nœuds nommés Cube 2/4/5 doublonnent leur première instance : on les retire (z-fighting).
+        // Elle est visible en matière dès le départ (pas d'effet trait) : c'est le premier plan de la section.
         this.shelf = this.makePiece(shelfGltf, (mesh) => {
             if (/^Cube_[245]$/.test(mesh.name)) { mesh.visible = false; return null; }
             return mesh.geometry === findGeometry(shelfGltf, 'Cube_4') ? woodMat() : metal();
-        }, this.withEdges);
+        }, false);
 
         // Tables : pas d'effet trait (lot H4.4), elles arrivent directement en matière.
         this.tables = Object.assign(this.makePiece(tablesGltf, () => metal(), false), { items: [] as { mesh: Object3D; closedZ: number; openZ: number }[] });
@@ -201,12 +204,17 @@ export class AboutScene {
             .map((name) => this.tables.root.getObjectByName(name))
             .filter((mesh): mesh is Object3D => Boolean(mesh));
         const floor = Math.min(...tableMeshes.map((mesh) => new Box3().setFromObject(mesh).min.y));
-        const closedZ = tableMeshes[0]?.position.z ?? 0;
-        tableMeshes.forEach((mesh) => {
-            const box = new Box3().setFromObject(mesh);
-            mesh.position.y += (floor - box.min.y) / worldScale(mesh.parent ?? mesh);
-            this.tables.items.push({ mesh, closedZ, openZ: mesh.position.z });
-        });
+        // Fermées, les trois tables sont réunies au milieu de leur course : elles se déplient de part et d'autre.
+        const openZs = tableMeshes.map((mesh) => mesh.position.z);
+        const closedZ = openZs.length ? (Math.min(...openZs) + Math.max(...openZs)) / 2 : 0;
+        tableMeshes
+            .map((mesh) => ({ mesh, size: new Box3().setFromObject(mesh).getSize(new Vector3()).length() }))
+            .sort((a, b) => b.size - a.size) // grande, moyenne, petite : ordre de la cascade
+            .forEach(({ mesh }) => {
+                const box = new Box3().setFromObject(mesh);
+                mesh.position.y += (floor - box.min.y) / worldScale(mesh.parent ?? mesh);
+                this.tables.items.push({ mesh, closedZ, openZ: mesh.position.z });
+            });
 
         this.commode = this.makePiece(commodeGltf, () => metal(), this.withEdges);
 
@@ -278,6 +286,8 @@ export class AboutScene {
         const scale = 2 / size.length();
         inner.scale.multiplyScalar(scale);
         inner.position.sub(center.multiplyScalar(scale));
+        // Tous les meubles posés sur le même sol : la grille reste fixe d'un meuble à l'autre.
+        inner.position.y += FLOOR_Y + (size.y * scale) / 2;
         inner.updateMatrixWorld(true);
         piece.box = boxWithoutEdges(inner);
         piece.dissolve.uRange.value.set(piece.box.min.y, piece.box.max.y);
@@ -304,13 +314,15 @@ export class AboutScene {
 
     private traverseBounds() {
         const { box } = this.shelf;
-        const halfHeight = (box.max.y - box.min.y) / 2;
         const depth = box.max.z - box.min.z;
+        const frames = this.frameZ; // du cadre avant au cadre du fond
+        const last = frames[frames.length - 1] ?? box.min.z;
+        const previous = frames[frames.length - 2] ?? box.max.z;
         return {
-            // Départ : devant le premier cadre, qui remplit presque tout l'écran.
-            startZ: box.max.z + (halfHeight / Math.tan(MathUtils.degToRad(FOV / 2))) * 0.75,
-            // Arrivée : juste après le dernier cadre.
-            endZ: box.min.z - depth * 0.12,
+            // Départ : à l'intérieur, juste derrière l'avant-dernier cadre, le cadre du fond entier en face.
+            startZ: last + (previous - last) * 0.85,
+            // Arrivée : la caméra est ressortie à reculons par le cadre avant.
+            endZ: box.max.z + depth * 0.15,
         };
     }
 
@@ -414,13 +426,9 @@ export class AboutScene {
         this.requestRender();
     }
 
-    /** Sol : suit le pied du meuble présenté, s'estompe au loin (brouillard couleur de page). */
-    private updateFloor(p: number): void {
-        const floor = (piece: Piece) => piece.box.min.y - 0.002;
-        let y = floor(this.shelf);
-        if (p >= PHASES.commode[0]) y = MathUtils.lerp(floor(this.tables), floor(this.commode), easeOut(local(p, [PHASES.commode[0], PHASES.commode[0] + 0.06])));
-        else if (p >= PHASES.tablesIn[0]) y = MathUtils.lerp(floor(this.shelf), floor(this.tables), easeOut(local(p, PHASES.tablesIn)));
-        this.grid.position.y = y;
+    /** Sol : fixe, commun à tous les meubles ; il s'estompe au loin (brouillard couleur de page). */
+    private updateFloor(_p: number): void {
+        this.grid.position.y = FLOOR_Y - 0.002;
         const distance = this.camera.position.length();
         const fog = this.scene.fog as Fog;
         fog.near = Math.max(distance * 0.8, 0.5);
@@ -449,16 +457,14 @@ export class AboutScene {
         this.camera.updateProjectionMatrix();
     }
 
-    /** 1. Traversée : la caméra avance dans l'axe, à travers les 3 cadres ; la matière remplace le trait. */
+    /** 1. Traversée à reculons : partie du fond de l'étagère, la caméra recule à travers les cadres. */
     private traverse(t: number): void {
-        const { root, box, materials, edges } = this.shelf;
+        const { root, box, materials } = this.shelf;
         root.rotation.set(0, 0, 0);
         root.position.set(0, 0, 0);
         const center = box.getCenter(new Vector3());
-        this.setFov(MathUtils.lerp(FOV, FOV_TRAVERSE, easeInOut(t)));
-        // Du trait à la matière : le bois et le chrome apparaissent pendant la traversée.
-        // Sans effet trait (appareil modeste), le meuble est directement en matière.
-        this.setMatter(materials, edges, edges ? smooth(0.2, 0.85, t) : 1, 1);
+        this.setFov(FOV_TRAVERSE);
+        this.setMatter(materials, null, 1, 0);
         const z = this.traverseZ(t);
         this.camera.position.set(center.x, this.tunnelHeight, z);
         this.camera.lookAt(center.x, this.tunnelHeight, z - 1);
@@ -467,30 +473,25 @@ export class AboutScene {
         this.camera.updateProjectionMatrix();
     }
 
-    /** 2. La caméra ressort derrière le dernier cadre, pivote et recule pour révéler l'étagère entière. */
+    /** 2. Sortie des cadres : la caméra continue de reculer en ligne droite et descend pour cadrer l'étagère entière. */
     private reveal(t: number): void {
-        const { root, box, materials, edges } = this.shelf;
+        const { root, box, materials } = this.shelf;
         root.rotation.set(0, 0, 0);
         root.position.set(0, 0, 0);
         const e = easeInOut(t);
         this.setFov(MathUtils.lerp(FOV_TRAVERSE, FOV, e));
-        // Les arêtes s'effacent complètement.
-        this.setMatter(materials, edges, 1, 1 - smooth(0, 0.6, t));
+        this.setMatter(materials, null, 1, 0);
 
         const center = box.getCenter(new Vector3());
         const { endZ } = this.traverseBounds();
-        const startRadius = Math.abs(center.z - endZ);
-        const endRadius = this.fitDistance(box, new Vector3(0, 0, -1));
-        const radius = MathUtils.lerp(startRadius, endRadius, e);
-        const angle = Math.PI * e; // de derrière (θ = 0) à devant (θ = π), en passant par le côté
+        const finalZ = center.z + this.fitDistance(box, new Vector3(0, 0, -1));
+        const z = MathUtils.lerp(endZ, finalZ, e);
         const y = MathUtils.lerp(this.tunnelHeight, center.y, e);
-        this.camera.position.set(center.x - Math.sin(angle) * radius, y, center.z - Math.cos(angle) * radius);
-        // Le regard passe de « droit devant » au centre de l'étagère.
-        const ahead = this.camera.position.clone().add(new Vector3(0, 0, -radius));
-        const target = ahead.lerp(new Vector3(center.x, center.y, center.z), smooth(0, 0.55, t));
-        this.camera.lookAt(target);
-        this.camera.near = Math.max(radius / 200, 0.005);
-        this.camera.far = radius + 10;
+        this.camera.position.set(center.x, y, z);
+        this.camera.lookAt(center.x, y, z - 1); // regard toujours droit devant, dans l'axe de l'étagère
+        const distance = z - center.z;
+        this.camera.near = Math.max(distance / 200, 0.005);
+        this.camera.far = distance + 10;
         this.camera.updateProjectionMatrix();
     }
 
@@ -537,10 +538,11 @@ export class AboutScene {
         root.position.set((1 - enter) * 2.2 - easeIn(leave) * 2.2, 0, 0);
         setOpacity(materials, enter * (1 - leave));
 
-        // Chaque table glisse avec un décalage : la petite d'abord, puis la moyenne. La grande reste en place.
+        // Cascade : les trois tables se déplient ensemble, la grande, puis la moyenne et la petite à un souffle d'écart.
+        const delay = 0.1;
+        const span = 1 - delay * (items.length - 1);
         items.forEach((item, index) => {
-            const delay = (items.length - 1 - index) * 0.25;
-            const t = easeInOut(MathUtils.clamp((open - delay * 0.6) / 0.6, 0, 1));
+            const t = easeInOut(MathUtils.clamp((open - index * delay) / span, 0, 1));
             item.mesh.position.z = MathUtils.lerp(item.closedZ, item.openZ, t);
         });
 

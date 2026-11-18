@@ -1,7 +1,8 @@
 ---
 import { withBase } from '../../utils/paths';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import { Picture, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
+import ResponsivePicture from '../../components/ResponsivePicture.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
@@ -106,7 +107,7 @@ const jsonLd = [
         <figure class="realisation-figure">
             <!-- Photo principale déjà visible au chargement : seul le contour se trace (pas de retard du LCP). -->
             <span class="sketch" data-sketch="outline">
-                <Picture class="realisation-image" src={image} formats={['avif', 'webp']} widths={[360]} sizes="(max-width: 640px) calc(100vw - 32px), 360px"
+                <ResponsivePicture class="realisation-image" src={image} widths={[360, 720]} sizes="(max-width: 640px) calc(100vw - 32px), 360px"
                          style={`view-transition-name: photo-${entry.id}`} data-loupe
                          alt={imageAlt} loading="eager" fetchpriority="high" />
             </span>
@@ -159,7 +160,7 @@ const jsonLd = [
             <ul class="grid-layout">
                 {gallery.map((photo) => (
                     <li>
-                        <Picture src={photo.image} formats={['avif', 'webp']} widths={[400, 800]}
+                        <ResponsivePicture src={photo.image} widths={[400, 800, 1200]}
                                  sizes="(max-width: 768px) 100vw, 33vw" alt={photo.alt} loading="lazy" />
                     </li>
                 ))}

@@ -1,7 +1,8 @@
 ---
 import { withBase } from '../../utils/paths';
 import { getCollection } from 'astro:content';
-import { Picture, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
+import ResponsivePicture from '../../components/ResponsivePicture.astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
@@ -60,7 +61,7 @@ const jsonLd = [
             <li>
                 <a class="index-card" href={withBase(`/realisations/${item.id}/`)}>
                     <span class="sketch" data-sketch={index < 4 ? 'outline' : ''}>
-                        <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
+                        <ResponsivePicture src={item.data.image} widths={[300, 360, 600, 720]}
                                  sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) 33vw, 300px"
                                  alt={item.data.imageAlt} loading={index < 4 ? 'eager' : 'lazy'}
                                  style={`view-transition-name: photo-${item.id}`} />
