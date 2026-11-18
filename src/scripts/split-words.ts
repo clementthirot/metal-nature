@@ -12,7 +12,7 @@ function splitParagraphToWords(element: HTMLElement): HTMLElement[] {
     const visual = document.createElement('span');
     visual.setAttribute('aria-hidden', 'true');
 
-    // On garde les classes des éléments en ligne (ex. <span class="strong"> en Arapey italique, lot H2).
+    // On garde les classes des éléments en ligne (ex. <span class="strong"> : accent en pleine couleur).
     // `glue` : pas d'espace avant ce mot (ponctuation collée à un élément en ligne, ex. « unique, »).
     const tokens: { word: string; className: string; glue: boolean }[] = [];
     let pendingSpace = false;

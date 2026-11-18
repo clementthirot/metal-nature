@@ -32,10 +32,29 @@
     --color-muted-dark: #5c5e60;   /* texte secondaire sur fond clair : 6,3:1 */
     --color-muted-light: #b4b4b4;  /* texte secondaire sur fond sombre : 8,6:1 */
 
-    --font-sans: "Urbanist Variable", "Urbanist", Arial, sans-serif;
-    --font-serif: "Arapey", Georgia, serif;
-    --text-body: 1.0625rem;        /* 17px */
+    /* Lot 1 (review UI) : une grotesque industrielle à axe de largeur + une mono technique. */
+    --font-sans: "Archivo Variable", "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    /* Titres en largeur étendue et graisse moyenne, texte en largeur normale. */
+    --stretch-title: 116%;
+    --stretch-display: 125%;
+
+    /* Échelle fluide à 6 tailles : toutes les tailles du site en proviennent. */
+    --fs-display: clamp(2.75rem, 1.2rem + 6.6vw, 7rem);
+    --fs-h1: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
+    --fs-h2: clamp(1.5rem, 1.05rem + 1.9vw, 2.75rem);
+    --fs-h3: clamp(1.1875rem, 1.05rem + .6vw, 1.5rem);
+    --fs-body: clamp(1rem, .97rem + .15vw, 1.0625rem);   /* 16 → 17 px */
+    --fs-caption: .8125rem;                               /* 13 px, labels en mono */
+
+    --text-body: var(--fs-body);
     --line-body: 1.6;
+
+    /* Couleurs de texte du thème courant (redéfinies par .dark-theme). */
+    --fg: var(--color-black);
+    --fg-muted: var(--color-muted-dark);
+    /* Fond du thème courant : sert à masquer les lignes de grille derrière les blocs de texte (B6). */
+    --surface: var(--color-white);
     --ease-out: cubic-bezier(.22, 1, .36, 1);
 }
 
@@ -59,11 +78,27 @@ html {
     scroll-padding-top: var(--nav-height);
 }
 
+/* Lot 4 : transition partagée entre la grille des réalisations et la fiche (View Transitions API). */
+@view-transition {
+    navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+}
+
+::view-transition-group(*) {
+    animation-duration: .45s;
+    animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+}
+
 body {
     background-color: var(--color-white);
     color: var(--color-black);
     font-family: var(--font-sans);
+    font-weight: 400;
     font-optical-sizing: auto;
+    font-kerning: normal;
     font-size: var(--text-body);
     line-height: var(--line-body);
     -webkit-font-smoothing: antialiased;
@@ -89,6 +124,9 @@ button, input, select, textarea {
 }
 
 .dark-theme {
+    --fg: var(--color-white);
+    --fg-muted: var(--color-muted-light);
+    --surface: var(--color-black);
     background-color: var(--color-black);
     color: var(--color-white);
 }
@@ -98,47 +136,73 @@ button, input, select, textarea {
     color: var(--color-black);
 }
 
-/* ---------- Typographie ---------- */
+/* ---------- Typographie (Lot 1) ---------- */
+
+h1, h2, h3, .title-1, .title-2, .statement, .display {
+    font-stretch: var(--stretch-title);
+    font-weight: 500;
+    letter-spacing: -.01em;
+}
+
+.display {
+    font-size: var(--fs-display);
+    font-stretch: var(--stretch-display);
+    line-height: 1.02;
+    letter-spacing: -.025em;
+}
 
 .title-1 {
-    font-size: clamp(2.75rem, 8vw, 6rem);
-    line-height: 1.12;
-    font-weight: 400;
+    font-size: var(--fs-h1);
+    line-height: 1.05;
+    letter-spacing: -.02em;
 }
 
 h2, .title-2 {
-    font-size: clamp(1.5rem, 1rem + 1.6vw, 2.5rem);
-    line-height: 1.35;
-    font-weight: 400;
+    font-size: var(--fs-h3);
+    line-height: 1.3;
+}
+
+h3 {
+    font-size: var(--fs-h3);
+    line-height: 1.3;
+}
+
+/*
+ * Emphase : plus d'italique en milieu de phrase. Un titre qui contient un accent (.strong) passe en gris,
+ * l'accent reste en pleine couleur et un peu plus gras. Un seul accent par titre.
+ */
+:is(.title-1, .title-2, .statement, .display, h1, h2):has(.strong) {
+    color: var(--fg-muted);
 }
 
 .strong {
-    font-family: var(--font-serif);
-    font-weight: 400;
-    font-style: italic;
-}
-
-/* Surtitre de section (lot H5) : petit label Urbanist en capitales espacées, contraste ≥ 6:1. */
-.eyebrow {
-    font-family: var(--font-sans);
-    font-size: .8125rem;          /* 13 px */
+    color: var(--fg);
     font-weight: 600;
-    line-height: 1.4;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--color-muted-dark);
 }
 
-.dark-theme .eyebrow {
-    color: var(--color-muted-light);
+/* Labels techniques en mono : numéros d'étapes, années, cotes, surtitres. */
+.mono,
+.eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    font-stretch: normal;
+    line-height: 1.4;
+    letter-spacing: .06em;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Surtitre de section : label mono en capitales, contraste ≥ 6:1. */
+.eyebrow {
+    text-transform: uppercase;
+    color: var(--fg-muted);
 }
 
 /* Texte fort en pleine largeur du conteneur (lot H2) */
 .statement {
     max-width: none;
-    font-size: clamp(1.75rem, 3.2vw, 3rem);
-    line-height: 1.25;
-    font-weight: 400;
+    font-size: var(--fs-h2);
+    line-height: 1.18;
     text-wrap: balance;
 }
 
@@ -151,11 +215,7 @@ h2, .title-2 {
 }
 
 .secondary-text {
-    color: var(--color-muted-dark);
-}
-
-.dark-theme .secondary-text {
-    color: var(--color-muted-light);
+    color: var(--fg-muted);
 }
 
 /* ---------- Mise en page ---------- */
@@ -194,6 +254,15 @@ h2, .title-2 {
     background-repeat: repeat-x;
     pointer-events: none;
     transition: opacity .6s ease-out;
+}
+
+/*
+ * B6 / B22 : aucune ligne ne traverse un texte. Les blocs de texte qui couvrent plusieurs colonnes
+ * prennent le fond de leur section : les lignes passent derrière et s'interrompent proprement.
+ */
+.has-grid :is(.statement, .prose, .page-header, .page-body, .faq-list, .breadcrumb, .eyebrow,
+    .hero-title, .about-quote, .contact-group, .index-header, .index-services, .mask-grid) {
+    background-color: var(--surface);
 }
 
 /* Apparition au premier chargement : simple fondu, sans tracé (rien d'animé dans le hero). */
@@ -365,7 +434,7 @@ h2, .title-2 {
     inset: 0 0 auto 0;
     z-index: 50;
     color: var(--nav-fg);
-    transition: background-color .3s, color .3s, box-shadow .3s, transform .6s var(--ease-out);
+    transition: background-color .15s linear, color .15s linear, box-shadow .15s linear;
 }
 
 .site-nav.on-dark {
@@ -380,7 +449,9 @@ h2, .title-2 {
     box-shadow: 0 1px 0 color-mix(in srgb, var(--nav-fg) 10%, transparent);
 }
 
-.site-nav .container {
+.site-nav > .container {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -416,6 +487,7 @@ h2, .title-2 {
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
+    padding: 0;
     list-style: none;
 }
 
@@ -449,15 +521,160 @@ h2, .title-2 {
     transform-origin: left center;
 }
 
-.nav-cta-mobile { display: none; }
-
 .button svg { flex: none; }
 
-@media (max-width: 768px) {
-    .nav-links { gap: var(--spacing-xs); }
-    .nav-link-secondary,
-    .nav-cta-desktop { display: none; }
-    .nav-cta-mobile { display: list-item; }
+/* ---------- Menu mobile (B14) : bouton « Menu » + panneau plein écran ---------- */
+
+.nav-mobile { display: none; }
+
+.nav-toggle {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 4px 0 12px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+/* Deux traits qui se croisent à l'ouverture */
+.nav-toggle-icon {
+    position: relative;
+    width: 20px;
+    height: 10px;
+}
+
+.nav-toggle-icon::before,
+.nav-toggle-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform .35s var(--ease-out), top .35s var(--ease-out);
+}
+
+.nav-toggle-icon::before { top: 0; }
+.nav-toggle-icon::after { top: calc(100% - 1.5px); }
+
+.nav-toggle[aria-expanded="true"] .nav-toggle-icon::before { top: calc(50% - .75px); transform: rotate(45deg); }
+.nav-toggle[aria-expanded="true"] .nav-toggle-icon::after { top: calc(50% - .75px); transform: rotate(-45deg); }
+
+.nav-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: calc(var(--nav-height) + var(--spacing-md));
+    padding-bottom: var(--spacing-lg);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.nav-panel[hidden] { display: none; }
+
+.nav-panel-inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    flex: 1;
+}
+
+.nav-panel-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.nav-panel-list > li {
+    border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.nav-panel-link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-xs);
+    min-height: 56px;
+    padding: var(--spacing-xs) 0;
+    color: inherit;
+    font-size: var(--fs-h2);
+    font-stretch: var(--stretch-title);
+    font-weight: 500;
+    line-height: 1.1;
+    text-decoration: none;
+}
+
+.nav-panel-link[aria-current="page"] {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+}
+
+.nav-panel-link .mono { color: var(--fg-muted); }
+
+.nav-panel-sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--spacing-sm);
+    padding: 0 0 var(--spacing-xs) calc(2ch + var(--spacing-xs) + 1.2ch);
+    list-style: none;
+}
+
+.nav-panel-sub a { color: var(--fg-muted); }
+
+.nav-panel-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    margin-top: auto;
+}
+
+/* Pendant l'ouverture : la page ne défile plus derrière le panneau. */
+html.nav-open { overflow: hidden; }
+html.nav-open .site-nav {
+    background: var(--color-black);
+    color: var(--color-white);
+    box-shadow: none;
+    --nav-bg: var(--color-black);
+    --nav-fg: var(--color-white);
+}
+
+.motion .nav-panel:not([hidden]) .nav-panel-list > li {
+    animation: nav-item-in .5s var(--ease-out) both;
+}
+
+.motion .nav-panel-list > li:nth-child(2) { animation-delay: .04s; }
+.motion .nav-panel-list > li:nth-child(3) { animation-delay: .08s; }
+.motion .nav-panel-list > li:nth-child(4) { animation-delay: .12s; }
+.motion .nav-panel-list > li:nth-child(5) { animation-delay: .16s; }
+.motion .nav-panel-list > li:nth-child(6) { animation-delay: .2s; }
+.motion .nav-panel-list > li:nth-child(7) { animation-delay: .24s; }
+
+@keyframes nav-item-in {
+    from { opacity: 0; transform: translateY(16px); }
+}
+
+@media (max-width: 1024px) {
+    .nav-links { display: none; }
+    .nav-mobile {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xxs);
+    }
 }
 
 @media (max-width: 480px) {
@@ -502,9 +719,11 @@ h2, .title-2 {
 
 .footer-title {
     margin-bottom: var(--spacing-xxs);
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 1.125rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
     color: var(--color-muted-light);
 }
 
@@ -555,8 +774,44 @@ h2, .title-2 {
 
 /* Les visuels déjà à l'écran au chargement (data-sketch="outline") ne sont pas masqués :
    seul le contour se trace, pour ne pas retarder le LCP. */
-.motion .sketch[data-sketch=""]:not(.is-sketched) img {
+/* B18 : l'image n'est masquée que si le script a bien pris la main (.sketch-armed) ; sinon elle reste visible. */
+.motion .sketch-armed[data-sketch=""]:not(.is-sketched) img {
     clip-path: inset(100% 0 0 0);
+}
+
+/* ---------- Curseur (B1, Lot 4) ---------- */
+/* Invisible jusqu'au premier mouvement de souris ; jamais au tactile (créé seulement sur pointer: fine). */
+
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--color-white);
+    background-repeat: no-repeat;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity .2s, width .25s var(--ease-out), height .25s var(--ease-out), box-shadow .25s;
+}
+
+.custom-cursor.is-visible { opacity: 1; }
+
+.custom-cursor.is-hover {
+    width: 40px;
+    height: 40px;
+}
+
+/* Loupe sur les photos : l'image agrandie remplace le point. */
+.custom-cursor.is-loupe {
+    width: 140px;
+    height: 140px;
+    mix-blend-mode: normal;
+    background-color: var(--color-black);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .7), 0 12px 32px rgba(0, 0, 0, .25);
 }
 
 /* ---------- Réduction des animations ---------- */

@@ -13,11 +13,23 @@
  * (EdgesGeometry + LineSegments, 1 px), puis le bois et le chrome se matérialisent et les arêtes s'effacent.
  * La caméra traverse les 3 cadres de l'étagère (accélération au passage de chacun, FOV 45° → 52°),
  * ressort et pivote pour révéler l'étagère entière, centrée dans l'écran.
+ *
+ * Review UI, Lot 3 — 3D plein écran :
+ * - le canvas couvre toute la largeur ; le cadrage se fait dans une « zone utile » hors de la colonne
+ *   de texte (à droite en desktop, en haut sur mobile/tablette) grâce à `setViewOffset` : aucun meuble
+ *   n'est coupé ni posé sous le texte (B5) ;
+ * - la grille de la page devient un calque au sol dans la scène (GridHelper qui s'estompe au loin) ;
+ * - passage trait → matière par un shader de dissolution : la matière « pousse » du bas vers le haut,
+ *   avec un liseré chaud pour le bois et clair pour le métal ;
+ * - lignes de cote animées (SVG en surimpression, chiffres en mono) autour de chaque meuble.
  */
 import {
     Box3,
+    Color,
     DirectionalLight,
     EdgesGeometry,
+    Fog,
+    GridHelper,
     LineBasicMaterial,
     LineSegments,
     Group,
@@ -31,6 +43,7 @@ import {
     Scene,
     SRGBColorSpace,
     TextureLoader,
+    Vector2,
     Vector3,
     WebGLRenderer,
     type Material,
@@ -43,7 +56,10 @@ const MAX_PIXEL_RATIO = 1.5;
 const FOV = 45;
 const FOV_TRAVERSE = 52;
 const EDGE_COLOR = 0x2a2b2c;
-const MARGIN = 0.15; // marge autour de chaque meuble dans le cadre
+const MARGIN = 0.12; // marge autour de chaque meuble dans le cadre (zone utile)
+const SURFACE = 0xf5f5f5; // fond de la page : le sol s'y fond au loin
+const GRID_COLOR = 0xbdbdbd;
+const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /* ---------- Plages de la séquence (progression 0 → 1 de la section) ---------- */
 export const PHASES = {
@@ -66,6 +82,11 @@ const easeOut = (t: number) => 1 - (1 - t) ** 3;
 const easeIn = (t: number) => t * t * t;
 const smooth = (a: number, b: number, t: number) => MathUtils.smoothstep(t, a, b);
 
+interface DissolveUniforms {
+    uDissolve: { value: number };
+    uRange: { value: Vector2 };
+}
+
 interface Piece {
     root: Group;
     /** Boîte englobante du meuble (repère local, après normalisation). */
@@ -73,12 +94,32 @@ interface Piece {
     materials: Material[];
     /** Matériau des arêtes (null : pas d'effet trait, ex. appareil modeste). */
     edges: LineBasicMaterial | null;
+    /** Uniforms du shader de dissolution, partagés par les matériaux du meuble. */
+    dissolve: DissolveUniforms;
+}
+
+/** Cotes réelles d'un meuble, en millimètres (null : « sur mesure » sans chiffre). */
+export interface PieceDimensions {
+    width: number | null;
+    height: number | null;
+    depth?: number | null;
 }
 
 interface AboutSceneOptions {
     /** Effet « arêtes puis matière » (désactivé sur les appareils modestes). */
     edges?: boolean;
+    /** Calque SVG des lignes de cote (facultatif). */
+    dimensions?: SVGSVGElement | null;
+    /** Cotes de l'étagère, des tables et de la commode. */
+    sizes?: { shelf?: PieceDimensions; tables?: PieceDimensions; commode?: PieceDimensions };
 }
+
+/** Cote affichée : fenêtre de progression où elle se trace, puis s'efface. */
+const DIMENSION_WINDOWS = {
+    shelf: [0.27, 0.4],
+    tables: [0.52, 0.68],
+    commode: [0.8, 1.01],
+} as const;
 
 export class AboutScene {
     readonly canvas: HTMLCanvasElement;
@@ -97,9 +138,16 @@ export class AboutScene {
     /** Table t(z) de la traversée : accélération au passage de chaque cadre. */
     private traverseTable: { z: number; t: number }[] = [];
     private withEdges: boolean;
+    private grid: GridHelper;
+    /** Zone utile du cadrage, en pixels du canvas. */
+    private safe = { width: 1, height: 1, x: 0, y: 0, full: { width: 1, height: 1 } };
+    private dims: DimensionOverlay | null;
+    private sizes: NonNullable<AboutSceneOptions['sizes']>;
 
     constructor(private container: HTMLElement, options: AboutSceneOptions = {}) {
         this.withEdges = options.edges ?? true;
+        this.sizes = options.sizes ?? {};
+        this.dims = options.dimensions ? new DimensionOverlay(options.dimensions) : null;
         this.canvas = document.createElement('canvas');
         this.canvas.className = 'about-canvas';
         this.canvas.setAttribute('aria-hidden', 'true');
@@ -112,6 +160,15 @@ export class AboutScene {
         const sun = new DirectionalLight(0xffffff, 1.4 * Math.PI * 0.5);
         sun.position.set(200, 300, 300);
         this.scene.add(sun);
+
+        // La grille de la page devient le sol de la scène, façon calque de bureau d'études.
+        this.grid = new GridHelper(24, 48, GRID_COLOR, GRID_COLOR);
+        const gridMaterial = this.grid.material as LineBasicMaterial;
+        gridMaterial.transparent = true;
+        gridMaterial.opacity = 0.55;
+        gridMaterial.depthWrite = false;
+        this.scene.add(this.grid);
+        this.scene.fog = new Fog(SURFACE, 2, 6);
     }
 
     async load(): Promise<void> {
@@ -180,15 +237,22 @@ export class AboutScene {
 
     private makePiece(source: Object3D, material: (mesh: Mesh) => Material | null, withEdges: boolean): Piece {
         const materials: Material[] = [];
+        const dissolve: DissolveUniforms = { uDissolve: { value: 1.08 }, uRange: { value: new Vector2(-1, 1) } };
         const edges = withEdges
-            ? new LineBasicMaterial({ color: EDGE_COLOR, transparent: true, opacity: 1, depthWrite: false })
+            ? new LineBasicMaterial({ color: EDGE_COLOR, transparent: true, opacity: 1, depthWrite: false, fog: false })
             : null;
         const meshes: Mesh[] = [];
         source.traverse((object) => {
             const mesh = object as Mesh;
             if (!mesh.isMesh) return;
             const mat = material(mesh);
-            if (mat) { mesh.material = mat; materials.push(mat); meshes.push(mesh); }
+            if (mat) {
+                (mat as Material & { fog?: boolean }).fog = false;
+                applyDissolve(mat, dissolve);
+                mesh.material = mat;
+                materials.push(mat);
+                meshes.push(mesh);
+            }
         });
         // Arêtes : uniquement les angles marqués (> 30°), en traits de 1 px, enfants de chaque maillage.
         if (edges) {
@@ -202,7 +266,7 @@ export class AboutScene {
         source.traverse((object) => { if ((object as { isLight?: boolean }).isLight) object.visible = false; });
         const root = new Group();
         root.add(source);
-        return { root, box: new Box3(), materials, edges };
+        return { root, box: new Box3(), materials, edges, dissolve };
     }
 
     private normalize(piece: Piece): void {
@@ -216,6 +280,7 @@ export class AboutScene {
         inner.position.sub(center.multiplyScalar(scale));
         inner.updateMatrixWorld(true);
         piece.box = boxWithoutEdges(inner);
+        piece.dissolve.uRange.value.set(piece.box.min.y, piece.box.max.y);
     }
 
     /**
@@ -265,11 +330,26 @@ export class AboutScene {
         const { clientWidth: width, clientHeight: height } = this.container;
         if (!width || !height) return;
         this.renderer.setSize(width, height, false);
-        this.camera.aspect = width / height;
-        // Lot H4.1 : meuble centré dans l'écran, les messages se posent par-dessus.
+        this.dims?.resize(width, height);
+        // Zone utile : à droite de la colonne de texte en desktop, au-dessus des messages sinon.
+        const desktop = width > 1024 && width >= height;
+        const textColumn = this.container.dataset.textColumn ? Number(this.container.dataset.textColumn) : 0;
+        // Marges : sous la barre de navigation en haut, place pour les cotes en bas et à droite.
+        const navHeight = 72;
+        if (desktop) {
+            const left = Math.min(Math.max(textColumn, width * 0.22), width * 0.45);
+            const top = navHeight;
+            this.safe = { width: width - left - 110, height: height - top - 70, x: -left, y: -top, full: { width, height } };
+        } else {
+            const top = navHeight - 8;
+            const bottom = Math.min(height * 0.62, height - 240);
+            this.safe = { width: width - 80, height: Math.max(bottom, height * 0.45) - top - 40, x: -16, y: -top, full: { width, height } };
+        }
+        this.camera.aspect = this.safe.width / this.safe.height;
+        this.camera.setViewOffset(this.safe.width, this.safe.height, this.safe.x, this.safe.y, width, height);
         this.camera.updateProjectionMatrix();
         if (this.shelf) this.buildTraverseTable();
-        this.requestRender();
+        this.setProgress(this.progress);
     }
 
     /**
@@ -329,7 +409,38 @@ export class AboutScene {
         else if (p < PHASES.commode[0]) this.tablesSequence(p);
         else this.commodeSequence(p);
 
+        this.updateFloor(p);
+        this.updateDimensions(p);
         this.requestRender();
+    }
+
+    /** Sol : suit le pied du meuble présenté, s'estompe au loin (brouillard couleur de page). */
+    private updateFloor(p: number): void {
+        const floor = (piece: Piece) => piece.box.min.y - 0.002;
+        let y = floor(this.shelf);
+        if (p >= PHASES.commode[0]) y = MathUtils.lerp(floor(this.tables), floor(this.commode), easeOut(local(p, [PHASES.commode[0], PHASES.commode[0] + 0.06])));
+        else if (p >= PHASES.tablesIn[0]) y = MathUtils.lerp(floor(this.shelf), floor(this.tables), easeOut(local(p, PHASES.tablesIn)));
+        this.grid.position.y = y;
+        const distance = this.camera.position.length();
+        const fog = this.scene.fog as Fog;
+        fog.near = Math.max(distance * 0.8, 0.5);
+        fog.far = distance * 2.4 + 1;
+    }
+
+    /** Lignes de cote : largeur sous le meuble, hauteur sur le côté, tracées puis effacées. */
+    private updateDimensions(p: number): void {
+        if (!this.dims) return;
+        const show = (key: keyof typeof DIMENSION_WINDOWS, piece: Piece) => {
+            const [a, b] = DIMENSION_WINDOWS[key];
+            if (p < a || p > b || !piece.root.visible) return false;
+            const t = (p - a) / (b - a);
+            const draw = smooth(0, 0.3, t);
+            const fade = 1 - smooth(0.82, 1, t);
+            piece.root.updateMatrixWorld(true);
+            this.dims!.draw(piece.box, piece.root, this.camera, this.sizes[key] ?? { width: null, height: null }, draw, fade);
+            return true;
+        };
+        if (!show('shelf', this.shelf) && !show('tables', this.tables) && !show('commode', this.commode)) this.dims.hide();
     }
 
     private setFov(fov: number | undefined): void {
@@ -383,9 +494,13 @@ export class AboutScene {
         this.camera.updateProjectionMatrix();
     }
 
-    /** Opacité de la matière et des arêtes d'un meuble. */
-    private setMatter(materials: Material[], edges: LineBasicMaterial | null, matter: number, edgeOpacity: number): void {
-        setOpacity(materials, matter);
+    /**
+     * Matière (dissolution 0 → 1) et arêtes d'un meuble. `opacity` sert aux fondus d'entrée et de sortie.
+     */
+    private setMatter(materials: Material[], edges: LineBasicMaterial | null, matter: number, edgeOpacity: number, opacity = 1): void {
+        const piece = [this.shelf, this.tables, this.commode].find((item) => item?.materials === materials);
+        if (piece) piece.dissolve.uDissolve.value = MathUtils.lerp(-0.08, 1.08, matter);
+        setOpacity(materials, opacity);
         if (edges) {
             edges.opacity = edgeOpacity;
             edges.visible = edgeOpacity > 0.01;
@@ -406,7 +521,7 @@ export class AboutScene {
         this.frameBox(target, forward);
         const slide = easeIn(out);
         root.position.x = -slide * (target.max.x - target.min.x) * 1.4;
-        this.setMatter(materials, this.shelf.edges, 1 - slide, 0);
+        this.setMatter(materials, this.shelf.edges, 1, 0, 1 - slide);
     }
 
     /** 3. Tables : entrée emboîtées, déboîtement une à une, puis légère rotation de l'ensemble. */
@@ -446,7 +561,8 @@ export class AboutScene {
         const edgesIn = enter;
         const matter = smooth(0.3, 0.6, t);
         const edgesOut = 1 - smooth(0.5, 0.7, t);
-        this.setMatter(materials, this.commode.edges, this.commode.edges ? matter : enter, edgesIn * edgesOut);
+        if (this.commode.edges) this.setMatter(materials, this.commode.edges, matter, edgesIn * edgesOut);
+        else this.setMatter(materials, null, 1, 0, enter);
         // Boîte de cadrage : sphère englobante (la commode tourne, son emprise change).
         const radius = box.getSize(new Vector3()).length() / 2;
         const sphereBox = new Box3(new Vector3(-radius, box.min.y, -radius), new Vector3(radius, box.max.y, radius));
@@ -536,4 +652,131 @@ function findFrames(piece: Piece): number[] {
     return frames.length >= 2 && frames.length <= 6
         ? frames
         : [box.max.z, (box.max.z + box.min.z) / 2, box.min.z];
+}
+
+/* ---------------------------- Dissolution ---------------------------- */
+
+/**
+ * Shader de dissolution : un fragment n'apparaît que si sa « valeur » (hauteur dans le meuble + bruit)
+ * est sous le seuil uDissolve. La matière pousse donc du pied vers le haut, avec un liseré au front.
+ */
+function applyDissolve(material: Material, uniforms: DissolveUniforms): void {
+    const edge = material instanceof MeshStandardMaterial ? new Color(0xf0dcc0) : new Color(0xffffff);
+    material.onBeforeCompile = (shader) => {
+        shader.uniforms.uDissolve = uniforms.uDissolve;
+        shader.uniforms.uRange = uniforms.uRange;
+        shader.uniforms.uEdgeColor = { value: edge };
+        shader.vertexShader = shader.vertexShader
+            .replace('#include <common>', '#include <common>\nvarying vec3 vDissolvePos;')
+            .replace('#include <project_vertex>', '#include <project_vertex>\nvDissolvePos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+        shader.fragmentShader = shader.fragmentShader
+            .replace('#include <common>', `#include <common>
+varying vec3 vDissolvePos;
+uniform float uDissolve;
+uniform vec2 uRange;
+uniform vec3 uEdgeColor;
+float dHash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
+float dNoise(vec3 p) {
+    vec3 i = floor(p); vec3 f = fract(p); f = f * f * (3.0 - 2.0 * f);
+    return mix(mix(mix(dHash(i), dHash(i + vec3(1,0,0)), f.x), mix(dHash(i + vec3(0,1,0)), dHash(i + vec3(1,1,0)), f.x), f.y),
+               mix(mix(dHash(i + vec3(0,0,1)), dHash(i + vec3(1,0,1)), f.x), mix(dHash(i + vec3(0,1,1)), dHash(i + vec3(1,1,1)), f.x), f.y), f.z);
+}
+float dValue() {
+    float h = clamp((vDissolvePos.y - uRange.x) / max(uRange.y - uRange.x, 1e-4), 0.0, 1.0);
+    return h * 0.7 + dNoise(vDissolvePos * 14.0) * 0.3;
+}`)
+            .replace('#include <clipping_planes_fragment>', `#include <clipping_planes_fragment>
+float dissolveValue = dValue();
+if (dissolveValue > uDissolve) discard;`)
+            .replace('#include <dithering_fragment>', `#include <dithering_fragment>
+float dissolveEdge = 1.0 - smoothstep(0.0, 0.018, uDissolve - dissolveValue);
+gl_FragColor.rgb = mix(gl_FragColor.rgb, uEdgeColor, dissolveEdge * step(uDissolve, 1.0));`);
+    };
+}
+
+/* ---------------------------- Lignes de cote ---------------------------- */
+
+/** Calque SVG : une cote horizontale (largeur) et une verticale (hauteur), chiffres en mono. */
+class DimensionOverlay {
+    private groups: { line: SVGPathElement; ticks: SVGPathElement; label: SVGTextElement }[];
+
+    constructor(private svg: SVGSVGElement) {
+        svg.replaceChildren();
+        this.groups = [0, 1].map(() => {
+            const g = document.createElementNS(SVG_NS, 'g');
+            const line = document.createElementNS(SVG_NS, 'path');
+            const ticks = document.createElementNS(SVG_NS, 'path');
+            const label = document.createElementNS(SVG_NS, 'text');
+            line.setAttribute('pathLength', '1');
+            line.setAttribute('class', 'dim-line');
+            ticks.setAttribute('class', 'dim-ticks');
+            label.setAttribute('class', 'dim-label');
+            g.append(ticks, line, label);
+            svg.appendChild(g);
+            return { line, ticks, label };
+        });
+        this.hide();
+    }
+
+    resize(width: number, height: number): void {
+        this.svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    }
+
+    hide(): void {
+        this.svg.style.opacity = '0';
+    }
+
+    draw(box: Box3, root: Object3D, camera: PerspectiveCamera, size: PieceDimensions, draw: number, fade: number): void {
+        const { width, height } = this.svg.viewBox.baseVal;
+        const project = (x: number, y: number, z: number) => {
+            const v = new Vector3(x, y, z).applyMatrix4(root.matrixWorld).project(camera);
+            return { x: (v.x + 1) / 2 * width, y: (1 - v.y) / 2 * height };
+        };
+        // Coins avant du meuble : le plus proche de la caméra en profondeur.
+        const front = new Vector3(0, 0, box.max.z).applyMatrix4(root.matrixWorld).distanceTo(camera.position)
+            < new Vector3(0, 0, box.min.z).applyMatrix4(root.matrixWorld).distanceTo(camera.position) ? box.max.z : box.min.z;
+        // Cote horizontale : l'arête du pied la plus visible à l'écran (largeur ou profondeur selon l'angle).
+        const side = new Vector3(box.max.x, 0, 0).applyMatrix4(root.matrixWorld).distanceTo(camera.position)
+            < new Vector3(box.min.x, 0, 0).applyMatrix4(root.matrixWorld).distanceTo(camera.position) ? box.max.x : box.min.x;
+        const wide = [project(box.min.x, box.min.y, front), project(box.max.x, box.min.y, front)];
+        const deep = [project(side, box.min.y, box.min.z), project(side, box.min.y, box.max.z)];
+        const length = ([a, b]: { x: number; y: number }[]) => Math.hypot(a.x - b.x, a.y - b.y);
+        const useDepth = length(deep) > length(wide) * 1.15;
+        const [bl, br] = (useDepth ? deep : wide).sort((a, b) => a.x - b.x);
+        const top = useDepth ? project(side, box.max.y, br === deep[0] ? box.min.z : box.max.z) : project(box.max.x, box.max.y, front);
+        const tr = { x: br.x, y: top.y };
+        const gap = 22;
+        const tick = 7;
+
+        // Largeur : sous le meuble, décalée vers le bas.
+        const wy = Math.max(bl.y, br.y) + gap;
+        this.set(0, `M${bl.x},${wy}L${br.x},${wy}`,
+            `M${bl.x},${wy - tick}L${bl.x},${wy + tick}M${br.x},${wy - tick}L${br.x},${wy + tick}`,
+            (bl.x + br.x) / 2, wy + 20, 'middle', format(useDepth ? size.depth ?? null : size.width), draw);
+        // Hauteur : à droite du meuble.
+        const hx = Math.max(br.x, tr.x) + gap;
+        this.set(1, `M${hx},${br.y}L${hx},${tr.y}`,
+            `M${hx - tick},${br.y}L${hx + tick},${br.y}M${hx - tick},${tr.y}L${hx + tick},${tr.y}`,
+            hx + 12, (br.y + tr.y) / 2 + 4, 'start', format(size.height), draw);
+        this.svg.style.opacity = String(fade);
+    }
+
+    private set(index: number, line: string, ticks: string, x: number, y: number, anchor: string, text: string, draw: number): void {
+        const group = this.groups[index];
+        group.line.setAttribute('d', line);
+        group.line.style.strokeDasharray = '1';
+        group.line.style.strokeDashoffset = String(1 - draw);
+        group.ticks.setAttribute('d', ticks);
+        group.ticks.style.opacity = String(MathUtils.smoothstep(draw, 0, 0.2));
+        group.label.setAttribute('x', String(x));
+        group.label.setAttribute('y', String(y));
+        group.label.setAttribute('text-anchor', anchor);
+        group.label.textContent = text;
+        group.label.style.opacity = String(MathUtils.smoothstep(draw, 0.6, 1));
+    }
+}
+
+/** 3000 → « 3 000 mm » (espace fine insécable) ; sans chiffre connu : « sur mesure ». */
+function format(mm: number | null): string {
+    return mm ? `${mm.toLocaleString('fr-FR').replace(/\s/g, '\u202f')} mm` : 'sur mesure';
 }

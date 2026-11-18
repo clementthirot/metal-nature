@@ -18,8 +18,13 @@
     gap: 0 var(--spacing-xxs);
     padding: 0;
     list-style: none;
-    font-size: .9375rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    letter-spacing: .04em;
 }
+
+.breadcrumb a { color: inherit; }
+.breadcrumb [aria-current="page"] { color: var(--fg-muted); }
 
 .breadcrumb li + li::before {
     content: '/';
@@ -27,25 +32,71 @@
     opacity: .5;
 }
 
+/*
+ * En-tête des pages intérieures : texte sur les colonnes 1 à 3, image d'en-tête sur la 4e (desktop) ;
+ * sur mobile l'image suit directement le titre, dans le premier écran (B20).
+ */
 .page-header {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    align-items: end;
+    row-gap: var(--spacing-lg);
+}
+
+.page-header-text {
+    grid-column: 1 / -1;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-md);
 }
 
+.page-header.has-image .page-header-text { grid-column: 1 / span 3; }
+
 .page-header h1 {
-    max-width: 18ch;
+    max-width: 16ch;
+}
+
+.page-intro {
+    max-width: 40ch;
+    font-size: var(--fs-h3);
+    line-height: 1.4;
+    color: var(--fg-muted);
+    text-wrap: pretty;
+}
+
+.page-header-media {
+    grid-column: -2 / -1;
+    margin-inline: var(--line-pad);
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+
+.page-header-media img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+}
+
+@media (max-width: 1024px) {
+    .page-header.has-image .page-header-text { grid-column: 1 / span 2; }
+}
+
+@media (max-width: 640px) {
+    .page-header.has-image .page-header-text,
+    .page-header-media { grid-column: 1 / -1; }
+    .page-header { row-gap: var(--spacing-md); }
+    .page-header-media img { aspect-ratio: 4 / 3; max-height: 46svh; }
 }
 
 /* Corps de texte rédigé en Markdown */
 .page-body {
     max-width: 68ch;
-    font-size: 1.125rem;
+    font-size: var(--fs-body);
 }
 
 .page-body h2 {
     margin: var(--spacing-xl) 0 var(--spacing-xs);
-    font-size: clamp(1.375rem, 1rem + 1vw, 1.875rem);
+    font-size: var(--fs-h3);
     line-height: 1.3;
 }
 
@@ -55,8 +106,9 @@
 
 .page-body h3 {
     margin: var(--spacing-md) 0 var(--spacing-xxs);
-    font-size: 1.25rem;
-    font-weight: 500;
+    font-size: var(--fs-body);
+    font-weight: 600;
+    font-stretch: 100%;
 }
 
 .page-body p + p,
@@ -121,22 +173,57 @@
 }
 
 .card-title {
-    font-size: 1.25rem;
+    font-size: var(--fs-body);
+    font-weight: 500;
 }
 
 .card-text {
-    color: var(--color-muted-dark);
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
 }
 
-/* Encart d'appel : le fond déborde des lignes, le contenu reste aligné */
+/* B20 : sur mobile, une carte occupe toute la largeur (plus de vignettes de 150 px). */
+@media (max-width: 640px) {
+    .cards > li { grid-column: 1 / -1; }
+}
+
+/* Cartes de familles de meubles (page index) */
+.service-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    color: inherit;
+    text-decoration: none;
+}
+
+.service-card picture {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius);
+}
+
+.service-card img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: transform .5s var(--ease-out);
+}
+
+.service-card:hover img { transform: scale(1.03); }
+
+/* Encart d'appel : section sombre (B19), le fond déborde des lignes, le contenu reste aligné */
 .cta-box {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-sm);
-    padding-block: var(--spacing-xl);
+    padding-block: var(--spacing-xxl);
     border-radius: var(--radius);
-    background: #e9e9e9;
+}
+
+.cta-box .title-2 {
+    font-size: var(--fs-h2);
 }
 
 .cta-actions {
@@ -163,7 +250,9 @@
     gap: var(--spacing-xs);
     min-height: 56px;
     padding: var(--spacing-xs) 0;
-    font-size: 1.25rem;
+    font-size: var(--fs-h3);
+    font-stretch: var(--stretch-title);
+    font-weight: 500;
     cursor: pointer;
     list-style: none;
 }
@@ -186,8 +275,8 @@
 
 .faq-answer {
     padding-bottom: var(--spacing-sm);
-    font-size: 1.0625rem;
-    color: var(--color-muted-dark);
+    font-size: var(--fs-body);
+    color: var(--fg-muted);
 }
 
 .faq-answer a {
@@ -206,4 +295,24 @@
     padding: 6px 14px;
     border: 1px solid #c9c9c9;
     border-radius: 999px;
+    font-size: var(--fs-body);
 }
+
+/* Pages légales (B16 / B17) : même gabarit, liens stylés, rien sous la barre de navigation. */
+.legal-body h2 {
+    margin: var(--spacing-xl) 0 var(--spacing-xs);
+    font-size: var(--fs-h3);
+}
+
+.legal-body p { margin-bottom: var(--spacing-xxs); }
+
+.page-body a,
+.legal-body a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+}
+
+.page-body a:hover,
+.legal-body a:hover { text-decoration-thickness: 2px; }

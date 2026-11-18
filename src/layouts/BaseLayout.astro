@@ -1,9 +1,11 @@
 ---
 import { withBase, stripBase } from '../utils/paths';
-import '@fontsource-variable/urbanist';
-import '@fontsource/arapey/latin-400-italic.css';
-// Fichier de police du titre principal, préchargé pour accélérer le premier rendu (lot 5.4).
-import urbanistLatin from '@fontsource-variable/urbanist/files/urbanist-latin-wght-normal.woff2?url';
+// Lot 1 (review UI) : une grotesque industrielle à axe de largeur (Archivo) + une mono technique (JetBrains Mono),
+// auto-hébergées en woff2, font-display: swap.
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource-variable/jetbrains-mono';
+// Fichier de police des titres et du texte, préchargé pour accélérer le premier rendu.
+import archivoLatin from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
 import '../styles/base.css';
 import { SITE } from '../site';
 
@@ -67,7 +69,7 @@ const isProduction = Astro.site?.hostname.replace(/^www\./, '') === productionHo
     <link rel="icon" type="image/x-icon" sizes="32x32" href={withBase('/favicon-metal-nature-32x32.ico')}>
     <link rel="icon" type="image/x-icon" sizes="16x16" href={withBase('/favicon-metal-nature-16x16.ico')}>
     <link rel="sitemap" href={withBase('/sitemap-index.xml')}>
-    <link rel="preload" as="font" type="font/woff2" href={urbanistLatin} crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href={archivoLatin} crossorigin>
 
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 
@@ -79,6 +81,10 @@ const isProduction = Astro.site?.hostname.replace(/^www\./, '') === productionHo
 <body class={bodyClass}>
 <a class="skip-link" href="#main">Aller au contenu</a>
 <slot />
+<script>
+    import { initCursor } from '../scripts/cursor';
+    initCursor();
+</script>
 <!-- Lot H1 : les lignes de grille apparaissent en fondu une fois la page affichée. -->
 <script is:inline>requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('grid-ready')));</script>
 </body>

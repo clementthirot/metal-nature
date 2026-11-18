@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
+import PageHeader from '../components/PageHeader.astro';
+import atelier from '../assets/images/atelier-fond.jpg';
 import CallCta from '../components/CallCta.astro';
 import { withBase } from '../utils/paths';
 import { breadcrumbLd } from '../utils/seo';
@@ -19,12 +21,11 @@ const jsonLd = breadcrumbLd([{ label: 'Accueil', href: '/' }, { label: "Zone d'i
 <SiteNav />
 <main id="main" class="page container has-grid">
     <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: "Zone d'intervention" }]} />
-    <header class="page-header">
-        <h1 class="title-1">Zone <span class="strong">d'intervention</span></h1>
-        <p class="statement">
-            Un atelier à {SITE.city}, au cœur du Val Parisis, et des meubles livrés et installés dans toute l'Île-de-France.
-        </p>
-    </header>
+    <PageHeader eyebrow={`${SITE.city}, ${SITE.department}`} image={atelier}
+                imageAlt="L'atelier de Metal Nature à Sannois : machines à bois, établi et outillage"
+                intro={`Un atelier à ${SITE.city}, au cœur du Val Parisis, et des meubles livrés et installés dans toute l'Île-de-France.`}>
+        <Fragment slot="title">Zone <span class="strong">d'intervention</span></Fragment>
+    </PageHeader>
 
     <div class="page-body">
         <h2>L'atelier de Sannois</h2>
@@ -64,4 +65,8 @@ const jsonLd = breadcrumbLd([{ label: 'Accueil', href: '/' }, { label: "Zone d'i
     <CallCta />
 </main>
 <SiteFooter />
+<script>
+    import { initSketches } from '../scripts/sketch';
+    initSketches();
+</script>
 </BaseLayout>

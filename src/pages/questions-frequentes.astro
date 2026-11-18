@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SiteNav from '../components/SiteNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import Breadcrumb from '../components/Breadcrumb.astro';
+import PageHeader from '../components/PageHeader.astro';
+import portrait from '../assets/images/portrait-michel-valade-artisan-metal-bois.webp';
 import CallCta from '../components/CallCta.astro';
 import { FAQ } from '../data/faq';
 import { breadcrumbLd } from '../utils/seo';
@@ -29,10 +31,11 @@ const jsonLd = [
 <SiteNav />
 <main id="main" class="page container has-grid">
     <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: 'Questions fréquentes' }]} />
-    <header class="page-header">
-        <h1 class="title-1">Questions <span class="strong">fréquentes</span></h1>
-        <p class="statement">Prix, délais, matériaux, déplacement, entretien&nbsp;: ce qu'on nous demande le plus souvent.</p>
-    </header>
+    <PageHeader eyebrow="Prix, délais, matériaux" image={portrait}
+                imageAlt="Portrait de Michel Valade, menuisier et métallier, fondateur de Metal Nature"
+                intro="Prix, délais, matériaux, déplacement, entretien : ce qu'on nous demande le plus souvent.">
+        <Fragment slot="title">Questions <span class="strong">fréquentes</span></Fragment>
+    </PageHeader>
 
     <ul class="faq-list">
         {FAQ.map(({ question, answer }) => (
@@ -48,4 +51,8 @@ const jsonLd = [
     <CallCta title="Une autre question ?" />
 </main>
 <SiteFooter />
+<script>
+    import { initSketches } from '../scripts/sketch';
+    initSketches();
+</script>
 </BaseLayout>

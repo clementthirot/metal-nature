@@ -5,6 +5,9 @@ import { Picture, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import '../../styles/pages.css';
 import { SITE } from '../../site';
 
 const realisations = (await getCollection('realisations', ({ data }) => !data.draft))
@@ -45,19 +48,11 @@ const jsonLd = [
 <SiteNav />
 
 <main id="main" class="container realisations-index has-grid">
-    <nav class="breadcrumb" aria-label="Fil d'Ariane">
-        <ol>
-            <li><a class="tap-link" href={withBase('/')}>Accueil</a></li>
-            <li aria-current="page">Réalisations</li>
-        </ol>
-    </nav>
-    <header class="index-header">
-        <h1 class="title-1">Nos <span class="strong">réalisations</span></h1>
-        <p class="prose index-intro">
-            Chaque meuble est dessiné et fabriqué sur mesure dans notre atelier de {SITE.city}, en bois et en métal.
-            Voici une sélection de projets réalisés pour nos clients.
-        </p>
-    </header>
+    <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: 'Réalisations' }]} />
+    <PageHeader eyebrow={`Atelier à ${SITE.city}`}
+                intro={`Chaque meuble est dessiné et fabriqué sur mesure dans notre atelier de ${SITE.city}, en bois et en métal. Voici une sélection de projets réalisés pour nos clients.`}>
+        <Fragment slot="title">Nos <span class="strong">réalisations</span></Fragment>
+    </PageHeader>
 
     <h2 class="eyebrow index-section-title">{realisations.length} meubles bois et métal fabriqués à {SITE.city}</h2>
     <ul class="index-grid grid-layout">
@@ -66,12 +61,13 @@ const jsonLd = [
                 <a class="index-card" href={withBase(`/realisations/${item.id}/`)}>
                     <span class="sketch" data-sketch={index < 4 ? 'outline' : ''}>
                         <Picture src={item.data.image} formats={['avif', 'webp']} widths={[300, 360]}
-                                 sizes="(max-width: 480px) 90vw, (max-width: 1024px) 45vw, 300px"
-                                 alt={item.data.imageAlt} loading={index < 4 ? 'eager' : 'lazy'} />
+                                 sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) 33vw, 300px"
+                                 alt={item.data.imageAlt} loading={index < 4 ? 'eager' : 'lazy'}
+                                 style={`view-transition-name: photo-${item.id}`} />
                     </span>
                     <span class="index-card-caption">
                         <span class="index-card-title">{item.data.title}</span>
-                        <span class="secondary-text">{item.data.year}{item.data.materials && ` · ${item.data.materials}`}</span>
+                        <span class="secondary-text mono">{item.data.year}{item.data.materials && ` · ${item.data.materials}`}</span>
                     </span>
                 </a>
             </li>
@@ -87,7 +83,7 @@ const jsonLd = [
         </ul>
     </section>
 
-    <aside class="index-cta bleed">
+    <aside class="index-cta bleed dark-theme">
         <h2 class="title-2">Un projet en tête ?</h2>
         <div class="index-cta-actions">
             <a class="button" href={`tel:${SITE.phone}`}>Appeler Michel · {SITE.phoneDisplay}</a>
@@ -106,28 +102,6 @@ const jsonLd = [
         gap: var(--spacing-xl);
         padding-top: calc(var(--nav-height) + var(--spacing-md));
         padding-bottom: var(--section-space);
-    }
-    .breadcrumb ol {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0 var(--spacing-xxs);
-        align-items: center;
-        padding: 0;
-        list-style: none;
-        font-size: .9375rem;
-    }
-    .breadcrumb li + li::before {
-        content: '/';
-        margin-right: var(--spacing-xxs);
-        opacity: .5;
-    }
-    .index-header {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-sm);
-    }
-    .index-intro {
-        font-size: 1.125rem;
     }
     /* Une carte par colonne de la grille, photo calée sur la ligne de gauche. */
     .index-grid {
@@ -163,7 +137,12 @@ const jsonLd = [
         flex-direction: column;
     }
     .index-card-title {
-        font-size: 1.25rem;
+        font-size: var(--fs-body);
+        font-weight: 500;
+    }
+    /* Mobile : une carte par ligne, pleine largeur (B20). */
+    @media (max-width: 640px) {
+        .index-grid > li { grid-column: 1 / -1; }
     }
     .index-cta > .title-2 {
         grid-column: 1 / span 2;
@@ -206,7 +185,6 @@ const jsonLd = [
         margin-inline: calc(-1 * var(--bleed));
         padding-inline: calc(var(--bleed) + var(--line-pad));
         border-radius: var(--radius);
-        background: #e9e9e9;
     }
 </style>
 <script>

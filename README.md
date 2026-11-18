@@ -105,13 +105,20 @@ chargée à la demande par `src/scripts/model-stage.ts` (un seul canvas par empl
 - Angle de vue : celui de la caméra exportée dans le GLB ; distance calculée pour que le meuble tienne dans le cadre.
 - Rotation à la souris ou au doigt, sans zoom (le défilement de la page reste libre) ; rendu à la demande,
   pixel ratio plafonné à 1,5.
-- Sur mobile, appareil modeste, économie de données ou « réduire les animations », une image s'affiche
-  avec un bouton « Voir en 3D ».
+- Fenêtre de détail et fiches : sur mobile, appareil modeste, économie de données ou « réduire les animations »,
+  une image s'affiche avec un bouton « Voir en 3D » (la séquence de l'accueil, elle, se lance toujours seule).
 
 ### « Notre démarche »
 
-La scène est en Three.js (`src/scripts/about-scene.ts`), chargée à
-l'approche de la section (`src/scripts/about-stage.ts`) :
+La scène est en Three.js (`src/scripts/about-scene.ts`), chargée automatiquement à
+l'approche de la section, sur mobile comme sur desktop, sans bouton (`src/scripts/about-stage.ts`) :
+- canvas plein écran (100vw × 100svh) ; les meubles sont cadrés dans une zone utile hors de la colonne
+  de texte (`setViewOffset`) : à droite en desktop, au-dessus des messages sur tablette et mobile ;
+- messages en surimpression sans voile, en `mix-blend-mode: difference` (ils s'inversent au-dessus d'un meuble) ;
+- la grille de la page devient un sol (`GridHelper`) qui s'estompe au loin ;
+- passage trait → matière par un shader de dissolution (la matière pousse du pied vers le haut) ;
+- lignes de cote animées (SVG, chiffres en mono) : valeurs lues dans le champ `dimensions` des réalisations
+  (`bibliotheque`, `tables-basses-imbriquees`, `commode-arquee`), « sur mesure » si le champ est vide ;
 - modèles GLB dans `public/3d/models/` (étagère, tables emboîtées, commode), normalisés au chargement ;
 - textures extraites de l'ancienne scène Spline dans `public/3d/textures/` : le métal est un matcap
   (`MeshMatcapMaterial`, aucun éclairage), le bois un `MeshStandardMaterial` éclairé ;
@@ -124,6 +131,21 @@ La séquence (traversée des 3 cadres, pivot, étagère de trois quarts, tables 
 `data-progress-end` (`src/pages/index.astro`) ; une seule timeline GSAP épinglée pilote les deux
 (`src/scripts/home.ts`, piste de `ABOUT_TRACK_SCREENS` hauteurs d'écran). Avec « réduire les animations »,
 chaque étape affiche une photo fixe du meuble.
+
+## Système visuel (review UI du 17/11/2026)
+
+- **Typographie** : Archivo (variable, axe de largeur) pour les titres et le texte, JetBrains Mono pour les
+  labels, numéros, années et cotes ; auto-hébergées (`@fontsource-variable/*`). Échelle fluide à 6 tailles
+  dans `src/styles/base.css` (`--fs-display`, `--fs-h1`, `--fs-h2`, `--fs-h3`, `--fs-body`, `--fs-caption`).
+- **Emphase** : plus d'italique. Un titre qui contient un `<span class="strong">` passe en gris, l'accent reste en
+  pleine couleur. Un seul accent par titre.
+- **Grille** : les blocs de texte prennent le fond de leur section, les lignes ne traversent jamais un texte.
+- **Navigation** : toutes les pages en desktop ; menu plein écran sous 1024 px (`src/scripts/nav.ts`).
+- **Pages intérieures** : en-tête commun avec image (`src/components/PageHeader.astro`), encart d'appel sombre.
+- **Typographie française** : espaces insécables avant `: ; ? !` et dans « », ajoutées à chaque page
+  (`src/middleware.ts`).
+- **Interactions** : dessin technique au survol des cartes du carrousel, curseur loupe sur les photos
+  (`src/scripts/cursor.ts`, souris uniquement), transition partagée grille → fiche (View Transitions).
 
 ## Référencement (SEO)
 

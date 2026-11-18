@@ -93,8 +93,23 @@ export function initSketches(root: ParentNode = document): void {
             if (element.hasAttribute('data-rule-draw')) element.classList.add('is-drawn');
             else play(element, index * STAGGER * tempoOf(element));
         });
-    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.05 });
 
-    sketches.forEach((element) => observer.observe(element));
+    sketches.forEach((element) => {
+        // B18 : les visuels déjà à l'écran au chargement sont révélés tout de suite, les autres à l'intersection.
+        element.classList.add('sketch-armed');
+        observer.observe(element);
+    });
     rules.forEach((element) => observer.observe(element));
+
+    // Filet de sécurité : rien ne reste masqué si l'observateur ne se déclenche pas (onglet en arrière-plan, capture).
+    window.setTimeout(() => {
+        sketches.forEach((element) => {
+            const rect = element.getBoundingClientRect();
+            if (!element.classList.contains('is-sketched') && rect.top < window.innerHeight && rect.bottom > 0) {
+                observer.unobserve(element);
+                element.classList.add('is-sketched');
+            }
+        });
+    }, 2500);
 }

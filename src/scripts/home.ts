@@ -22,8 +22,7 @@ export function initHomePage(): void {
     const aboutStage = aboutVisual ? setupAboutStage(aboutVisual) : null;
 
     gsap.registerPlugin(ScrollTrigger);
-    customCursor();
-    animateHero();
+    // Intro du hero : en CSS (B2/B3), jouée dès le premier rendu. Curseur : scripts/cursor.ts (toutes les pages).
     animateTextReveals();
     animateAbout(aboutStage);
     animateAuthor();
@@ -36,15 +35,6 @@ export function initHomePage(): void {
 /** Ajoute will-change seulement pendant qu'une animation au scroll est active (lot 5.3). */
 const willChange = (targets: gsap.TweenTarget) => (self: ScrollTrigger) =>
     gsap.set(targets, { willChange: self.isActive ? 'transform' : 'auto' });
-
-/* ---------- Hero (lot 5.1) : image visible dès le premier rendu, transform seulement, < 1,2 s ---------- */
-function animateHero(): void {
-    gsap.timeline({ defaults: { ease: 'power3.out' } })
-        .to('#headerImage', { y: 0, scale: 1, duration: 1.1 }, 0)
-        .to('.title-line', { y: 0, duration: 0.9, stagger: 0.1 }, 0.05)
-        .to('.hero-caption', { opacity: 1, duration: 0.6 }, 0.4)
-        .to('.page-home .site-nav', { y: 0, duration: 0.7 }, 0.3);
-}
 
 /* ---------- Paragraphes révélés ligne par ligne (lot 5.4) ---------- */
 function animateTextReveals(): void {
@@ -123,8 +113,9 @@ function animateAuthor(): void {
             onToggle: willChange(parts),
         },
     })
-        .fromTo('.part-1', { xPercent: -20 }, { xPercent: 20 }, 0)
-        .fromTo('.part-2', { xPercent: 20 }, { xPercent: -20 }, 0);
+        // B10 : glissement vers l'intérieur uniquement, le « A » n'est jamais coupé.
+        .fromTo('.part-1', { xPercent: 0 }, { xPercent: 8 }, 0)
+        .fromTo('.part-2', { xPercent: 0 }, { xPercent: -8 }, 0);
 }
 
 /* ---------- Ce que nous fabriquons : un seul ScrollTrigger groupé pour la liste (lot 5.3) ---------- */
@@ -141,24 +132,4 @@ function animateProposal(): void {
             onStart: () => batch.forEach((item) => item.classList.add('is-drawn')),
         }),
     });
-}
-
-/* ---------- Curseur (lot 5.3) : quickTo + scale, écouteurs passifs ---------- */
-function customCursor(): void {
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches || window.innerWidth <= 1024) return;
-
-    const cursor = document.createElement('div');
-    cursor.className = 'custom-cursor';
-    cursor.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(cursor);
-
-    const moveX = gsap.quickTo(cursor, 'x', { duration: 0.15, ease: 'power3.out' });
-    const moveY = gsap.quickTo(cursor, 'y', { duration: 0.15, ease: 'power3.out' });
-    const grow = gsap.quickTo(cursor, 'scale', { duration: 0.2, ease: 'power3.out' });
-
-    document.addEventListener('pointermove', (e) => { moveX(e.clientX); moveY(e.clientY); }, { passive: true });
-    const isInteractive = (target: EventTarget | null) =>
-        target instanceof Element && target.closest('a, button:not(:disabled), select, input, textarea');
-    document.addEventListener('pointerover', (e) => { if (isInteractive(e.target)) grow(2); }, { passive: true });
-    document.addEventListener('pointerout', (e) => { if (isInteractive(e.target)) grow(1); }, { passive: true });
 }

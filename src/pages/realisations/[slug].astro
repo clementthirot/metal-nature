@@ -106,7 +106,8 @@ const jsonLd = [
         <figure class="realisation-figure">
             <!-- Photo principale déjà visible au chargement : seul le contour se trace (pas de retard du LCP). -->
             <span class="sketch" data-sketch="outline">
-                <Picture class="realisation-image" src={image} formats={['avif', 'webp']} widths={[360]} sizes="360px"
+                <Picture class="realisation-image" src={image} formats={['avif', 'webp']} widths={[360]} sizes="(max-width: 640px) calc(100vw - 32px), 360px"
+                         style={`view-transition-name: photo-${entry.id}`} data-loupe
                          alt={imageAlt} loading="eager" fetchpriority="high" />
             </span>
             {widthLabel && (
@@ -216,7 +217,8 @@ const jsonLd = [
         gap: 0 var(--spacing-xxs);
         padding: 0;
         list-style: none;
-        font-size: .9375rem;
+        font-size: var(--fs-caption);
+        font-family: var(--font-mono);
     }
     .breadcrumb li + li::before {
         content: '/';
@@ -251,7 +253,8 @@ const jsonLd = [
         flex-direction: column;
         align-items: center;
         gap: 6px;
-        font-size: .8125rem;
+        font-size: var(--fs-caption);
+        font-family: var(--font-mono);
         font-weight: 600;
         letter-spacing: .08em;
         color: var(--color-muted-dark);
@@ -284,7 +287,7 @@ const jsonLd = [
         align-items: flex-start;
     }
     .realisation-text {
-        font-size: 1.125rem;
+        font-size: var(--fs-body);
     }
     .specs {
         width: 100%;
@@ -373,7 +376,8 @@ const jsonLd = [
         inset: auto 0 var(--spacing-md);
         display: none;
         text-align: center;
-        font-size: .875rem;
+        font-size: var(--fs-caption);
+        font-family: var(--font-mono);
     }
     .realisation-3d-render[data-model-state="loading"] .realisation-3d-loading {
         display: block;
@@ -392,11 +396,12 @@ const jsonLd = [
     }
     .realisation-3d-hint {
         margin-top: var(--spacing-xxs);
-        font-size: .9375rem;
+        font-size: var(--fs-caption);
+        font-family: var(--font-mono);
     }
     .project h3 {
         margin: var(--spacing-xs) 0 4px;
-        font-size: 1.125rem;
+        font-size: var(--fs-body);
         font-weight: 500;
     }
     .project p {

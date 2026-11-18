@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
+import PageHeader from '../../components/PageHeader.astro';
 import CallCta from '../../components/CallCta.astro';
 import RealisationCards from '../../components/RealisationCards.astro';
 import { withBase } from '../../utils/paths';
@@ -54,20 +55,20 @@ const jsonLd = [
 <main id="main" class="page container has-grid">
     <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: 'Meubles sur mesure', href: '/meubles-sur-mesure/' }, { label: title }]} />
 
-    <header class="page-header">
-        <p class="eyebrow">Atelier à {SITE.city}, {SITE.department}</p>
-        <h1 class="title-1">{title}</h1>
-        <p class="statement">{intro}</p>
-    </header>
+    <PageHeader eyebrow={`Atelier à ${SITE.city}, ${SITE.department}`} intro={intro}
+                image={realisations[0]?.data.image} imageAlt={realisations[0]?.data.imageAlt}>
+        <Fragment slot="title">{title}</Fragment>
+    </PageHeader>
 
-    <div class="page-body"><Content /></div>
-
-    {realisations.length > 0 && (
+    {/* B20 : les réalisations passent avant le texte, pour ne pas ouvrir sur un mur de texte. */}
+    {realisations.length > 1 && (
         <section class="page-section stack" aria-labelledby="examples-title">
             <h2 id="examples-title" class="eyebrow">Exemples de réalisations</h2>
-            <RealisationCards items={realisations} />
+            <RealisationCards items={realisations.slice(1)} />
         </section>
     )}
+
+    <div class="page-body"><Content /></div>
 
     <CallCta />
 

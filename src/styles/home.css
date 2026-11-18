@@ -23,6 +23,9 @@
 .hero-line {
     display: block;
     overflow: hidden;
+    /* B4 : masque de révélation assez haut pour ne pas rogner les descendantes (q, p, g). */
+    padding-bottom: .14em;
+    margin-bottom: -.14em;
 }
 
 .title-line {
@@ -63,11 +66,18 @@
     border-radius: 999px 999px 0 0;
 }
 
-/* Intro (lot 5.1) : l'image est opaque dès le premier rendu, seul transform est animé. */
-.motion .title-line { transform: translateY(100%); }
-.motion #headerImage { transform: translateY(40px) scale(.96); }
-.motion .hero-caption { opacity: 0; }
-.motion .page-home .site-nav { transform: translateY(-100%); }
+/*
+ * B2 / B3 : intro en CSS pur, jouée dès le premier rendu (sans attendre le JS) et terminée en < 1 s.
+ * La navigation n'est plus animée : elle est complète dès l'arrivée.
+ */
+.motion .title-line { animation: hero-rise .8s var(--ease-out) both; }
+.motion .hero-line:nth-child(2) .title-line { animation-delay: .08s; }
+.motion #headerImage { animation: hero-image .9s var(--ease-out) both; }
+.motion .hero-caption { animation: hero-fade .5s ease-out .35s both; }
+
+@keyframes hero-rise { from { transform: translateY(105%); } }
+@keyframes hero-image { from { transform: translateY(32px) scale(.97); } }
+@keyframes hero-fade { from { opacity: 0; } }
 
 @media (max-width: 768px) {
     .hero-content {
@@ -114,45 +124,54 @@
 }
 
 /*
- * Lot H4.1 — 3D plein écran, meuble centré. Les messages sont posés en surimpression
- * dans la première colonne de la grille (desktop) ou en bas d'écran (mobile).
+ * Lot 3 (review UI) — 3D plein écran : le canvas couvre toute la largeur et la hauteur de l'écran,
+ * la section défile par-dessus (épinglage GSAP). La grille CSS s'arrête ici (fond opaque) :
+ * c'est le sol de la scène 3D qui prend le relais.
  */
 .about-pin {
     position: relative;
     height: 100vh;
     height: 100svh;
     overflow: hidden;
+    background-color: var(--color-white);
 }
 
+/* Pas de z-index ici : le texte doit pouvoir se mélanger (mix-blend-mode) avec le canvas. */
 .about-stage {
     position: relative;
-    z-index: 1;
     height: 100%;
     display: grid;
     grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
-    grid-template-rows: 1fr auto auto;
+    grid-template-rows: 1fr auto;
     align-items: center;
     padding-top: calc(var(--nav-height) + var(--spacing-md));
     padding-bottom: var(--spacing-xl);
     pointer-events: none;
 }
 
+/*
+ * Messages en surimpression, sans voile ni carte : texte blanc en mode « différence ».
+ * Sur le fond clair il paraît noir ; au-dessus d'un meuble il s'inverse et reste lisible.
+ */
 .about-steps {
     grid-column: 1 / span 1;
     grid-row: 1;
     display: grid;
-    padding: var(--spacing-sm);
-    background: color-mix(in srgb, var(--color-white) 85%, transparent);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    mix-blend-mode: difference;
     list-style: none;
-    pointer-events: auto;
 }
 
 .about-steps .title-2 {
-    font-size: clamp(1.25rem, 1.7vw, 1.75rem);
-    line-height: 1.3;
+    font-size: var(--fs-h3);
+    line-height: 1.25;
 }
+
+/* En mode différence, le gris des titres à accent est obtenu par opacité. */
+.about-steps .title-2:has(.strong) { color: rgba(255, 255, 255, .62); }
+.about-steps .strong { color: #fff; }
 
 /* Les messages se superposent dans la même cellule et se relaient au scroll. */
 .motion .about-step {
@@ -166,45 +185,68 @@
 }
 
 .about-step-number {
-    font-size: .8125rem;
-    font-weight: 600;
-    letter-spacing: .14em;
-    color: var(--color-muted-dark);
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .62);
 }
 
 .about-progress {
     grid-column: 1 / span 1;
     grid-row: 2;
     height: 1px;
-    margin-top: var(--spacing-xs);
-    background: color-mix(in srgb, var(--color-black) 15%, transparent);
+    margin-inline: var(--line-pad);
+    background: rgba(255, 255, 255, .2);
+    mix-blend-mode: difference;
     overflow: hidden;
 }
 
 .about-progress-bar {
     display: block;
     height: 100%;
-    background: var(--color-black);
+    background: #fff;
     transform-origin: left center;
     transform: scaleX(0);
 }
 
-/* Le canvas occupe tout l'écran, sous les messages. */
+/* Le canvas occupe tout l'écran (100vw × 100svh), sous les messages. */
 .about-visual {
     position: absolute;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: calc(var(--nav-height) + var(--spacing-md)) var(--gutter) var(--spacing-xl);
 }
 
 .about-visual picture {
-    height: min(70%, 560px);
+    height: min(60%, 520px);
     display: flex;
     justify-content: center;
     align-items: center;
     transition: opacity .6s;
+}
+
+/* Lignes de cote (Lot 3) : traits fins et chiffres en mono, tracés au scroll. */
+.about-dims {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    color: var(--color-black);
+}
+
+.about-dims .dim-line,
+.about-dims .dim-ticks {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+}
+
+.about-dims .dim-label {
+    fill: currentColor;
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    letter-spacing: .04em;
 }
 
 img.model-poster,
@@ -236,7 +278,6 @@ img.model-poster,
 
 .about-visual[data-scene-state="ready"] > .about-canvas { opacity: 1; }
 .about-visual[data-scene-state="ready"] > picture { opacity: 0; }
-.about-visual[data-scene-state="ready"] > .model-trigger { display: none; }
 
 /* Image fixe de chaque meuble : seulement sans animation (la scène 3D n'est pas chargée). */
 .about-step-still { display: none; }
@@ -277,27 +318,21 @@ html:not(.motion) .about-stage {
 html:not(.motion) .about-steps {
     grid-column: 1 / -1;
     gap: var(--spacing-lg);
-    padding: 0;
-    background: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+    color: var(--color-black);
+    mix-blend-mode: normal;
 }
+
+html:not(.motion) .about-steps .title-2:has(.strong),
+html:not(.motion) .about-step-number { color: var(--color-muted-dark); }
+html:not(.motion) .about-steps .strong { color: var(--color-black); }
 
 html:not(.motion) .about-progress {
     display: none;
 }
 
+/* Tablette et mobile : messages en bas d'écran, les meubles sont cadrés au-dessus. */
 @media (max-width: 1024px) {
-    .about-steps,
-    .about-progress {
-        grid-column: 1 / span 2;
-    }
-}
-
-/* Mobile : toujours plein écran, messages en bas d'écran par-dessus la scène. */
-@media (max-width: 640px) {
     .about-stage {
-        grid-template-rows: 1fr auto auto;
         align-items: end;
     }
 
@@ -306,16 +341,7 @@ html:not(.motion) .about-progress {
         grid-column: 1 / -1;
     }
 
-    .about-visual {
-        align-items: flex-start;
-        padding-top: calc(var(--nav-height) + var(--spacing-sm));
-        padding-bottom: 40%;
-    }
-
-    .model-trigger {
-        top: 45%;
-        bottom: auto;
-    }
+    .about-steps { max-width: 34rem; }
 }
 
 /* =========================== RÉALISATIONS =========================== */
@@ -388,6 +414,36 @@ html:not(.motion) .about-progress {
     border-radius: var(--radius);
 }
 
+/* B8 : aperçu flou sous la photo (jamais de carte vide) ; ratio fixe réservé dès le premier rendu. */
+.card-media {
+    overflow: hidden;
+    border-radius: var(--radius);
+    aspect-ratio: 3 / 4;
+    background: var(--lqip, #2a2b2c) center / cover no-repeat, #2a2b2c;
+}
+
+/*
+ * Lot 4 : au survol, la photo laisse apparaître son « dessin technique » (contours extraits par filtre,
+ * traits clairs sur fond d'encre), révélé en volet de bas en haut, < 400 ms.
+ */
+.card-blueprint {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--photo) center / cover no-repeat;
+    filter: url(#blueprint-edges);
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path .38s var(--ease-out);
+    pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .carousel-item-button:hover .card-blueprint,
+    .carousel-item-button:focus-visible .card-blueprint {
+        clip-path: inset(0 0 0 0);
+    }
+}
+
 .carousel-item-button img {
     width: 100%;
     aspect-ratio: 3 / 4;
@@ -403,11 +459,13 @@ html:not(.motion) .about-progress {
 .carousel-item-caption {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
     gap: var(--spacing-xs);
-    font-size: clamp(1rem, 1.3vw, 1.375rem);
+    font-size: var(--fs-body);
+    font-weight: 500;
 }
 
-.carousel-item-caption span:last-child {
+.carousel-item-caption .mono {
     color: var(--color-muted-light);
 }
 
@@ -511,7 +569,8 @@ html:not(.motion) .about-progress {
     padding: 8px 16px;
     border-radius: 999px;
     background: color-mix(in srgb, var(--color-white) 85%, transparent);
-    font-size: .875rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
     animation: pulse 1.4s ease-in-out infinite;
 }
 
@@ -577,21 +636,28 @@ html:not(.motion) .about-progress {
 
 /* Lot 5.4 : taille bornée et couche contenue pour un rendu léger */
 .scroll-title {
-    font-size: clamp(6rem, 22vw, 18rem);
-    font-weight: 500;
-    line-height: 1;
+    /* Mot-titre décoratif : multiple de la taille display. */
+    font-size: min(calc(var(--fs-display) * 2), 18vw);
+    font-stretch: var(--stretch-display);
+    font-weight: 700;
+    line-height: .95;
+    letter-spacing: -.035em;
     white-space: nowrap;
     user-select: none;
     contain: paint;
     overflow: clip;
+    /* B10 : marge latérale pour que le « A » ne soit jamais coupé pendant le glissement. */
+    padding-inline: var(--gutter);
 }
 
 .scroll-title span {
     display: block;
+    width: fit-content;
+    padding-bottom: .06em;
 }
 
 .scroll-title .part-2 {
-    text-align: right;
+    margin-left: auto;
 }
 
 .author-card {
@@ -621,8 +687,7 @@ html:not(.motion) .about-progress {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
-    font-size: 1.125rem;
-    line-height: 1.6;
+    line-height: 1.65;
 }
 
 @media (max-width: 640px) {
@@ -663,7 +728,7 @@ html:not(.motion) .about-progress {
 }
 
 .proposal-caption {
-    font-size: 1.125rem;
+    font-size: var(--fs-body);
 }
 
 /*
@@ -715,8 +780,7 @@ html:not(.motion) .about-progress {
     display: flex;
     align-items: baseline;
     gap: var(--spacing-xs);
-    font-size: clamp(1.25rem, 1rem + .6vw, 1.5rem);
-    font-weight: 400;
+    font-size: var(--fs-h3);
     line-height: 1.3;
 }
 
@@ -737,7 +801,7 @@ html:not(.motion) .about-progress {
     gap: 4px var(--spacing-xs);
     padding: 0;
     list-style: none;
-    font-size: .9375rem;
+    font-size: var(--fs-body);
 }
 
 .furniture-group-items li + li::before {
@@ -749,9 +813,11 @@ html:not(.motion) .about-progress {
 /* Lot H5 : numérotation discrète des familles */
 .list-group-number {
     min-width: 2ch;
-    font-size: .8125rem;
-    font-weight: 600;
-    letter-spacing: .08em;
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    font-weight: 500;
+    font-stretch: normal;
+    letter-spacing: .06em;
     font-variant-numeric: tabular-nums;
     color: var(--color-muted-dark);
 }
@@ -851,7 +917,7 @@ img.contact-image {
     gap: var(--spacing-xs);
     min-height: 64px;
     padding: 16px var(--spacing-md);
-    font-size: 1.25rem;
+    font-size: var(--fs-h3);
 }
 
 .button-call-number {
@@ -871,7 +937,6 @@ img.contact-image {
         align-self: stretch;
         justify-content: center;
         padding: 16px var(--spacing-xs);
-        font-size: 1.125rem;
     }
 }
 
@@ -886,7 +951,10 @@ img.contact-image {
 
 .contact-label {
     color: var(--color-muted-light);
-    font-size: .9375rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-caption);
+    letter-spacing: .06em;
+    text-transform: uppercase;
 }
 
 .contact-value {
@@ -909,28 +977,15 @@ img.contact-image {
     }
 }
 
-/* ============================== CURSEUR ============================== */
-
-.custom-cursor {
-    position: fixed;
-    top: -12px;
-    left: -12px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: var(--color-white);
-    mix-blend-mode: difference;
-    pointer-events: none;
-    z-index: 10000;
-}
-
 /* ========================= TEXTE ANIMÉ PAR LIGNE ========================= */
 
 .animate-word-container {
     display: inline-block;
     overflow: hidden;
     vertical-align: top;
-    padding-bottom: .08em;
+    /* B4 : masque assez haut pour les descendantes, sans changer l'interligne. */
+    padding-bottom: .22em;
+    margin-bottom: -.22em;
 }
 
 .animate-word {

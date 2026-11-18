@@ -4,6 +4,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import SiteNav from '../../components/SiteNav.astro';
 import SiteFooter from '../../components/SiteFooter.astro';
 import Breadcrumb from '../../components/Breadcrumb.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { Picture } from 'astro:assets';
+import { getEntry } from 'astro:content';
 import CallCta from '../../components/CallCta.astro';
 import { withBase } from '../../utils/paths';
 import { breadcrumbLd } from '../../utils/seo';
@@ -11,6 +14,11 @@ import { SITE } from '../../site';
 import '../../styles/pages.css';
 
 const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+// Une photo par famille : la première réalisation liée.
+const covers = await Promise.all(services.map(async (service) => {
+    const first = service.data.realisations[0];
+    return first ? (await getEntry('realisations', first))?.data : undefined;
+}));
 const jsonLd = breadcrumbLd([
     { label: 'Accueil', href: '/' },
     { label: 'Meubles sur mesure', href: '/meubles-sur-mesure/' },
@@ -24,22 +32,28 @@ const jsonLd = breadcrumbLd([
 <SiteNav />
 <main id="main" class="page container has-grid">
     <Breadcrumb items={[{ label: 'Accueil', href: '/' }, { label: 'Meubles sur mesure' }]} />
-    <header class="page-header">
-        <p class="eyebrow">Atelier à {SITE.city}, {SITE.department}</p>
-        <h1 class="title-1">Meubles <span class="strong">sur mesure</span></h1>
-        <p class="statement">
-            Chaque meuble est dessiné pour votre intérieur et fabriqué dans notre atelier, en bois et en métal,
-            de l'idée à l'installation.
-        </p>
-    </header>
+    <PageHeader eyebrow={`Atelier à ${SITE.city}, ${SITE.department}`}
+                intro="Chaque meuble est dessiné pour votre intérieur et fabriqué dans notre atelier, en bois et en métal, de l'idée à l'installation.">
+        <Fragment slot="title">Meubles <span class="strong">sur mesure</span></Fragment>
+    </PageHeader>
 
     <section class="page-section stack" aria-labelledby="services-title">
         <h2 id="services-title" class="eyebrow">Ce que nous fabriquons</h2>
-        <ul class="page-body">
-            {services.map((service) => (
+        <ul class="cards grid-layout">
+            {services.map((service, index) => (
                 <li>
-                    <a href={withBase(`/meubles-sur-mesure/${service.id}/`)}><strong>{service.data.title}</strong></a>
-                    <br />{service.data.description}
+                    <a class="service-card" href={withBase(`/meubles-sur-mesure/${service.id}/`)}>
+                        {covers[index] && (
+                            <span class="sketch" data-sketch={index < 4 ? 'outline' : ''}>
+                                <Picture src={covers[index]!.image} formats={['avif', 'webp']} widths={[300, 360]}
+                                         sizes="(max-width: 640px) calc(100vw - 32px), 300px" alt={covers[index]!.imageAlt}
+                                         loading={index < 4 ? 'eager' : 'lazy'} />
+                            </span>
+                        )}
+                        <span class="mono secondary-text">{String(index + 1).padStart(2, '0')}</span>
+                        <span class="card-title">{service.data.title}</span>
+                        <span class="secondary-text">{service.data.description}</span>
+                    </a>
                 </li>
             ))}
         </ul>
@@ -48,4 +62,8 @@ const jsonLd = breadcrumbLd([
     <CallCta />
 </main>
 <SiteFooter />
+<script>
+    import { initSketches } from '../../scripts/sketch';
+    initSketches();
+</script>
 </BaseLayout>

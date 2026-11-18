@@ -1,15 +1,32 @@
 ---
+import { getCollection } from 'astro:content';
 import { withBase, stripBase } from '../utils/paths';
 import Logo from './Logo.astro';
 import { SITE } from '../site';
 
 // Ancres en chemin absolu (/#about) : elles fonctionnent aussi depuis les sous-pages.
 const path = stripBase(Astro.url.pathname);
+const services = (await getCollection('services')).sort((a, b) => a.data.order - b.data.order);
+
+// B15 : toutes les pages sont dans la nav, la page courante est signalée (aria-current).
 const links = [
     { href: '/realisations/', label: 'Réalisations', current: path.startsWith('/realisations') },
+    { href: '/meubles-sur-mesure/', label: 'Meubles sur mesure', current: path.startsWith('/meubles-sur-mesure') },
     { href: '/#about', label: 'Savoir-faire', current: false },
     { href: '/#author', label: "L'artisan", current: false },
+    { href: '/questions-frequentes/', label: 'FAQ', current: path.startsWith('/questions-frequentes') },
 ];
+// Le menu mobile reprend tout, avec la zone d'intervention et les familles de meubles.
+const panelLinks = [
+    links[0],
+    { ...links[1], sub: services.map((s) => ({ href: `/meubles-sur-mesure/${s.id}/`, label: s.data.shortTitle })) },
+    links[2],
+    links[3],
+    { href: '/zone-intervention/', label: "Zone d'intervention", current: path.startsWith('/zone-intervention') },
+    { href: '/questions-frequentes/', label: 'Questions fréquentes', current: links[4].current },
+    { href: '/#contact', label: 'Nous contacter', current: false },
+];
+const phoneIcon = `<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`;
 ---
 <nav class="site-nav" aria-label="Navigation principale">
     <div class="container">
@@ -17,27 +34,54 @@ const links = [
             <Logo title="Metal Nature – accueil" />
         </a>
         <ul class="nav-links">
-            {links.map(({ href, label, current }, index) => (
-                // Sur mobile, seul « Réalisations » reste affiché (pas de menu pour 3 liens).
-                <li class:list={{ 'nav-link-secondary': index > 0 }}>
-                    <a class="nav-link" href={withBase(href)} aria-current={current ? 'page' : undefined}>{label}</a>
-                </li>
+            {links.map(({ href, label, current }) => (
+                <li><a class="nav-link" href={withBase(href)} aria-current={current ? 'page' : undefined}>{label}</a></li>
             ))}
-            <li class="nav-cta-desktop"><a class="button" href={withBase('/#contact')}>Nous contacter</a></li>
-            <li class="nav-cta-mobile">
-                <a class="button" href={`tel:${SITE.phone}`} aria-label={`Appeler Michel au ${SITE.phoneDisplay}`}>
-                    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
-                    Appeler
-                </a>
-            </li>
+            <li><a class="button" href={withBase('/#contact')}>Nous contacter</a></li>
         </ul>
+        <div class="nav-mobile">
+            <a class="button nav-call" href={`tel:${SITE.phone}`} aria-label={`Appeler Michel au ${SITE.phoneDisplay}`}>
+                <Fragment set:html={phoneIcon} />
+                Appeler
+            </a>
+            <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="nav-panel">
+                <span class="nav-toggle-label">Menu</span>
+                <span class="nav-toggle-icon" aria-hidden="true"></span>
+            </button>
+        </div>
+    </div>
+    <div id="nav-panel" class="nav-panel dark-theme" hidden>
+        <div class="container nav-panel-inner">
+            <ul class="nav-panel-list">
+                {panelLinks.map((link, index) => (
+                    <li>
+                        <a class="nav-panel-link" href={withBase(link.href)} aria-current={link.current ? 'page' : undefined}>
+                            <span class="mono" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                            {link.label}
+                        </a>
+                        {'sub' in link && link.sub && (
+                            <ul class="nav-panel-sub">
+                                {link.sub.map((sub) => (
+                                    <li><a class="tap-link" href={withBase(sub.href)}
+                                           aria-current={path === sub.href ? 'page' : undefined}>{sub.label}</a></li>
+                                ))}
+                            </ul>
+                        )}
+                    </li>
+                ))}
+            </ul>
+            <div class="nav-panel-footer">
+                <a class="button" href={`tel:${SITE.phone}`}>
+                    <Fragment set:html={phoneIcon} />
+                    Appeler Michel · {SITE.phoneDisplay}
+                </a>
+                {SITE.callHours && <p class="secondary-text">Joignable {SITE.callHours}</p>}
+            </div>
+        </div>
     </div>
 </nav>
 
 <script>
-    import { initNavTheme } from '../scripts/nav';
-    initNavTheme();
+    import { initNav } from '../scripts/nav';
+    initNav();
 </script>

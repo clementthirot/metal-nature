@@ -1,40 +1,83 @@
 /**
- * Navigation fixe (lot 0.3) :
+ * Navigation fixe :
  * - fond flouté dès que la page défile ;
- * - bascule clair/sombre quand la barre passe au-dessus d'une section .dark-theme.
+ * - thème clair/sombre recalculé d'après la section réellement sous la barre (B7) : pas d'état
+ *   intermédiaire, y compris après une section épinglée ou un carrousel ;
+ * - menu mobile (B14) : panneau plein écran, aria-expanded, focus piégé, fermeture par Échap.
  */
-export function initNavTheme(): void {
+export function initNav(): void {
     const nav = document.querySelector<HTMLElement>('.site-nav');
     if (!nav) return;
+    initTheme(nav);
+    initMenu(nav);
+}
 
-    const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 0);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
+function initTheme(nav: HTMLElement): void {
+    let frame = 0;
+    const update = () => {
+        frame = 0;
+        nav.classList.toggle('is-scrolled', window.scrollY > 0);
+        // Élément sous le milieu de la barre, en ignorant la barre elle-même.
+        const y = Math.max(1, nav.offsetHeight / 2);
+        const under = document.elementsFromPoint(window.innerWidth / 2, y)
+            .find((element) => !nav.contains(element) && !element.classList.contains('custom-cursor'));
+        const dark = Boolean(under?.closest('.dark-theme'));
+        nav.classList.toggle('on-dark', dark);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    // Les sections épinglées (GSAP) modifient la mise en page après le chargement.
+    window.addEventListener('load', schedule);
+}
 
-    const darkSections = document.querySelectorAll<HTMLElement>('main .dark-theme, footer.dark-theme');
-    if (!darkSections.length || !('IntersectionObserver' in window)) return;
+function initMenu(nav: HTMLElement): void {
+    const toggle = nav.querySelector<HTMLButtonElement>('.nav-toggle');
+    const panel = nav.querySelector<HTMLElement>('.nav-panel');
+    const label = nav.querySelector<HTMLElement>('.nav-toggle-label');
+    if (!toggle || !panel) return;
 
-    // Zone observée : une bande de la hauteur de la barre, en haut de l'écran.
-    const visible = new Set<Element>();
-    let observer: IntersectionObserver | null = null;
+    const outside = () => document.querySelectorAll<HTMLElement>('main, footer, .skip-link');
+    const focusables = () => [
+        toggle,
+        ...panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+    ];
 
-    const observe = () => {
-        observer?.disconnect();
-        const navHeight = nav.offsetHeight || 72;
-        observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) visible.add(entry.target);
-                else visible.delete(entry.target);
-            });
-            nav.classList.toggle('on-dark', visible.size > 0);
-        }, { rootMargin: `0px 0px -${Math.max(window.innerHeight - navHeight / 2, 0)}px 0px` });
-        darkSections.forEach((section) => observer!.observe(section));
+    const setOpen = (open: boolean, restoreFocus = true) => {
+        toggle.setAttribute('aria-expanded', String(open));
+        if (label) label.textContent = open ? 'Fermer' : 'Menu';
+        panel.hidden = !open;
+        document.documentElement.classList.toggle('nav-open', open);
+        outside().forEach((element) => { element.inert = open; });
+        if (open) panel.querySelector<HTMLElement>('a[href]')?.focus();
+        else if (restoreFocus) toggle.focus();
     };
 
-    observe();
-    let resizeTimer: number | undefined;
-    window.addEventListener('resize', () => {
-        window.clearTimeout(resizeTimer);
-        resizeTimer = window.setTimeout(observe, 200);
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+
+    nav.addEventListener('keydown', (event) => {
+        if (panel.hidden) return;
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            setOpen(false);
+        } else if (event.key === 'Tab') {
+            // Focus piégé entre le bouton et les liens du panneau.
+            const items = focusables();
+            const first = items[0];
+            const last = items[items.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+    });
+
+    // Un lien vers une ancre de la page courante ferme le panneau.
+    panel.addEventListener('click', (event) => {
+        if ((event.target as Element).closest('a')) setOpen(false, false);
+    });
+
+    // Retour en desktop : le panneau se referme.
+    window.matchMedia('(min-width: 1025px)').addEventListener('change', (event) => {
+        if (event.matches && !panel.hidden) setOpen(false, false);
     });
 }
